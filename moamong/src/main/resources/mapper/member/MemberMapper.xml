@@ -12,4 +12,18 @@
             status
         FROM MEMBER
     </select>
+
+    <!-- 멤버조회 -->
+    <select id="selectMember" parameterType="hashmap" resultType="Member">
+        SELECT
+            member_id,
+            login_id,
+            member_name,
+            email,
+            role,
+            status
+        FROM MEMBER
+        WHERE member_id = #{memberId}    
+    </select>
+    
 </mapper>
