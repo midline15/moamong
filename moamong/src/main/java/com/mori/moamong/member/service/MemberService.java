@@ -18,4 +18,12 @@ public class MemberService {
         return memberMapper.findAll();
     }
 
+    public HashMap<String, Object> getBoard(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap();
+		try {
+            
+		} catch (Exception e) {
+		}
+		return resultMap;
+	}
 }
