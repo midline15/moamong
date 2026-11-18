@@ -1,5 +1,6 @@
 package com.mori.moamong.member.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,4 +17,5 @@ public class MemberService {
     public List<Map<String, Object>> findAll() {
         return memberMapper.findAll();
     }
+
 }
