@@ -64,6 +64,7 @@
                     type: "POST",
                     data: param,
                     success: function (data) {
+                        console.log(data);
                         alert("로그인 성공");
                     }
                 });

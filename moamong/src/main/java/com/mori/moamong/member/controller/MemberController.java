@@ -27,7 +27,7 @@ public class MemberController {
 
         model.addAttribute("memberId", map.get("memberId"));
 
-        return "/member/login";
+        return "member/login";
     }
 
     // 로그인 처리
