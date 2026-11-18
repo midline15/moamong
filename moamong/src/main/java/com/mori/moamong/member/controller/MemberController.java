@@ -41,4 +41,20 @@ public class MemberController {
 
         return new Gson().toJson(resultMap);
     }
+    @RequestMapping("/")
+    public String requestMethodName() {
+        return "/default";
+    }
+    
+
+    @RequestMapping(value = "/id-duplicate-check.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String idDuplicateCheck(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		
+		// resultMap = memberService.idDuplicateCheck(map);
+		
+		return new Gson().toJson(resultMap); 
+	}
+    
 }
