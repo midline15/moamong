@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        // Java Run 전에 Maven 컴파일을 실행해 클래스와 webapp 리소스를 만듭니다.
+        {
+            "type": "java",
+            "name": "Java Run (Maven compile)",
+            "request": "launch",
+            "preLaunchTask": "maven-compile-before-java-run",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mori.moamong.MoamongApplication",
+            "args": ""
+        },
+        // Maven으로 앱을 시작한 뒤 VS Code 디버거를 연결합니다.
+        {
+            "type": "java",
+            "name": "Maven: Spring Boot run (toolbar)",
+            "request": "attach",
+            "hostName": "127.0.0.1",
+            "port": 5005,
+            "timeout": 120000,
+            "preLaunchTask": "maven-spring-boot-run-debug",
+            "postDebugTask": "stop-maven-spring-boot-run"
+        }
+    ]
+}

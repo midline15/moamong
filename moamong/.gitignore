@@ -30,4 +30,9 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
+# 실행 및 작업 설정은 Git에 포함하고, 나머지 VS Code 파일은 무시합니다.
 .vscode/
+!.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json

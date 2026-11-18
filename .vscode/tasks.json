@@ -1,0 +1,77 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // Maven으로 Spring Boot를 실행하고 디버그 포트가 열릴 때까지 기다립니다.
+        {
+            "label": "maven-spring-boot-run-debug",
+            "type": "shell",
+            "command": "${workspaceFolder}/moamong/mvnw.cmd",
+            "args": [
+                "-f",
+                "${workspaceFolder}/moamong/pom.xml",
+                {
+                    "value": "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=127.0.0.1:5005",
+                    "quoting": "strong"
+                },
+                "spring-boot:run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/moamong"
+            },
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": "\\b\\B",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "^.*Attaching agents:.*",
+                        "endsPattern": "^.*Listening for transport dt_socket at address.*"
+                    }
+                }
+            ]
+        },
+        // Java Run 전에 Maven compile을 실행해 필요한 클래스 파일을 만듭니다.
+        {
+            "label": "maven-compile-before-java-run",
+            "type": "shell",
+            "command": "${workspaceFolder}/moamong/mvnw.cmd",
+            "args": [
+                "-f",
+                "${workspaceFolder}/moamong/pom.xml",
+                "compile"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/moamong"
+            },
+            "problemMatcher": []
+        },
+        // 디버그 세션이 끝나면 실행 중인 Maven 작업을 종료합니다.
+        {
+            "label": "stop-maven-spring-boot-run",
+            "type": "shell",
+            "command": "echo ${input:terminateMavenSpringBootTask}",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        // 지정한 백그라운드 Maven 작업을 중지합니다.
+        {
+            "id": "terminateMavenSpringBootTask",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "maven-spring-boot-run-debug"
+        }
+    ]
+}

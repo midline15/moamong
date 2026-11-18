@@ -13,8 +13,9 @@
         <relativePath />
     </parent>
 
-    <groupId>com.example</groupId>
-    <artifactId>demo</artifactId>
+    <!-- Maven에서 이 애플리케이션 모듈을 식별하는 좌표입니다. -->
+    <groupId>com.mori</groupId>
+    <artifactId>moamong</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <name />
@@ -67,6 +68,7 @@
 
     <dependencies>
 
+        <!-- Actuator는 애플리케이션 상태 및 모니터링 정보를 제공합니다. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -179,14 +181,14 @@
     <!-- 4. Maven Build 설정                       -->
     <!-- ========================================= -->
 
+    <!-- Java 컴파일과 Spring Boot Maven 플러그인을 설정합니다. -->
     <build>
 
+        <!-- Maven 컴파일 시 JSP와 정적 파일을 클래스패스 리소스로 복사합니다. -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
             </resource>
-
-
             <resource>
                 <directory>src/main/webapp</directory>
                 <targetPath>META-INF/resources</targetPath>

@@ -1,0 +1,9 @@
+{
+  // Java, Spring Boot, XML, JSP 개발용 확장 프로그램을 추천합니다.
+  "recommendations": [
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
+    "redhat.vscode-xml",
+    "samuel-weinhardt.vscode-jsp-lang"
+  ]
+}
