@@ -1,7 +1,6 @@
 package com.mori.moamong.dto;
 
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 public class CartItem {
@@ -10,5 +9,8 @@ public class CartItem {
     private Long productId;
     private Long packageId;
     private Long quantity;
-    private LocalDateTime createdAt;
+    private String createdAt;
+    // 상품 정보
+    private String productName;
+    private Long price;
 }
