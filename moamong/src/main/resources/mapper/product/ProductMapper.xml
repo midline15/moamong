@@ -1,5 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.product.mapper.ProductMapper">
-    <!-- TODO: MyBatis SQL statements -->
+    
+    <select id="selectProductListByMainCategory"
+        resultType="Product">
+        SELECT
+            p.product_id,
+            p.product_name,
+            p.category_id,
+            c.category_name
+        FROM PRODUCT p
+        JOIN CATEGORY c
+            ON p.category_id = c.category_id
+        WHERE c.parent_category_id = #{categoryId}
+        AND c.category_depth = 2
+    </select>
+
+    <select id="selectProductListBySubCategory" resultType="Product">
+        SELECT *
+        FROM PRODUCT
+        WHERE category_id = #{categoryId}
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="selectProductCountBySubCategory" resultType="int">
+        SELECT COUNT(*)
+        FROM PRODUCT
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <select id="selectProductInfo" resultType="Product">
+        SELECT *
+        FROM PRODUCT
+        WHERE product_id = #{productId}
+    </select>
+
+    <insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId">
+    INSERT INTO PRODUCT (
+        category_id,
+        product_name,
+        product_description,
+        price,
+        stock_quantity,
+        product_status,
+        view_count,
+        created_at,
+        updated_at
+    ) VALUES (
+        #{categoryId},
+        #{productName},
+        #{productDescription},
+        #{price},
+        #{stockQuantity},
+        #{productStatus},
+        0,
+        NOW(),
+        NOW()
+    )
+</insert>
+
+    <insert id="insertProductImage">
+        INSERT INTO PRODUCT_IMAGE (
+            product_id,
+            image_url,
+            image_origin_name,
+            image_name,
+            image_size,
+            image_type,
+            display_order
+        ) VALUES (
+            #{productId},
+            #{imageUrl},
+            #{imageOriginName},
+            #{imageName},
+            #{imageSize},
+            #{imageType},
+            #{displayOrder}
+        )
+    </insert>
 </mapper>
