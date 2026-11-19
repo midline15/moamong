@@ -11,6 +11,6 @@ public class Notice {
     private String noticeContent;
     private Boolean isPinned;
     private Long viewCount;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -12,6 +12,6 @@ public class Inquiry {
     private String inqContent;
     private String answerContent;
     private String inqStatus;
-    private String createdAt;
-    private String answeredAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime answeredAt;
 }
