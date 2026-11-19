@@ -1,44 +1,44 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="/js/page-change.js"></script>
-    <style>
-        table, tr, td, th{
-            border : 1px solid black;
-            border-collapse: collapse;
-            padding : 5px 10px;
-            text-align: center;
-        }
-        th{
-            background-color: beige;
-        }
-        tr:nth-child(even){
-            background-color: azure;
-        }
-    </style>
-</head>
-<body>
-    <div id="app">
-        <!-- html 코드는 id가 app인 태그 안에서 작업 -->
-        <div>
-            아이디 : <input v-model="memberId">
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="/js/page-change.js"></script>
+        <style>
+            table, tr, td, th{
+                border : 1px solid black;
+                border-collapse: collapse;
+                padding : 5px 10px;
+                text-align: center;
+            }
+            th{
+                background-color: beige;
+            }
+            tr:nth-child(even){
+                background-color: azure;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <!-- html 코드는 id가 app인 태그 안에서 작업 -->
+            <div>
+                아이디 : <input v-model="memberId">
+            </div>
+            <div>
+                비밀번호 : <input type="password" v-model="password">
+            </div>
+            <div>
+                <button @click="fnLogin">로그인</button>
+                <button>회원가입</button>
+            </div>
         </div>
-        <div>
-            비밀번호 : <input type="password" v-model="password">
-        </div>
-        <div>
-            <button @click="fnLogin">로그인</button>
-            <button>회원가입</button>
-        </div>
-    </div>
-</body>
+    </body>
 </html>
 
 <script>
@@ -54,18 +54,32 @@
             // 함수(메소드) - (key : function())
             fnLogin : function () {
                 let self = this;
+                
+                // 1. 아이디/비밀번호 빈 값 체크
+                if (!self.memberId || self.memberId.trim() === "") {
+                    alert("아이디를 입력해주세요.");
+                    return;
+                }
+                if (!self.password || self.password.trim() === "") {
+                    alert("비밀번호를 입력해주세요.");
+                    return;
+                }
+                
                 let param = {
-                    memberId : self.memberId,
-                    password : self.password
+                    memberId : self.memberId.trim(),
+                    pwd : self.password
                 };
                 $.ajax({
-                    url: "http://localhost:8080/login.dox",
+                    url: "/member/login.dox",
                     dataType: "json",
                     type: "POST",
                     data: param,
                     success: function (data) {
                         console.log(data);
-                        alert("로그인 성공");
+                        alert(data.message);
+                        if (data.loginFlg) {
+                            location.href = "/";
+                        }
                     }
                 });
             }
@@ -75,6 +89,6 @@
             let self = this;
         }
     });
-
+    
     app.mount('#app');
 </script>

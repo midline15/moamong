@@ -10,8 +10,8 @@ import com.mori.moamong.dto.Member;
 
 @Mapper
 public interface MemberMapper {
-    List<Map<String, Object>> findAll();
+	List<Map<String, Object>> findAll();
 
-    // 멤버조회
-    Member selectMember(HashMap<String, Object> map);
+	// 멤버조회
+	Member selectMember(HashMap<String, Object> map);
 }

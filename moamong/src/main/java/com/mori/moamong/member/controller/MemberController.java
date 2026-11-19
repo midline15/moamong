@@ -19,42 +19,42 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class MemberController {
 
-    private final MemberService memberService;
+	private final MemberService memberService;
 
-    // 로그인 페이지 이동
-    @RequestMapping("/member/login.do")
-    public String login(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+	// 로그인 페이지 이동
+	@RequestMapping("/member/login.do")
+	public String login(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 
-        model.addAttribute("memberId", map.get("memberId"));
+		model.addAttribute("memberId", map.get("memberId"));
 
-        return "member/login";
-    }
+		return "member/login";
+	}
 
-    // 로그인 처리
-    @RequestMapping(value = "/member/login.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String login(@RequestParam HashMap<String, Object> map) throws Exception {
+	// 로그인 처리
+	@RequestMapping(value = "/member/login.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String login(@RequestParam HashMap<String, Object> map) throws Exception {
 
-        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
-        resultMap = memberService.login(map);
+		resultMap = memberService.login(map);
 
-        return new Gson().toJson(resultMap);
-    }
-    @RequestMapping("/")
-    public String requestMethodName() {
-        return "/default";
-    }
-    
+		return new Gson().toJson(resultMap);
+	}
 
-    @RequestMapping(value = "/id-duplicate-check.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping("/")
+	public String requestMethodName() {
+		return "/default";
+	}
+
+	@RequestMapping(value = "/id-duplicate-check.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String idDuplicateCheck(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
-		
+
 		// resultMap = memberService.idDuplicateCheck(map);
-		
-		return new Gson().toJson(resultMap); 
+
+		return new Gson().toJson(resultMap);
 	}
-    
+
 }
