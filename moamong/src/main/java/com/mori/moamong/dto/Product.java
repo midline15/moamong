@@ -1,7 +1,6 @@
 package com.mori.moamong.dto;
 
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 public class Product {
@@ -13,6 +12,6 @@ public class Product {
     private Long stockQuantity;
     private String productStatus;
     private Long viewCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 }
