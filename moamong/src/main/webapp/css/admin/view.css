@@ -1,0 +1,360 @@
+
+/* ==========================================
+   회원 상세정보 페이지
+   ========================================== */
+
+/* 회원 프로필 전체 영역 */
+.user-profile {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #e8eaf0;
+    border-radius: 9px;
+    padding: 16px;
+    margin-bottom: 9px;
+    gap: 20px;
+}
+
+/* 왼쪽 프로필 영역 */
+.profile-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 38%;
+}
+
+/* 프로필 이미지 */
+.profile-image {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background-color: #eee9ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #9279e8;
+    font-size: 35px;
+}
+
+/* 회원 이름 및 이메일 */
+.profile-name {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-name strong {
+    font-size: 14px;
+    color: #30364d;
+}
+
+.profile-name > span {
+    font-size: 10px;
+    color: #9299a9;
+}
+
+/* 회원 등급과 상태 */
+.profile-badges {
+    display: flex;
+    gap: 6px;
+}
+
+/* 회원 프로필 오른쪽 정보 */
+.profile-right {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    border-left: 1px solid #edf0f5;
+    padding-left: 20px;
+}
+
+/* 회원 정보 한 항목 */
+.profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile-info-item span {
+    font-size: 10px;
+    color: #858da0;
+}
+
+.profile-info-item strong {
+    font-size: 10px;
+    font-weight: normal;
+    color: #444b60;
+}
+
+/* 프로필 관리 버튼 영역 */
+.profile-buttons {
+    width: 88px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* 프로필 버튼 공통 */
+.profile-buttons button {
+    width: 100%;
+    height: 27px;
+    background-color: white;
+    border: 1px solid #e1e4ec;
+    border-radius: 5px;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+/* 회원 정보 수정 */
+.btn-profile-edit {
+    color: #444b60;
+}
+
+/* 회원 정지 */
+.btn-user-stop {
+    color: #e66b6b;
+    border-color: #f3cccc !important;
+}
+
+
+/* ==========================================
+   회원 통계 영역
+   ========================================== */
+
+/* 통계 카드 4개 배치 */
+.detail-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 9px;
+}
+
+/* 통계 카드 */
+.detail-stats-card {
+    background-color: white;
+    border: 1px solid #e8eaf0;
+    border-radius: 7px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+/* 통계 제목 */
+.detail-stats-card span {
+    font-size: 10px;
+    color: #858da0;
+}
+
+/* 통계 숫자 */
+.detail-stats-card strong {
+    font-size: 16px;
+    color: #30364d;
+}
+
+
+/* ==========================================
+   기본 정보 / 회원 활동 정보
+   ========================================== */
+
+/* 두 영역 가로 배치 */
+.detail-info-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 9px;
+}
+
+/* 정보 박스 */
+.detail-info-box {
+    background-color: white;
+    border: 1px solid #e8eaf0;
+    border-radius: 7px;
+    padding: 12px;
+}
+
+/* 정보 박스 제목 */
+.detail-info-box h3 {
+    font-size: 12px;
+    color: #30364d;
+    margin: 0 0 10px 0;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+/* 정보 항목 한 줄 */
+.info-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* 정보 항목 제목 */
+.info-row span {
+    font-size: 10px;
+    color: #858da0;
+}
+
+/* 정보 내용 */
+.info-row strong {
+    font-size: 10px;
+    color: #444b60;
+    font-weight: normal;
+    word-break: break-word;
+}
+
+
+/* ==========================================
+   최근 주문 내역
+   ========================================== */
+
+/* 주문 목록 전체 */
+.recent-order {
+    background-color: white;
+    border: 1px solid #e8eaf0;
+    border-radius: 7px;
+    padding: 10px;
+}
+
+/* 주문 제목 및 전체 주문 보기 */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* 주문 제목 */
+.order-header h3 {
+    font-size: 12px;
+    color: #30364d;
+    margin: 0;
+}
+
+/* 전체 주문 보기 버튼 */
+.btn-all-order {
+    border: none;
+    background: none;
+    color: #6557ed;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+/* 주문 테이블 */
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+
+/* 테이블 제목 영역 */
+.order-table thead {
+    background-color: #f8f9fc;
+}
+
+/* 테이블 셀 */
+.order-table th,
+.order-table td {
+    padding: 9px 7px;
+    text-align: center;
+    border-bottom: 1px solid #edf0f5;
+}
+
+/* 테이블 제목 글자 */
+.order-table th {
+    color: #858da0;
+    font-weight: normal;
+}
+
+/* 테이블 내용 글자 */
+.order-table td {
+    color: #444b60;
+}
+
+/* 주문 상태 */
+.order-status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 12px;
+    background-color: #e7f7ef;
+    color: #39a878;
+    font-size: 9px;
+}
+
+/* 주문 안내 문구 */
+.order-notice {
+    font-size: 9px;
+    color: #a0a6b3;
+    margin-top: 7px;
+}
+
+
+/* ==========================================
+   목록으로 버튼
+   ========================================== */
+
+/* 하단 버튼 영역 */
+.detail-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* 목록으로 버튼 */
+.btn-back {
+    width: 75px;
+    height: 33px;
+    background-color: #dfc49e;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   반응형 화면
+   ========================================== */
+
+@media (max-width: 900px) {
+
+    /* 프로필 영역 세로 배치 */
+    .user-profile {
+        flex-wrap: wrap;
+    }
+
+    .profile-left {
+        width: 100%;
+    }
+
+    .profile-right {
+        width: 100%;
+        flex: auto;
+        border-left: none;
+        border-top: 1px solid #edf0f5;
+        padding: 12px 0 0;
+    }
+
+    /* 통계 카드 2열 */
+    .detail-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 정보 영역 세로 배치 */
+    .detail-info-area {
+        grid-template-columns: 1fr;
+    }
+
+    /* 주문 테이블 가로 스크롤 */
+    .recent-order {
+        overflow-x: auto;
+    }
+
+    .order-table {
+        min-width: 600px;
+    }
+
+}

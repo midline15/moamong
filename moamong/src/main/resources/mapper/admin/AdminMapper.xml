@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.admin.mapper.AdminMapper">
-    <!-- TODO: MyBatis SQL statements -->
+    
+    
+    <select id="selectAdminList" parameterType="hashmap" resultType="com.mori.moamong.admin.model.Admin">
+		SELECT M.*, MG.*, COALESCE(O.total_payment, 0) AS total_payment, count(*) AS member_cnt
+			FROM MEMBER M
+			LEFT JOIN MEMBERSHIP_GRADE MG
+			    ON M.member_id = MG.member_id
+			LEFT JOIN (
+			    SELECT
+			        member_id,
+			        SUM(final_amount) AS total_payment
+			    FROM ORDERS
+			    GROUP BY member_id
+			) O ON M.member_id = O.member_id;
+		<!-- 현재 MEMBERSHIP_GRADE 테이블에 데이터 없어 LEFT JOIN -->
+		
+	</select>
+	
+	
+	<!--통계를 위한 쿼리 -->
+	
+	<select id="selectStats" parameterType="hashmap" resultType="com.mori.moamong.admin.model.Admin">
+			SELECT
+		    COUNT(*) AS totalCount,
+	
+		    SUM(
+		        CASE
+		           WHEN CREATED_AT >= CURDATE()
+					 AND  CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
+					THEN 1 ELSE 0
+		        END
+		    ) AS todayCount,
+		
+		    SUM(
+		        CASE
+		            WHEN status = 'ACTIVE'
+		            THEN 1 ELSE 0
+		        END
+		    ) AS activeCount,
+		
+		    SUM(
+		        CASE
+		            WHEN status = 'WITHDRAWN'
+		            THEN 1 ELSE 0
+		        END
+		    ) AS dormantCount
+		
+		FROM MEMBER;
+		
+	</select>
+  
 </mapper>
