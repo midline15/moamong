@@ -234,6 +234,12 @@
                 }
             },
             methods: {
+                fnGoMypage() {
+                    location.href = "/member/mypage.do";
+                },
+                fnGoMain() {
+                    location.href = "/";
+                },
                 fnImgError(e) {
                     e.target.src = this.defaultThumb;
                 },
@@ -363,12 +369,6 @@
                         }
                     });
                 }
-            },
-            fnGoMypage() {
-                location.href = "/member/mypage.do";
-            },
-            fnGoMain() {
-                location.href = "/";
             },
             mounted() {
                 this.fnList();

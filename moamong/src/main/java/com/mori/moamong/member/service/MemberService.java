@@ -284,6 +284,11 @@ public class MemberService {
 			String newPwd = (String) map.get("newPwd");
 
 			Member current = memberMapper.selectMemberById(memberId);
+			if (current.getSocialType() != null || current.getPassword() == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "소셜 로그인 계정은 비밀번호를 변경할 수 없습니다.");
+				return resultMap;
+			}
 			if (!passwordEncoder.matches(currentPwd, current.getPassword())) {
 				resultMap.put("result", "fail");
 				resultMap.put("message", "현재 비밀번호가 일치하지 않습니다.");
@@ -307,15 +312,24 @@ public class MemberService {
 		return resultMap;
 	}
 
-	// 회원 탈퇴
+	// 회원 탈퇴 (일반 회원: 비밀번호 검증 / 소셜 회원: 비밀번호 없이 즉시 탈퇴 허용)
 	public HashMap<String, Object> withdraw(Long memberId, String password) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 		try {
 			Member current = memberMapper.selectMemberById(memberId);
-			if (!passwordEncoder.matches(password, current.getPassword())) {
+			if (current == null) {
 				resultMap.put("result", "fail");
-				resultMap.put("message", "비밀번호가 일치하지 않습니다.");
+				resultMap.put("message", "회원 정보를 찾을 수 없습니다.");
 				return resultMap;
+			}
+
+			// 일반 회원만 비밀번호 검증 (소셜 회원은 password가 null이므로 패스)
+			if (current.getSocialType() == null && current.getPassword() != null) {
+				if (password == null || !passwordEncoder.matches(password, current.getPassword())) {
+					resultMap.put("result", "fail");
+					resultMap.put("message", "비밀번호가 일치하지 않습니다.");
+					return resultMap;
+				}
 			}
 
 			int res = memberMapper.withdrawMember(memberId);

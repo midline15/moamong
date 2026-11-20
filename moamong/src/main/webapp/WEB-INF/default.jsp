@@ -102,6 +102,7 @@ pageEncoding="UTF-8"%>
             <div class="btn-group">
                 <button class="btn btn-primary" @click="fnGoMypage">마이페이지</button>
                 <button class="btn" @click="fnGoCart">🛒 장바구니 ({{ cartCount }})</button>
+                <button class="btn" @click="fnGoWishlist">❤️ 찜 목록</button>
                 <button class="btn btn-danger" @click="fnLogout">로그아웃</button>
             </div>
             <% } else { %>
@@ -123,6 +124,7 @@ pageEncoding="UTF-8"%>
     const app = Vue.createApp({
         data() {
             return {
+                wishCount: 0,
                 isLoggedIn: <%= session.getAttribute("sessionId") != null %>,
                 cartCount: 0
             };
@@ -164,7 +166,24 @@ pageEncoding="UTF-8"%>
                         location.href = "/member/login.do";
                     }
                 });
-            }
+            },
+            fnGoWishlist() {
+                location.href = "/wishlist/list.do";
+            },
+            fnGetWishCount() {
+                if (!this.isLoggedIn) return;
+                let self = this;
+                $.ajax({
+                    url: "/wishlist/list.dox",
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.result === "success" && data.list) {
+                            self.wishCount = data.list.length;
+                        }
+                    }
+                });
+            },
         },
         mounted() {
             this.fnGetCartCount();

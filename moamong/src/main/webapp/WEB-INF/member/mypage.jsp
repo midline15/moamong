@@ -10,15 +10,63 @@ pageEncoding="UTF-8"%>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
         <style>
-            .container { width: 600px; margin: 40px auto; padding: 24px; border: 1px solid #ddd; border-radius: 8px; }
-            .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; padding-bottom: 12px; }
-            .profile-box { background: #f9f9f9; padding: 16px; border-radius: 6px; margin: 16px 0; display: flex; justify-content: space-between; align-items: center; }
-            .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-            .menu-card { border: 1px solid #ddd; padding: 16px; border-radius: 6px; cursor: pointer; background: #fff; text-align: left; }
-            .menu-card:hover { background: #f4f4f4; }
-            .menu-card h4 { margin: 0 0 6px 0; font-size: 15px; }
-            .menu-card p { margin: 0; font-size: 12px; color: #666; }
-            button { padding: 8px 14px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #fff; font-weight: bold; }
+            .container {
+                width: 600px;
+                margin: 40px auto;
+                padding: 24px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+            }
+            .top-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #222;
+                padding-bottom: 12px;
+            }
+            .profile-box {
+                background: #f9f9f9;
+                padding: 16px;
+                border-radius: 6px;
+                margin: 16px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .menu-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-top: 16px;
+            }
+            .menu-card {
+                border: 1px solid #ddd;
+                padding: 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                background: #fff;
+                text-align: left;
+            }
+            .menu-card:hover {
+                background: #f4f4f4;
+            }
+            .menu-card h4 {
+                margin: 0 0 6px 0;
+                font-size: 15px;
+            }
+            .menu-card p {
+                margin: 0;
+                font-size: 12px;
+                color: #666;
+            }
+            button {
+                padding: 8px 14px;
+                cursor: pointer;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                background: #fff;
+                font-weight: bold;
+            }
         </style>
     </head>
     <body>
@@ -31,7 +79,7 @@ pageEncoding="UTF-8"%>
             <!-- 내 프로필 요약 -->
             <div class="profile-box">
                 <div>
-                    <div style="font-size: 18px; font-weight: bold;">{{ member.memberName }}님 ({{ member.loginId }})</div>
+                    <div style="font-size: 18px; font-weight: bold;">{{ member.memberName }}님 ({{ member.socialType ? member.socialType : member.loginId }})</div>
                     <div style="font-size: 13px; color: #555; margin-top: 4px;">
                         이메일: {{ member.email }} | 등급: {{ member.role }}
                     </div>
@@ -44,6 +92,10 @@ pageEncoding="UTF-8"%>
                 <div class="menu-card" @click="fnMove('/order/list.do', '주문 내역')">
                     <h4>📦 주문 내역 조회</h4>
                     <p>주문한 상품의 결제 및 배송 상태를 확인합니다.</p>
+                </div>
+                <div class="menu-card" @click="fnGoWishlist">
+                    <h4>❤️ 찜 목록</h4>
+                    <p>관심 등록한 상품 및 패키지를 모아봅니다.</p>
                 </div>
                 <div class="menu-card" @click="fnGoCart">
                     <h4>🛒 장바구니 ({{ cartCount }})</h4>
@@ -70,9 +122,11 @@ pageEncoding="UTF-8"%>
                     loginId: "",
                     memberName: "",
                     email: "",
-                    role: ""
+                    role: "",
+                    socialType: null
                 },
                 cartCount: 0
+                
             };
         },
         methods: {
@@ -113,6 +167,9 @@ pageEncoding="UTF-8"%>
             },
             fnMove: function (url, menuName) {
                 alert(menuName + " 페이지는 해당 파트 팀원 페이지와 연결됩니다. (" + url + ")");
+            },
+            fnGoWishlist() {
+                location.href = "/wishlist/list.do"; 
             }
         },
         mounted() {
