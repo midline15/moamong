@@ -115,12 +115,36 @@ public class MemberController {
 		return "member/edit";
 	}
 
-	// 내 정보 조회
-	 @RequestMapping(value = "/member/myinfo.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	    @ResponseBody
-	    public HashMap<String, Object> getMyInfo(jakarta.servlet.http.HttpSession session) {
-	        Long memberId = Long.valueOf(String.valueOf(session.getAttribute("sessionId")));
-	        return memberService.getMyInfo(memberId);
+	// 내 정보 조회 (+ 세션 권한/상태 최신화)
+	@RequestMapping(value = "/member/myinfo.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public HashMap<String, Object> getMyInfo(jakarta.servlet.http.HttpSession session) {
+		Long memberId = Long.valueOf(String.valueOf(session.getAttribute("sessionId")));
+		HashMap<String, Object> resultMap = memberService.getMyInfo(memberId);
+
+		// DB에서 조회된 최신 role, status가 있다면 세션도 즉시 동기화
+		if (resultMap != null) {
+			Object role = resultMap.get("role");
+			Object status = resultMap.get("status");
+
+			// 만약 resultMap 안에 "member" 또는 "info"라는 Map으로 감싸져 있을 경우 대비
+			if (role == null && resultMap.get("member") instanceof java.util.Map<?, ?> memberMap) {
+				role = memberMap.get("role");
+				status = memberMap.get("status");
+			} else if (role == null && resultMap.get("info") instanceof java.util.Map<?, ?> infoMap) {
+				role = infoMap.get("role");
+				status = infoMap.get("status");
+			}
+
+			if (role != null) {
+				session.setAttribute("sessionRole", String.valueOf(role));
+			}
+			if (status != null) {
+				session.setAttribute("sessionStatus", String.valueOf(status));
+			}
+		}
+
+		return resultMap;
 	}
 
 	// 내 정보 수정
