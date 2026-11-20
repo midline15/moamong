@@ -78,7 +78,9 @@
 		role,
 		status,
 		created_at,
-		updated_at
+		updated_at,
+		social_type,
+		social_user_id
 		FROM MEMBER
 		WHERE member_id = #{memberId}
 	</select>

@@ -168,7 +168,7 @@ pageEncoding="UTF-8"%>
             fnJoin: function () {
                 location.href = "/member/join.do";
             },
-
+            
             fnSocialLogin: function (provider) {
                 location.href = "/oauth2/authorization/" + provider.toLowerCase();
             }
