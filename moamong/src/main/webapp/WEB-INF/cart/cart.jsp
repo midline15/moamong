@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>모아몽 장바구니</title>
         <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -351,7 +351,8 @@
                         alert("주문할 상품을 1개 이상 선택해주세요.");
                         return;
                     }
-                    location.href = "/order/checkout.do?cartItemIds=" + this.selectedIds.join(",");
+                    alert("아직 미구현된 기능입니다. 업데이트를 기다려주십시오.");
+                    //location.href = "/order/checkout.do?cartItemIds=" + this.selectedIds.join(",");
                 },
                 fnTestAddProduct(productId) {
                     let self = this;
