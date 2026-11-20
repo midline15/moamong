@@ -2,7 +2,7 @@ package com.mori.moamong.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
-
+ 
 @Data
 public class Notice {
     private Long noticeId;

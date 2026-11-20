@@ -1,89 +1,259 @@
-﻿
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<!-- 사이드바 CSS 연결 -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
 
-<!-- =================================
-     사이드바 전체 영역
-================================== -->
-<div class="menu-container">
+<!-- 배경 오버레이 (클릭하면 닫힘) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- 1차 메뉴 -->
-    <ul class="main-menu">
+<!-- 사이드바 전체 영역 -->
+<aside class="menu-container"
+       id="sidebar"
+       aria-label="사이드 메뉴">
 
-        <!-- 이벤트 -->
-        <li>
-            <a href="#">이벤트</a>
-        </li>
+    <!-- 상단: 로고 + 닫기 버튼 -->
+    <div class="menu-head">
 
-        <!-- 선물키트 -->
-        <li class="has-submenu">
-            <a href="#">
-                선물키트
-                <span class="arrow"></span>
-            </a>
+        <a href="${pageContext.request.contextPath}/" class="menu-logo">
+            <img src="${pageContext.request.contextPath}/assets/logos/moamongEn.png"
+                 alt="Moamong">
+        </a>
 
-            <!-- 2차 메뉴 -->
-            <ul class="sub-menu">
+        <button type="button"
+                class="menu-close"
+                id="menuClose"
+                aria-label="메뉴 닫기"></button>
 
-                <!-- 대상으로 -->
-                <li class="has-submenu">
-                    <a href="#">
-                        마음을 전할 사람
-                        <span class="arrow"></span>
-                    </a>
+    </div>
 
-                    <!-- 3차 메뉴 -->
-                    <ul class="third-menu">
-                        <li><a href="#">가족</a></li>
-                        <li><a href="#">연인</a></li>
-                        <li><a href="#">친구</a></li>
-                        <li><a href="#">동료</a></li>
-                        <li><a href="#">나에게</a></li>
-                    </ul>
-                </li>
+    <!-- 메뉴 -->
+    <nav class="menu-nav" aria-label="주 메뉴">
 
-                <!-- 목적으로 -->
-                <li class="has-submenu">
-                    <a href="#">
-                        특별한 순간
-                        <span class="arrow"></span>
-                    </a>
+        <ul class="main-menu">
 
-                    <!-- 3차 메뉴 -->
-                    <ul class="third-menu">
-                        <li><a href="#">생일ㆍ기념일</a></li>
-                        <li><a href="#">감사ㆍ답례</a></li>
-                        <li><a href="#">축하ㆍ응원</a></li>
-                        <li><a href="#">위로ㆍ격려</a></li>
-                        <li><a href="#">마음전달</a></li>
-                    </ul>
-                </li>
+            <li>
+                <a href="#" class="menu-link">이벤트</a>
+            </li>
 
-            </ul>
-        </li>
+            <!-- 선물키트 (펼침 메뉴) -->
+            <li class="has-submenu">
 
-        <!-- 단품 -->
-        <li>
-            <a href="#">단품</a>
-        </li>
+                <button type="button"
+                        class="menu-toggle"
+                        aria-expanded="false"
+                        aria-controls="submenu-giftkit">
+                    선물키트
+                    <span class="menu-arrow"></span>
+                </button>
 
-        <!-- 소셜 -->
-        <li>
-            <a href="#">소셜</a>
-        </li>
+                <div class="submenu-wrap" id="submenu-giftkit">
+                    <div class="submenu-inner">
 
-        <!-- 고객센터 -->
-        <li>
-            <a href="#">고객센터</a>
-        </li>
+                        <!-- 대상별 -->
+                        <div class="sub-group">
+                            <p class="sub-title">마음을 전할 사람</p>
+                            <ul class="chip-list">
+                                <li><a href="#">가족</a></li>
+                                <li><a href="#">연인</a></li>
+                                <li><a href="#">친구</a></li>
+                                <li><a href="#">동료</a></li>
+                                <li><a href="#">나에게</a></li>
+                            </ul>
+                        </div>
 
-        <!-- 하단 로고 -->
-        <li class="logo-area">
-            <a href="#" class="logo">Logo</a>
-        </li>
+                        <!-- 목적별 -->
+                        <div class="sub-group">
+                            <p class="sub-title">특별한 순간</p>
+                            <ul class="chip-list">
+                                <li><a href="#">생일ㆍ기념일</a></li>
+                                <li><a href="#">감사ㆍ답례</a></li>
+                                <li><a href="#">축하ㆍ응원</a></li>
+                                <li><a href="#">위로ㆍ격려</a></li>
+                                <li><a href="#">마음전달</a></li>
+                            </ul>
+                        </div>
 
-    </ul>
+                    </div>
+                </div>
 
-</div>
+            </li>
+
+            <li>
+                <a href="#" class="menu-link">단품</a>
+            </li>
+
+            <li>
+                <a href="#" class="menu-link">소셜</a>
+            </li>
+
+            <li>
+                <a href="#" class="menu-link">고객센터</a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+    <!-- 하단: 로그인 + 고객센터 정보 -->
+    <div class="menu-foot">
+
+        <div class="menu-auth">
+            <a href="#" class="auth-login">로그인</a>
+            <a href="#" class="auth-signup">회원가입</a>
+        </div>
+
+        <div class="menu-cs">
+            <strong>1588-0000</strong>
+            평일 09:00 ~ 18:00
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- 사이드바 JavaScript -->
+<script>
+
+(function() {
+
+    // 중복 이벤트 등록 방지
+    if (window.sidebarMenuInitialized) {
+        return;
+    }
+
+    window.sidebarMenuInitialized = true;
+
+    function initSidebar() {
+
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        const openBtn = document.querySelector(".menu-btn");
+        const closeBtn = document.getElementById("menuClose");
+
+        if (!sidebar || !overlay || !openBtn || !closeBtn) {
+            console.error("사이드바 요소를 찾을 수 없습니다.");
+            return;
+        }
+
+        /* ---------- 펼침 메뉴 (아코디언) ---------- */
+
+        function setSection(item, open) {
+
+            const toggle = item.querySelector(".menu-toggle");
+
+            item.classList.toggle("open", open);
+            toggle.setAttribute("aria-expanded", String(open));
+        }
+
+        function collapseAll() {
+
+            sidebar.querySelectorAll(".has-submenu.open").forEach(function(item) {
+                setSection(item, false);
+            });
+        }
+
+        sidebar.querySelectorAll(".menu-toggle").forEach(function(toggle) {
+
+            toggle.addEventListener("click", function() {
+
+                const item = toggle.closest(".has-submenu");
+                const willOpen = !item.classList.contains("open");
+
+                // 하나만 열리도록 나머지는 접기
+                collapseAll();
+                setSection(item, willOpen);
+            });
+        });
+
+
+        /* ---------- 사이드바 열기 / 닫기 ---------- */
+
+        function openSidebar() {
+
+            sidebar.classList.add("active");
+            overlay.classList.add("active");
+            document.body.classList.add("sidebar-open");
+
+            openBtn.setAttribute("aria-expanded", "true");
+            openBtn.setAttribute("aria-label", "메뉴 닫기");
+
+            closeBtn.focus();
+        }
+
+        function closeSidebar() {
+
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+            document.body.classList.remove("sidebar-open");
+
+            openBtn.setAttribute("aria-expanded", "false");
+            openBtn.setAttribute("aria-label", "메뉴 열기");
+
+            // 닫을 때 펼쳐둔 메뉴도 초기화
+            collapseAll();
+
+            openBtn.focus();
+        }
+
+        // 햄버거 버튼
+        openBtn.addEventListener("click", function() {
+
+            if (sidebar.classList.contains("active")) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+
+        // X 버튼 / 배경 클릭
+        closeBtn.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        // ESC 키 + Tab 포커스가 사이드바 밖으로 나가지 않게
+        document.addEventListener("keydown", function(event) {
+
+            if (!sidebar.classList.contains("active")) {
+                return;
+            }
+
+            if (event.key === "Escape") {
+                closeSidebar();
+                return;
+            }
+
+            if (event.key === "Tab") {
+
+                const focusable = Array.from(
+                    sidebar.querySelectorAll("a[href], button")
+                ).filter(function(el) {
+                    return getComputedStyle(el).visibility !== "hidden";
+                });
+
+                if (focusable.length === 0) {
+                    return;
+                }
+
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initSidebar);
+    } else {
+        initSidebar();
+    }
+
+})();
+
+</script>

@@ -1,7 +1,7 @@
-
 /* =================================
    전체 초기화
 ================================= */
+
 * {
     margin: 0;
     padding: 0;
@@ -19,9 +19,11 @@ button {
     cursor: pointer;
 }
 
+
 /* =================================
    전체 헤더 영역
 ================================= */
+
 .header-container {
     width: 100%;
     padding: 15px 20px;
@@ -29,9 +31,11 @@ button {
     flex-direction: column;
 }
 
+
 /* =================================
    공통 헤더
 ================================= */
+
 .header {
     width: 100%;
     height: 140px;
@@ -41,16 +45,15 @@ button {
     position: relative;
 }
 
-/* =================================
-   메인 헤더
-================================= */
 .header-main {
     justify-content: center;
 }
 
+
 /* =================================
    중앙 로고
 ================================= */
+
 .logo {
     margin: 0;
     display: flex;
@@ -70,96 +73,340 @@ button {
     max-height: 120px;
     object-fit: contain;
     display: block;
+    transition: transform 0.4s ease;
 }
+
+.logo a:hover img {
+    transform: scale(1.04);
+}
+
+
 
 /* =================================
    왼쪽 햄버거 메뉴
+   기존 위쪽 버튼 디자인 적용
 ================================= */
+
 .header-left {
     position: absolute;
     left: 12px;
-
-    /* 햄버거 위치 아래로 이동 */
-    top: 62%;
+    top: 87%;
     transform: translateY(-50%);
 }
 
 .menu-btn {
-    width: 35px;
+    width: 45px;
+    height: 45px;
+
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+
+    background: #fffdf9;
+    border: 1px solid #e9dfd1;
+    border-radius: 4px;
+
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.menu-btn:hover {
+    background: #f8f2e9;
 }
 
 .menu-btn span {
-    width: 30px;
+    width: 21px;
     height: 2px;
-    background-color: #555;
+
+    background: #a88960;
+
     display: block;
+    transition: 0.3s ease;
 }
+
+
 
 /* =================================
    오른쪽 아이콘 영역
 ================================= */
+
 .header-right {
     position: absolute;
-    right: 12px;
+    right: 30px;
     top: 50%;
     transform: translateY(-50%);
 
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
 }
+
 
 /* =================================
    오른쪽 아이콘
 ================================= */
+
 .icon-menu {
-    width: 22px;
-    height: 25px;
+    width: 30px;
+    height: 34px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    position: relative;
+    transition: transform 0.3s ease;
 }
 
 .icon-menu svg {
-    width: 22px;
-    height: 22px;
+    width: 27px;
+    height: 27px;
+
     fill: none;
     stroke: #555;
     stroke-width: 1.7;
     stroke-linecap: round;
     stroke-linejoin: round;
+
+    transition: all 0.3s ease;
 }
+
+.icon-menu:hover {
+    transform: translateY(-4px);
+}
+
+.icon-menu:hover svg {
+    stroke: #98794d;
+    stroke-width: 2;
+}
+
+.icon-menu::after {
+    content: "";
+
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+
+    width: 0;
+    height: 2px;
+
+    background: #98794d;
+
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.icon-menu:hover::after {
+    width: 15px;
+}
+
 
 /* =================================
    로그인 / 회원가입
 ================================= */
+
 .user-menu {
     display: flex;
-    gap: 3px;
-    font-size: 11px;
-    color: #555;
+    align-items: center;
+    gap: 12px;
 
     position: absolute;
-    top: calc(100% + 18px);
+    top: calc(100% + 20px);
     right: 0;
 
     white-space: nowrap;
+
+    font-family: 'Pretendard', sans-serif;
+    font-size: 13px;
+    color: #555;
 }
+
+/* 로그인 - 호버 효과 없음 */
+
+.login-link {
+    color: #777;
+    font-weight: 400;
+    transition: none;
+}
+
+.login-link:hover {
+    color: #777;
+}
+
+/* 구분선 */
+
+.user-divider {
+    width: 1px;
+    height: 11px;
+    background: #ddd;
+}
+
+/* 회원가입 버튼 */
+
+.signup-link {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 7px 13px;
+
+    background: #94764b;
+    color: #fff !important;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition: all 0.3s ease;
+}
+
+/* NEW 라벨 */
+
+.signup-new {
+    font-size: 9px;
+    font-weight: 700;
+    color: #f7e5bb;
+    letter-spacing: 0.5px;
+}
+
+/* 회원가입 호버 */
+
+.signup-link:hover {
+    background: #765a36;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(120, 90, 50, 0.2);
+}
+
+
+/* =================================
+   신규 회원 혜택 툴팁
+================================= */
+
+.signup-tooltip {
+    position: absolute;
+
+    top: calc(100% + 17px);
+    right: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    width: 285px;
+    padding: 17px;
+
+    background: #fff;
+    border: 1px solid #e9dfce;
+    border-radius: 10px;
+
+    box-shadow: 0 8px 25px rgba(70, 50, 30, 0.12);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateY(-7px);
+
+    transition: all 0.3s ease;
+
+    z-index: 100;
+}
+
+/* 말풍선 꼬리 */
+
+.signup-tooltip::before {
+    content: "";
+
+    position: absolute;
+    top: -7px;
+    right: 35px;
+
+    width: 12px;
+    height: 12px;
+
+    background: #fff;
+    border-top: 1px solid #e9dfce;
+    border-left: 1px solid #e9dfce;
+
+    transform: rotate(45deg);
+}
+
+/* 반짝임 */
+
+.tooltip-icon {
+    color: #b18b50;
+    font-size: 23px;
+}
+
+/* 혜택 영문 라벨 */
+
+.benefit-label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #b18b50;
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+
+/* 혜택 제목 */
+
+.signup-tooltip strong {
+    display: block;
+    font-size: 13px;
+    color: #765a36;
+    margin-bottom: 5px;
+}
+
+/* 할인 금액 */
+
+.signup-tooltip h3 {
+    font-size: 22px;
+    color: #b18b50;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+/* 혜택 설명 */
+
+.signup-tooltip p {
+    font-size: 10px;
+    color: #999;
+    line-height: 1.5;
+}
+
+/* =================================
+   핵심! 회원가입에만 호버 시 혜택 표시
+================================= */
+
+.signup-link:hover+.signup-tooltip,
+.signup-link:focus-visible+.signup-tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
 
 /* =================================
    오른쪽 로고
 ================================= */
+
 .header-right-logo {
     justify-content: flex-end;
     padding-right: 10%;
 }
 
+
 /* =================================
    모바일 반응형
 ================================= */
+
 @media (max-width: 768px) {
 
     .header-container {
@@ -170,49 +417,80 @@ button {
         height: 100px;
     }
 
-    /* 모바일 로고 */
     .logo img {
         width: 170px;
         max-height: 85px;
     }
 
-    /* 햄버거 */
     .header-left {
         left: 5px;
         top: 62%;
     }
 
     .menu-btn {
-        width: 30px;
+        width: 42px;
+        height: 42px;
         gap: 6px;
     }
 
     .menu-btn span {
-        width: 25px;
+        width: 21px;
     }
 
-    /* 오른쪽 아이콘 */
     .header-right {
-        right: 5px;
-        gap: 5px;
+        right: 12px;
+        gap: 9px;
     }
 
     .icon-menu {
-        width: 18px;
+        width: 25px;
+        height: 28px;
     }
 
     .icon-menu svg {
-        width: 18px;
-        height: 18px;
+        width: 23px;
+        height: 23px;
     }
 
-    /* 로그인 / 회원가입 */
     .user-menu {
-        font-size: 9px;
+        font-size: 11px;
+        gap: 6px;
         top: calc(100% + 15px);
+    }
+
+    .signup-link {
+        padding: 5px 9px;
+        font-size: 10px;
+    }
+
+    .signup-new {
+        font-size: 8px;
+    }
+
+    .signup-tooltip {
+        width: 220px;
+        padding: 12px;
+    }
+
+    .signup-tooltip h3 {
+        font-size: 18px;
     }
 
     .header-right-logo {
         padding-right: 5%;
+    }
+}
+
+
+/* =================================
+   모션 최소화 설정
+================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
     }
 }

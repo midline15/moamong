@@ -1,0 +1,329 @@
+/* =========================================
+   고객센터 - 공지사항 상세 / 작성
+========================================= */
+
+
+/* =========================================
+   상세
+========================================= */
+
+.cs-view-head {
+    padding: 22px 20px;
+    background: var(--ivory);
+    border-top: 2px solid var(--point);
+    border-bottom: 1px solid var(--border);
+}
+
+.cs-view-head h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.5px;
+}
+
+/* 공지 뱃지 */
+.cs-view-head .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    margin-right: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--point);
+    border-radius: 2px;
+    vertical-align: middle;
+}
+
+.cs-view-info {
+    display: flex;
+    gap: 18px;
+    font-size: 11px;
+    color: var(--sub-text);
+}
+
+.cs-view-body {
+    min-height: 320px;
+    padding: 30px 20px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #4B4640;
+    border-bottom: 1px solid var(--border);
+    white-space: pre-wrap;
+    /* 줄바꿈 유지 */
+    word-break: break-all;
+}
+
+
+/* =========================================
+   작성 폼
+========================================= */
+
+.cs-form {
+    border-top: 2px solid var(--point);
+}
+
+.cs-form-row {
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+}
+
+.cs-form-row>label {
+    width: 120px;
+    flex-shrink: 0;
+    padding: 18px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #62594C;
+    background: #FBF9F5;
+    box-sizing: border-box;
+}
+
+.cs-form-row input[type="text"],
+.cs-form-row textarea {
+    flex: 1;
+    min-width: 0;
+    margin: 10px 14px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid #E5E0D7;
+    outline: none;
+    box-sizing: border-box;
+    transition: border 0.2s ease;
+}
+
+.cs-form-row input[type="text"]::placeholder,
+.cs-form-row textarea::placeholder {
+    color: #B8B2A8;
+}
+
+.cs-form-row input[type="text"]:focus,
+.cs-form-row textarea:focus {
+    border-color: var(--point);
+}
+
+.cs-form-row textarea {
+    height: 340px;
+    line-height: 1.7;
+    resize: vertical;
+}
+
+/* 상단 고정 체크박스 */
+.cs-form-row label.check {
+    width: auto;
+    padding: 18px 14px;
+    font-weight: 400;
+    color: var(--text);
+    background: none;
+    cursor: pointer;
+}
+
+.cs-form-row label.check input {
+    margin-right: 6px;
+    accent-color: var(--point);
+    vertical-align: middle;
+}
+
+/* =========================================
+   텍스트 에디터 (Toast UI) 베이지 테마
+========================================= */
+
+/* 작성 폼 안에서의 위치 */
+.cs-editor {
+    flex: 1;
+    min-width: 0;
+    margin: 10px 14px;
+}
+
+/* 툴바 */
+.cs-editor .toastui-editor-defaultUI {
+    border: 1px solid #E5E0D7;
+    border-radius: 0;
+    font-family: inherit;
+}
+
+.cs-editor .toastui-editor-defaultUI-toolbar {
+    background: var(--ivory);
+    border-bottom: 1px solid var(--border);
+}
+
+/* 선택/호버 시 포인트 색상 (아이콘 이미지는 유지해야 해서 background-color만 지정) */
+.cs-editor .toastui-editor-toolbar-icons:hover {
+    background-color: var(--beige);
+    border-color: var(--point);
+}
+
+.cs-editor .toastui-editor-toolbar-icons.active {
+    background-color: var(--beige);
+}
+
+/* 입력 영역 */
+.cs-editor .toastui-editor-contents {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.cs-editor .ProseMirror {
+    padding: 14px 16px;
+}
+
+/* 포커스 시 테두리 */
+.cs-editor .toastui-editor-defaultUI:focus-within {
+    border-color: var(--point);
+}
+
+
+/* =========================================
+   HTML로 저장된 내용 출력 (상세 화면)
+========================================= */
+
+/* 기존 pre-wrap 해제 (HTML 태그가 줄바꿈을 처리하므로) */
+.cs-view-body.cs-html {
+    white-space: normal;
+    word-break: break-word;
+}
+
+.cs-html p {
+    margin: 0 0 10px;
+}
+
+.cs-html h1,
+.cs-html h2,
+.cs-html h3,
+.cs-html h4,
+.cs-html h5,
+.cs-html h6 {
+    margin: 22px 0 10px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cs-html h1 {
+    font-size: 22px;
+}
+
+.cs-html h2 {
+    font-size: 19px;
+}
+
+.cs-html h3 {
+    font-size: 16px;
+}
+
+.cs-html ul,
+.cs-html ol {
+    margin: 0 0 10px;
+    padding-left: 22px;
+}
+
+.cs-html a {
+    color: #A18459;
+    text-decoration: underline;
+}
+
+.cs-html blockquote {
+    margin: 14px 0;
+    padding: 6px 16px;
+    color: var(--sub-text);
+    border-left: 3px solid var(--point);
+    background: #FDFBF7;
+}
+
+.cs-html hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid var(--border);
+}
+
+.cs-html pre {
+    padding: 14px 16px;
+    overflow-x: auto;
+    background: #F8F6F1;
+    border-radius: 3px;
+}
+
+.cs-html code {
+    padding: 1px 5px;
+    font-size: 12px;
+    background: #F4F1EA;
+    border-radius: 2px;
+}
+
+.cs-html pre code {
+    padding: 0;
+    background: none;
+}
+
+.cs-html table {
+    width: 100%;
+    margin: 14px 0;
+    border-collapse: collapse;
+}
+
+.cs-html th,
+.cs-html td {
+    padding: 9px 12px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+}
+
+.cs-html th {
+    background: #FBF9F5;
+}
+
+.cs-html img {
+    max-width: 100%;
+}
+
+
+/* =========================================
+   모바일
+========================================= */
+
+@media (max-width: 768px) {
+
+    .cs-view-head {
+        padding: 18px 12px;
+    }
+
+    .cs-view-head h3 {
+        font-size: 16px;
+    }
+
+    .cs-view-body {
+        min-height: 220px;
+        padding: 22px 12px;
+    }
+
+    .cs-form-row {
+        flex-direction: column;
+    }
+
+    .cs-form-row>label {
+        width: 100%;
+        padding: 12px 14px;
+    }
+
+    .cs-form-row input[type="text"],
+    .cs-form-row textarea {
+        width: calc(100% - 28px);
+        flex: none;
+    }
+
+    .cs-form-row textarea {
+        height: 260px;
+    }
+
+    @media (max-width: 768px) {
+
+        .cs-editor {
+            width: calc(100% - 28px);
+            flex: none;
+        }
+    }
+}
