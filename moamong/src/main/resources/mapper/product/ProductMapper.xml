@@ -3,12 +3,18 @@
 <mapper namespace="com.mori.moamong.product.mapper.ProductMapper">
     
     <select id="selectProductListByMainCategory"
-        resultType="Product">
+            resultType="Product">
         SELECT
             p.product_id,
             p.product_name,
             p.category_id,
-            c.category_name
+            c.category_name,
+            (
+                SELECT pi.image_url
+                FROM PRODUCT_IMAGE pi
+                WHERE pi.product_id = p.product_id
+                AND pi.display_order = 1
+            ) AS thumbnailUrl
         FROM PRODUCT p
         JOIN CATEGORY c
             ON p.category_id = c.category_id
@@ -17,9 +23,16 @@
     </select>
 
     <select id="selectProductListBySubCategory" resultType="Product">
-        SELECT *
-        FROM PRODUCT
-        WHERE category_id = #{categoryId}
+        SELECT
+            P.*,
+            (
+                SELECT PI.image_url
+                FROM PRODUCT_IMAGE PI
+                WHERE PI.product_id = P.product_id
+                AND PI.display_order = 1
+            ) AS thumbnailUrl
+        FROM PRODUCT P
+        WHERE P.category_id = #{categoryId}
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
@@ -28,13 +41,34 @@
         FROM PRODUCT
         WHERE category_id = #{categoryId}
     </select>
-
+    
     <select id="selectProductInfo" resultType="Product">
         SELECT *
         FROM PRODUCT
         WHERE product_id = #{productId}
     </select>
 
+    <select id="selectProductImageList" resultType="ProductImage">
+        SELECT
+            image_id,
+            product_id,
+            image_url,
+            image_origin_name,
+            image_name,
+            image_size,
+            image_type,
+            display_order
+        FROM PRODUCT_IMAGE
+        WHERE product_id = #{productId}
+        ORDER BY display_order
+    </select>
+
+    <update id="updateProductViewCount">
+        UPDATE PRODUCT
+        SET view_count = view_count + 1
+        WHERE product_id = #{productId}
+    </update>
+    
     <insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId">
     INSERT INTO PRODUCT (
         category_id,
@@ -78,4 +112,37 @@
             #{displayOrder}
         )
     </insert>
+
+    <update id="updateProduct">
+        UPDATE PRODUCT
+        SET
+            category_id = #{categoryId},
+            product_name = #{productName},
+            product_description = #{productDescription},
+            price = #{price},
+            stock_quantity = #{stockQuantity},
+            product_status = #{productStatus}
+        WHERE product_id = #{productId}
+    </update>
+
+    <!-- 상품 이미지 순서 수정 -->
+    <update id="updateProductImageDisplayOrder">
+        UPDATE PRODUCT_IMAGE
+        SET display_order = #{displayOrder}
+        WHERE image_id = #{imageId}
+        AND product_id = #{productId}
+    </update>
+
+    <delete id="deleteProductImage">
+        DELETE FROM PRODUCT_IMAGE
+        WHERE image_id = #{imageId}
+        AND product_id = #{productId}
+    </delete>
+
+    <!-- 상품 논리 삭제 -->
+    <update id="updateProductStatus">
+        UPDATE PRODUCT
+        SET product_status = #{productStatus}
+        WHERE product_id = #{productId}
+    </update>
 </mapper>

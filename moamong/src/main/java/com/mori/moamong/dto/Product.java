@@ -1,5 +1,7 @@
 package com.mori.moamong.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -14,4 +16,8 @@ public class Product {
     private Long viewCount;
     private String createdAt;
     private String updatedAt;
+
+    //이미지 관리용
+    private String thumbnailUrl;
+    private List<ProductImage> productImageList;
 }

@@ -1,4 +1,17 @@
 {
+    "files.associations": {
+        "*.jsp": "html"
+    },
+    "editor.autoIndent": "full",
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "html.format.enable": true,
     "xml.downloadExternalResources.enabled": true,
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive"

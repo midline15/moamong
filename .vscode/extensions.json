@@ -4,6 +4,7 @@
     "vscjava.vscode-java-pack",
     "vmware.vscode-boot-dev-pack",
     "redhat.vscode-xml",
-    "samuel-weinhardt.vscode-jsp-lang"
+    "samuel-weinhardt.vscode-jsp-lang",
+    "ThomasHandlag.jsp-formatter"
   ]
 }
