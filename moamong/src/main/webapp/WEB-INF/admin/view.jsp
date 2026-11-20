@@ -28,21 +28,22 @@
 
 	<body>
 
+		<!-- =====================================
+		상단 헤더
+		===================================== -->
+
+		<header class="header">
+
+			<!-- 관리자 페이지 로고 -->
+			<div class="logo">
+				Logo
+			</div>
+
+		</header>
+
 		<!-- Vue가 실행되는 전체 영역 -->
 		<div id="app">
 
-			<!-- =====================================
-         상단 헤더
-         ===================================== -->
-
-			<header class="header">
-
-				<!-- 관리자 페이지 로고 -->
-				<div class="logo">
-					Logo
-				</div>
-
-			</header>
 
 
 			<!-- =====================================
@@ -273,12 +274,12 @@
 
 								<div class="info-row">
 									<span>이름</span>
-									<strong>{{ userInfo.name }}</strong>
+									<strong>{{ userInfo.memberName }}</strong>
 								</div>
 
 								<div class="info-row">
 									<span>아이디</span>
-									<strong>{{ userInfo.userId }}</strong>
+									<strong>{{ userInfo.memberId}}</strong>
 								</div>
 
 								<div class="info-row">
@@ -306,7 +307,7 @@
 
 								<div class="info-row">
 									<span>회원 등급</span>
-									<strong>{{ userInfo.grade }}</strong>
+									<strong>{{userInfo. memberGrade}}</strong>
 								</div>
 
 								<div class="info-row">
@@ -492,11 +493,16 @@
 		<script>
 
 			// Vue 애플리케이션을 생성합니다.
+
+			// Vue 애플리케이션 생성
 			const app = Vue.createApp({
 
 				// 화면에서 사용할 데이터
 				data() {
 					return {
+
+						// 컨트롤러에서 전달받은 회원 번호
+						memberId: "${memberId}",
 
 						// 회원 기본 정보
 						userInfo: {},
@@ -519,37 +525,35 @@
 
 						let self = this;
 
-						// 이전 페이지에서 전달받은 회원 번호
-						let userNo = $("#userNo").val();
-
 						$.ajax({
 
-							url: "/user/detail.dox",
+							// 회원 상세정보 조회 주소
+							url: "/admin/view.dox",
 
 							type: "POST",
 
 							dataType: "json",
 
 							data: {
-								userNo: userNo
+								memberId: self.memberId
+
 							},
 
 							success: function (data) {
+								console.log(data)
 
-								// 서버에서 조회에 성공한 경우
+
+
+								// 서비스에서 조회 성공 여부 확인
 								if (data.result == "success") {
 
-									// 회원 기본 정보 저장
+									// 서비스에서 userInfo라는 이름으로 전달했으므로
+									// data.userInfo에서 회원 정보를 가져옵니다.
 									self.userInfo = data.userInfo;
-
-									// 회원 통계 정보 저장
-									self.userStats = data.userStats;
-
-									// 최근 주문 목록 저장
-									self.orderList = data.orderList;
 
 								} else {
 
+									// 조회 실패 시 메시지 출력
 									alert(data.message);
 
 								}
@@ -558,7 +562,6 @@
 
 							error: function (xhr, status, error) {
 
-								console.log(error);
 
 								alert("회원 정보를 불러오지 못했습니다.");
 
@@ -568,77 +571,85 @@
 
 					},
 
-
 					// =====================================
-					// 숫자에 천 단위 콤마 추가
+					// 숫자 천 단위 콤마
 					// =====================================
 					fnFormatNumber: function (value) {
 
-						// DB에서 값이 없을 경우 0으로 처리
 						return Number(value || 0).toLocaleString();
 
 					},
 
-
 					// =====================================
-					// 회원 정보 수정 페이지 이동
+					// 회원 상태 한글 변환
 					// =====================================
-					fnEditUser: function () {
+					fnStatusName: function (status) {
 
-						let userNo = $("#userNo").val();
+						if (status == "ACTIVE") {
+							return "정상";
+						}
 
-						location.href = "/user/edit.do?userNo=" + userNo;
+						if (status == "WITHDRAWN") {
+							return "휴면";
+						}
+
+						return status || "-";
 
 					},
 
+					// =====================================
+					// 회원 정보 수정
+					// =====================================
+					fnEditUser: function () {
+
+						location.href = "/user/edit.do?memberId=" + this.memberId;
+
+					},
 
 					// =====================================
 					// 회원 정지
 					// =====================================
 					fnStopUser: function () {
 
-						// 실제 정지 처리는 별도의 API와 연결 예정
 						alert("회원 정지 기능은 추후 연결합니다.");
 
 					},
 
-
 					// =====================================
-					// 전체 주문 내역 페이지 이동
+					// 전체 주문 내역
 					// =====================================
 					fnOrderList: function () {
 
-						let userNo = $("#userNo").val();
-
-						location.href = "/order/list.do?userNo=" + userNo;
+						location.href = "/order/list.do?memberId=" + this.memberId;
 
 					},
 
-
 					// =====================================
-					// 회원 목록 페이지 이동
+					// 회원 목록으로 이동
 					// =====================================
 					fnBack: function () {
 
-						location.href = "/user/list.do";
+						location.href = "/admin/list.do";
 
 					}
 
 				},
 
 				// =====================================
-				// 페이지가 처음 실행될 때
+				// 페이지 최초 실행
 				// =====================================
 				mounted() {
 
-					// 회원 상세정보를 DB에서 조회
+					// 페이지가 열리면 회원 상세정보 조회
 					this.fnGetUserDetail();
 
 				}
 
 			});
 
-			app.mount('#app');
+			// Vue 실행
+			app.mount("#app");
+
 
 		</script>
 

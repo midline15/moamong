@@ -27,22 +27,23 @@
 	</head>
 
 	<body>
+		
+		<!-- =====================================
+		 상단 헤더
+		 ===================================== -->
+
+		<header class="header">
+
+			<!-- 관리자 페이지 로고 -->
+			<div class="logo">
+				Logo
+			</div>
+
+		</header>
+
 
 		<!-- Vue가 실행되는 전체 영역 -->
 		<div id="app">
-
-			<!-- =====================================
-             상단 헤더
-             ===================================== -->
-
-			<header class="header">
-
-				<!-- 관리자 페이지 로고 -->
-				<div class="logo">
-					Logo
-				</div>
-
-			</header>
 
 
 			<!-- =====================================
@@ -154,18 +155,18 @@
 
 							<!-- 전체 회원 수 -->
 							<div class="stats-card">
-							    <div class="stats-title">전체 회원</div>
-							    <div class="stats-value">
-							        <span><strong>{{ memberStats.totalCount }}</strong>명</span>
-							    </div>
+								<div class="stats-title">전체 회원</div>
+								<div class="stats-value">
+									<span><strong>{{ memberStats.totalCount }}</strong>명</span>
+								</div>
 							</div>
 
 							<!-- 오늘 가입한 회원 수 -->
 							<div class="stats-card">
-							    <div class="stats-title">오늘 가입</div>
-							    <div class="stats-value">
-							        <span><strong>{{ memberStats.todayCount }}</strong>명</span>
-							    </div>
+								<div class="stats-title">오늘 가입</div>
+								<div class="stats-value">
+									<span><strong>{{ memberStats.todayCount }}</strong>명</span>
+								</div>
 							</div>
 
 							<!-- 활성 회원 수 -->
@@ -208,7 +209,7 @@
 									<input type="text" v-model="keyword" placeholder="이름 또는 아이디 또는 이메일">
 								</div>
 
-								<!-- 회원 등급 선택 -->
+								<!-- 회원 등급 -->
 								<div class="search-item">
 									<label>회원 등급</label>
 
@@ -220,7 +221,7 @@
 									</select>
 								</div>
 
-								<!-- 회원 상태 선택 -->
+								<!-- 회원 상태 -->
 								<div class="search-item">
 									<label>회원 상태</label>
 
@@ -231,7 +232,7 @@
 									</select>
 								</div>
 
-								<!-- 가입 기간 선택 -->
+								<!-- 가입 기간 -->
 								<div class="search-item">
 									<label>가입일</label>
 
@@ -253,7 +254,6 @@
 									초기화
 								</button>
 
-								<!-- 검색 실행 -->
 								<button class="btn-search" @click="fnSearch">
 									검색
 								</button>
@@ -276,7 +276,7 @@
 
 								<!-- DB에서 조회한 회원 수 표시 -->
 								<span>
-									총 명
+									총 {{ totalCount }}명
 								</span>
 
 							</div>
@@ -332,7 +332,7 @@
 										<!-- 회원 상태 -->
 										<td>
 											<span class="status-badge"
-												:class="member.status == '정상' ? 'normal' : 'dormant'">
+												:class="member.status == 'ACTIVE' ? 'normal' : 'dormant'">
 												{{ member.status }}
 											</span>
 										</td>
@@ -359,11 +359,12 @@
 							</table>
 
 
-							<!-- ==================================
-					              4. 페이지 번호 영역
-					              ================================== -->
-
+							<!-- 페이지 이동 영역 -->
 							<div class="pagination">
+
+								<!-- 첫 페이지 -->
+
+								<button @click="fnPage(1)" :disabled="currentPage == 1">처음</button>
 
 								<!-- 이전 페이지 -->
 								<button @click="fnPage(currentPage - 1)" :disabled="currentPage == 1">
@@ -371,9 +372,11 @@
 								</button>
 
 								<!-- 페이지 번호 -->
-								<button v-for="page in totalPages" :key="page" @click="fnPage(page)"
+								<button v-for="page in visiblePages" :key="page" @click="fnPage(page)"
 									:class="{ active: currentPage == page }">
+
 									{{ page }}
+
 								</button>
 
 								<!-- 다음 페이지 -->
@@ -381,24 +384,27 @@
 									다음
 								</button>
 
+								<!-- 마지막 페이지 -->
+								<button @click="fnPage(totalPages)" :disabled="currentPage >= totalPages">
+									마지막
+								</button>
+
 							</div>
 
-						</div>
 
-
-						<!-- ======================================
+							<!-- ======================================
 					          5. 회원 등록 버튼
 					          ====================================== -->
 
-						<div class="member-add">
+							<div class="member-add">
 
-							<button @click="fnAdd">
-								+ 회원 등록
-							</button>
+								<button @click="fnAdd">
+									+ 회원 등록
+								</button>
+
+							</div>
 
 						</div>
-
-					</div>
 
 
 				</main>
@@ -470,12 +476,16 @@
 
 	</html>
 
+
 	<script>
 
 		const app = Vue.createApp({
 
-			// 화면에서 사용할 데이터를 보관하는 곳입니다.
+			// =====================================
+			// 1. 화면에서 사용할 데이터
+			// =====================================
 			data() {
+
 				return {
 
 					// 검색어
@@ -490,7 +500,7 @@
 					// 가입 기간
 					searchPeriod: "",
 
-					// 현재 페이지
+					// 현재 페이지 번호
 					currentPage: 1,
 
 					// 한 페이지에 보여줄 회원 수
@@ -502,7 +512,7 @@
 					// 전체 회원 수
 					totalCount: 0,
 
-					// 회원 통계 데이터
+					// 회원 통계
 					memberStats: {
 						totalCount: 0,
 						todayCount: 0,
@@ -510,64 +520,251 @@
 						dormantCount: 0
 					}
 
-
 				};
+
 			},
 
 
-			methods: {
+			// =====================================
+			// 2. 계산된 데이터
+			// =====================================
+			computed: {
 
-				fnList: function () {
-					let self = this;
-					let param = {
-					};
-					$.ajax({
-						url: "/admin/list.dox",
-						dataType: "json",
-						type: "POST",
-						data: param,
-						success: function (data) {
+				// 전체 페이지 수 계산
+				totalPages() {
 
+					return Math.max(
+						1,
+						Math.ceil(this.totalCount / this.pageSize)
+					);
 
-							// 서버에서 전달받은 결과가 성공인지 확인합니다.
-							if (data.result == "success") {
-
-								// 서버에서 전달받은 회원 목록을 Vue의 memberList에 저장합니다.
-								// data.list에는 DB에서 조회한 회원 데이터가 들어 있습니다.
-								self.memberList = data.list;
-
-								self.memberStats = data.stats;
-
-								self.totalCount = data.stats.totalCount;
-
-
-
-							} else {
-
-								// 조회에 실패했을 때 안내 메시지를 보여줍니다.
-								alert("회원 목록 조회에 실패했습니다.");
-
-							}
-						},
-
-					});
 				},
-				
-				fnView(memberId) {
-					pageChange("view.do", {memberId: memberId});
+
+				// 화면에 보여줄 페이지 번호
+				visiblePages() {
+
+					// 한 번에 보여줄 페이지 개수
+					let pageGroupSize = 5;
+
+					// 페이지 그룹의 시작 번호
+					let startPage =
+						Math.floor((this.currentPage - 1) / pageGroupSize)
+						* pageGroupSize + 1;
+
+					// 페이지 그룹의 마지막 번호
+					let endPage = Math.min(
+						startPage + pageGroupSize - 1,
+						this.totalPages
+					);
+
+					// 페이지 번호를 담을 배열
+					let pages = [];
+
+					for (let i = startPage; i <= endPage; i++) {
+						pages.push(i);
+					}
+
+					return pages;
+
 				}
 
 			},
 
 
+			// =====================================
+			// 3. 화면에서 사용할 함수
+			// =====================================
+			methods: {
+
+				// =====================================
+				// 회원 목록 조회
+				// =====================================
+
+				// 회원 목록 조회
+				fnList() {
+
+					let self = this;
+
+					// 서버에 전달할 검색 조건과 페이징 정보
+					let param = {
+
+						// 검색어
+						keyword: self.keyword,
+
+						// 회원 등급
+						searchGrade: self.searchGrade,
+
+						// 회원 상태
+						searchStatus: self.searchStatus,
+
+						// 가입 기간
+						searchPeriod: self.searchPeriod,
+
+						// 페이지당 회원 수
+						limit: self.pageSize,
+
+						// 조회 시작 위치
+						offset: (self.currentPage - 1) * self.pageSize
+
+					};
+
+
+					$.ajax({
+
+						url: "/admin/list.dox",
+
+						type: "POST",
+
+						dataType: "json",
+
+						data: param,
+
+						success: function (data) {
+
+
+
+							if (data.result == "success") {
+
+								// 회원 목록 저장
+								self.memberList = data.list || [];
+
+								// 전체 회원 통계 저장
+								self.memberStats = data.stats || self.memberStats;
+
+								// 검색 결과 전체 회원 수 저장
+								self.totalCount = Number(data.count) || 0;
+
+							} else {
+
+								alert("회원 목록 조회에 실패했습니다.");
+
+							}
+
+						},
+
+						error: function (xhr, status, error) {
+
+
+							alert("서버 통신 오류");
+
+						}
+
+					});
+
+				},
+
+				// 검색 버튼
+				fnSearch() {
+
+					// 검색 시 첫 페이지부터 조회
+					this.currentPage = 1;
+
+					this.fnList();
+
+				},
+
+				// 검색 조건 초기화
+				fnReset() {
+
+					this.keyword = "";
+					this.searchGrade = "";
+					this.searchStatus = "";
+					this.searchPeriod = "";
+
+					this.currentPage = 1;
+
+					this.fnList();
+
+				},
+
+	
+
+
+				// =====================================
+				// 페이지 이동
+				// =====================================
+				fnPage(page) {
+
+					page = Number(page);
+
+					// 페이지 범위 검사
+					if (page < 1 || page > this.totalPages) {
+						return;
+					}
+
+					// 현재 페이지 변경
+					this.currentPage = page;
+
+					// 변경된 페이지 목록 조회
+					this.fnList();
+
+				},
+
+
+
+				// 검색 버튼 클릭 시 실행
+				fnSearch() {
+
+					// 검색하면 무조건 첫 페이지부터 조회
+					this.currentPage = 1;
+
+					// 변경된 검색 조건으로 회원 목록 조회
+					this.fnList();
+
+				},
+
+
+				// =====================================
+				// 검색 조건 초기화
+				// =====================================
+				fnReset() {
+
+					this.keyword = "";
+					this.searchGrade = "";
+					this.searchStatus = "";
+					this.searchPeriod = "";
+
+					this.currentPage = 1;
+
+					this.fnList();
+
+				},
+
+
+				// =====================================
+				// 회원 상세보기
+				// =====================================
+				fnView(memberId) {
+
+					pageChange("view.do", {
+						memberId: memberId
+					});
+
+				},
+
+
+				fnAdd() {
+					
+				}
+
+			},
+
+
+			// =====================================
+			// 4. 최초 실행
+			// =====================================
 			mounted() {
 
-				let self = this;
-				self.fnList();
+
+				// 처음 접속하면 1페이지 조회
+				this.fnList();
+
 			}
 
 		});
 
-		app.mount('#app');
+
+		// Vue 연결
+		app.mount("#app");
 
 	</script>
