@@ -1,53 +1,49 @@
-
-
-
-
 /* ==========================================
    7. 회원 관리 - 통계 카드
    ========================================== */
 
 /* 통계 카드 4개를 가로로 배치 */
 .member-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
 
-    gap: 12px;
-    margin-bottom: 20px;
+	gap: 12px;
+	margin-bottom: 20px;
 }
 
 /* 통계 카드 */
 .stats-card {
-    background-color: white;
-    border: 1px solid #e8eaf0;
-    border-radius: 9px;
+	background-color: white;
+	border: 1px solid #e8eaf0;
+	border-radius: 9px;
 
-    padding: 16px;
+	padding: 16px;
 }
 
 /* 통계 제목 */
 .stats-title {
-    font-size: 12px;
-    color: #888fa1;
-    margin-bottom: 8px;
+	font-size: 12px;
+	color: #888fa1;
+	margin-bottom: 8px;
 }
 
 /* 통계 숫자 */
 .stats-value {
-    font-size: 22px;
-    font-weight: bold;
-    color: #30364d;
+	font-size: 22px;
+	font-weight: bold;
+	color: #30364d;
 }
 
 /* 숫자 옆 단위 */
 .stats-value span {
-    font-size: 10px;
-    color: #999;
-    font-weight: normal;
+	font-size: 10px;
+	color: #999;
+	font-weight: normal;
 }
 
 
 .stats-value strong {
-    font-weight: 700;
+	font-weight: 700;
 	font-size: 24px;
 	color: black;
 }
@@ -61,91 +57,91 @@
 
 /* 검색 영역 전체 */
 .member-search {
-    background-color: white;
-    border: 1px solid #e8eaf0;
-    border-radius: 9px;
+	background-color: white;
+	border: 1px solid #e8eaf0;
+	border-radius: 9px;
 
-    padding: 16px;
-    margin-bottom: 18px;
+	padding: 16px;
+	margin-bottom: 18px;
 }
 
 /* 검색 영역 제목 */
 .member-search h3 {
-    font-size: 14px;
-    color: #30364d;
-    margin-bottom: 15px;
+	font-size: 14px;
+	color: #30364d;
+	margin-bottom: 15px;
 }
 
 /* 검색 항목 가로 배치 */
 .search-row {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+	display: grid;
+	grid-template-columns: 1.5fr 1fr 1fr 1fr;
 
-    gap: 14px;
+	gap: 14px;
 }
 
 /* 검색 항목 하나 */
 .search-item {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
 }
 
 /* 검색 항목 제목 */
 .search-item label {
-    font-size: 11px;
-    color: #777f92;
+	font-size: 11px;
+	color: #777f92;
 }
 
 /* 검색 입력창과 선택창 */
 .search-item input,
 .search-item select {
-    width: 100%;
-    height: 35px;
+	width: 100%;
+	height: 35px;
 
-    padding: 0 10px;
+	padding: 0 10px;
 
-    border: 1px solid #e1e4ec;
-    border-radius: 5px;
+	border: 1px solid #e1e4ec;
+	border-radius: 5px;
 
-    font-size: 11px;
-    color: #444b60;
+	font-size: 11px;
+	color: #444b60;
 
-    background-color: white;
+	background-color: white;
 }
 
 /* 검색 버튼 영역 */
 .search-buttons {
-    display: flex;
-    justify-content: flex-end;
+	display: flex;
+	justify-content: flex-end;
 
-    gap: 8px;
-    margin-top: 12px;
+	gap: 8px;
+	margin-top: 12px;
 }
 
 /* 검색 및 초기화 버튼 공통 */
 .search-buttons button {
-    width: 90px;
-    height: 34px;
+	width: 90px;
+	height: 34px;
 
-    border-radius: 5px;
-    cursor: pointer;
+	border-radius: 5px;
+	cursor: pointer;
 
-    font-size: 11px;
+	font-size: 11px;
 }
 
 /* 초기화 버튼 */
 .btn-reset {
-    background-color: white;
-    border: 1px solid #e1e4ec;
-    color: #777f92;
+	background-color: white;
+	border: 1px solid #e1e4ec;
+	color: #777f92;
 }
 
 /* 검색 버튼 */
 .btn-search {
-    background-color: #dfc49e;
-    border: none;
-    color: white;
+	background-color: #dfc49e;
+	border: none;
+	color: white;
 }
 
 
@@ -155,32 +151,32 @@
 
 /* 회원 목록 전체 */
 .member-list {
-    background-color: white;
-    border: 1px solid #e8eaf0;
-    border-radius: 9px;
+	background-color: white;
+	border: 1px solid #e8eaf0;
+	border-radius: 9px;
 
-    overflow: hidden;
+	overflow: hidden;
 }
 
 /* 회원 목록 제목과 전체 회원 수 */
 .list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 
-    padding: 16px;
+	padding: 16px;
 }
 
 /* 회원 목록 제목 */
 .list-header h3 {
-    font-size: 14px;
-    color: #30364d;
+	font-size: 14px;
+	color: #30364d;
 }
 
 /* 전체 회원 수 */
 .list-header span {
-    font-size: 11px;
-    color: #999;
+	font-size: 11px;
+	color: #999;
 }
 
 
@@ -190,111 +186,90 @@
 
 /* 테이블 전체 */
 .member-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 11px;
 }
 
 /* 테이블 제목 배경 */
 .member-table thead {
-    background-color: #f8f9fc;
+	background-color: #f8f9fc;
 }
 
 /* 테이블 셀 공통 */
 .member-table th,
 .member-table td {
-    padding: 13px 8px;
-    text-align: center;
-    border-bottom: 1px solid #edf0f5;
+	padding: 13px 8px;
+	text-align: center;
+	border-bottom: 1px solid #edf0f5;
 }
 
 /* 테이블 제목 */
 .member-table th {
-    color: #858da0;
-    font-weight: normal;
+	color: #858da0;
+	font-weight: normal;
 }
 
 /* 회원 정보 왼쪽 정렬 */
 .member-info {
-    text-align: left !important;
-    padding-left: 16px !important;
+	text-align: left !important;
+	padding-left: 16px !important;
 }
 
 /* 회원 이름 */
 .member-info strong {
-    display: block;
-    color: #30364d;
-    margin-bottom: 4px;
+	display: block;
+	color: #30364d;
+	margin-bottom: 4px;
 }
 
 /* 회원 아이디 */
 .member-info span {
-    display: block;
-    color: #9ba1af;
-    font-size: 10px;
+	display: block;
+	color: #9ba1af;
+	font-size: 10px;
 }
 
 /* 회원 등급 공통 */
 .grade-badge {
-    display: inline-block;
-    min-width: 38px;
+	display: inline-block;
+	min-width: 38px;
 
-    padding: 4px 8px;
-    border-radius: 15px;
+	padding: 4px 8px;
+	border-radius: 15px;
 
-    font-size: 10px;
+	font-size: 10px;
 }
 
 /* VIP 등급 */
 .grade-badge.vip {
-    background-color: #eee9ff;
-    color: #7658dc;
+	background-color: #eee9ff;
+	color: #7658dc;
 }
 
 /* GOLD 등급 */
 .grade-badge.gold {
-    background-color: #e8f1ff;
-    color: #5687d7;
+	background-color: #e8f1ff;
+	color: #5687d7;
 }
 
 /* SILVER 등급 */
 .grade-badge.silver {
-    background-color: #f0f1f4;
-    color: #858b99;
+	background-color: #f0f1f4;
+	color: #858b99;
 }
 
-/* 회원 상태 공통 */
-.status-badge {
-    display: inline-block;
-    min-width: 35px;
 
-    padding: 4px 8px;
-    border-radius: 15px;
-
-    font-size: 10px;
-}
-
-/* 정상 회원 */
-.status-badge.normal {
-    background-color: #e7f7ef;
-    color: #39a878;
-}
-
-/* 휴면 회원 */
-.status-badge.dormant {
-    background-color: #fff1df;
-    color: #d99a45;
-}
 
 /* 상세보기 버튼 */
 .btn-detail {
-    border: none;
-    background: none;
+	border: none;
+	background: none;
 
-    color: #6557ed;
-    cursor: pointer;
+	color: #6557ed;
+	cursor: pointer;
 
-    font-size: 11px;
+	font-size: 11px;
 }
 
 
@@ -307,36 +282,45 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
     gap: 5px;
-    padding: 12px;
+    flex-wrap: nowrap;
 }
-
 /* 페이지 번호 버튼 */
 .pagination button {
-    width: 25px;
-    height: 25px;
-
-    border: none;
+    padding: 10px 20px;
+    border: 1px solid #ddd;
     background-color: white;
-
-    color: #858da0;
+    color: #555;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 13px;
 
-    font-size: 11px;
-    border-radius: 4px;
+    /* 글자 중앙 정렬 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 줄바꿈 방지 */
+    white-space: nowrap;
+
+    /* 버튼 크기 */
+    min-width: 40px;
+    height: 38px;
+
+    /* 기본 여백 제거 */
+    line-height: 1;
+    box-sizing: border-box;
 }
-
 /* 현재 선택된 페이지 */
 .pagination button.active {
-    background-color: #7658ed;
-    color: white;
+	background-color: #7658ed;
+	color: white;
 }
 
 /* 비활성화된 페이지 */
 .pagination button:disabled {
-    color: #ccc;
-    cursor: default;
+	color: #ccc;
+	cursor: default;
 }
 
 
@@ -346,25 +330,154 @@
 
 /* 회원 등록 버튼 영역 */
 .member-add {
-    display: flex;
-    justify-content: flex-end;
+	display: flex;
+	justify-content: flex-end;
 
-    margin-top: 9px;
+	margin-top: 9px;
 }
 
 /* 회원 등록 버튼 */
 .member-add button {
-    width: 110px;
-    height: 36px;
+	width: 110px;
+	height: 36px;
 
-    background-color: #dfc49e;
-    border: none;
-    border-radius: 5px;
+	background-color: #dfc49e;
+	border: none;
+	border-radius: 5px;
 
-    color: white;
-    font-size: 11px;
+	color: white;
+	font-size: 11px;
 
-    cursor: pointer;
+	cursor: pointer;
+}
+
+/* =========================================
+   1. 회원 등급 공통 디자인
+   ========================================= */
+
+/* 모든 회원 등급 뱃지에 공통으로 적용되는 디자인 */
+.grade-badge {
+	display: inline-block;
+	/* 글자 크기에 맞게 영역 생성 */
+	padding: 5px 12px;
+	/* 글자 주변 여백 */
+	border-radius: 20px;
+	/* 모서리를 둥글게 */
+	font-size: 12px;
+	/* 글자 크기 */
+	font-weight: bold;
+	/* 글자를 굵게 */
+	min-width: 55px;
+	/* 최소 너비 */
+	text-align: center;
+	/* 글자를 가운데 정렬 */
+}
+
+/* VIP 등급 - 보라색 */
+.grade-badge.vip {
+	background-color: #eee5ff;
+	color: #7138c8;
+}
+
+/* GOLD 등급 - 금색 */
+.grade-badge.gold {
+	background-color: #fff2cc;
+	color: #a87900;
+}
+
+/* SILVER 등급 - 회색 */
+.grade-badge.silver {
+	background-color: #e9ecef;
+	color: #606870;
 }
 
 
+/* =========================================
+   2. 회원 상태 공통 디자인
+   ========================================= */
+
+
+/* 회원 상태 뱃지 공통 */
+.status-badge {
+	display: inline-block;
+	padding: 5px 12px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: bold;
+	min-width: 45px;
+	text-align: center;
+}
+
+/* 정상 회원 - 초록색 */
+.status-badge.normal {
+	background-color: #e2f5e9;
+	color: #218348;
+}
+
+/* 휴면 회원 - 빨간색 */
+.status-badge.dormant {
+	background-color: #ffe5e5;
+	color: #d93030;
+}
+
+
+
+/* =========================================
+   페이지 이동 영역
+   ========================================= */
+
+.pagination {
+	display: flex;
+	/* 버튼들을 가로로 배치 */
+	justify-content: center;
+	/* 버튼들을 가운데 정렬 */
+	align-items: center;
+	/* 버튼들을 세로 가운데 정렬 */
+	gap: 6px;
+	/* 버튼 사이 간격 */
+	margin-top: 25px;
+	/* 위쪽 여백 */
+}
+
+/* 페이지 이동 버튼 공통 디자인 */
+
+.pagination button {
+	padding: 10px 20px;
+	border: 1px solid #ddd;
+	background-color: white;
+	color: #555;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 13px;
+
+	/* 글자를 가로 중앙 정렬 */
+	text-align: center;
+
+	/* 글자 줄바꿈 방지 */
+	white-space: nowrap;
+
+	/* 버튼 크기 유지 */
+	min-width: 40px;
+}
+
+/* 마우스를 버튼 위에 올렸을 때 */
+.pagination button:hover:not(:disabled) {
+	background-color: #f1f1f1;
+	border-color: #999;
+}
+
+/* 현재 선택된 페이지 */
+.pagination button.active {
+	background-color: #333;
+	color: white;
+	border-color: #333;
+	font-weight: bold;
+}
+
+/* 비활성화된 버튼 */
+.pagination button:disabled {
+	background-color: #f5f5f5;
+	color: #bbb;
+	border-color: #eee;
+	cursor: not-allowed;
+}
