@@ -45,8 +45,8 @@ pageEncoding="UTF-8"%>
                     <h4>📦 주문 내역 조회</h4>
                     <p>주문한 상품의 결제 및 배송 상태를 확인합니다.</p>
                 </div>
-                <div class="menu-card" @click="fnMove('/cart/list.do', '장바구니')">
-                    <h4>🛒 장바구니</h4>
+                <div class="menu-card" @click="fnGoCart">
+                    <h4>🛒 장바구니 ({{ cartCount }})</h4>
                     <p>장바구니에 담아둔 상품을 확인하고 주문합니다.</p>
                 </div>
                 <div class="menu-card" @click="fnMove('/address/list.do', '배송지 관리')">
@@ -71,7 +71,8 @@ pageEncoding="UTF-8"%>
                     memberName: "",
                     email: "",
                     role: ""
-                }
+                },
+                cartCount: 0
             };
         },
         methods: {
@@ -88,6 +89,22 @@ pageEncoding="UTF-8"%>
                     }
                 });
             },
+            fnGetCartCount: function () {
+                let self = this;
+                $.ajax({
+                    url: "/cart/list.dox",
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.result === "success" && data.list) {
+                            self.cartCount = data.list.length;
+                        }
+                    }
+                });
+            },
+            fnGoCart: function () {
+                location.href = "/cart/list.do";
+            },
             fnGoEdit: function () {
                 location.href = "/member/edit.do";
             },
@@ -100,6 +117,7 @@ pageEncoding="UTF-8"%>
         },
         mounted() {
             this.fnGetMyInfo();
+            this.fnGetCartCount();
         }
     });
     

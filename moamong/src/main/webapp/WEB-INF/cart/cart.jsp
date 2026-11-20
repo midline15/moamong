@@ -11,91 +11,97 @@
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
         <style>
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 30px 16px;
-            color: #222;
-        }
-        .cart-container {
-            max-width: 960px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            padding: 28px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        }
-        h2 { margin: 0 0 20px 0; font-size: 24px; }
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 2px solid #222;
-            margin-bottom: 12px;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td {
-            padding: 14px 10px;
-            border-bottom: 1px solid #eee;
-            text-align: center;
-            vertical-align: middle;
-        }
-        th { background-color: #fafafa; font-weight: 600; font-size: 14px; color: #555; }
-        .item-info {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 14px;
-            text-align: left;
-            min-width: 240px;
-            word-break: keep-all;
-        }
-        .thumb {
-            width: 68px; height: 68px; border-radius: 8px;
-            object-fit: cover; background: #f1f3f5; border: 1px solid #e9ecef; flex-shrink: 0;
-        }
-        .badge {
-            display: inline-block; font-size: 11px; font-weight: 700;
-            padding: 2px 7px; border-radius: 4px; margin-bottom: 4px;
-        }
-        .badge-product { background: #e7f5ff; color: #1971c2; }
-        .badge-package { background: #fff3bf; color: #e67700; }
-        .badge-soldout { background: #ffe3e3; color: #c92a2a; margin-left: 4px; }
-        .option-list {
-            margin-top: 6px; padding-left: 10px; border-left: 2px solid #dee2e6;
-            font-size: 12px; color: #666; line-height: 1.5;
-        }
-        .qty-box { display: inline-flex; align-items: center; gap: 4px; }
-        .qty-box input { width: 52px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
-        .btn {
-            padding: 6px 12px; border: 1px solid #ccc; background: #fff;
-            border-radius: 6px; cursor: pointer; font-size: 13px;
-        }
-        .btn:hover { background: #f1f3f5; }
-        .btn-danger { border-color: #ffa8a8; color: #c92a2a; }
-        .btn-primary {
-            background: #222; color: #fff; border-color: #222;
-            font-size: 16px; font-weight: 600; padding: 14px 32px;
-        }
-        .btn-primary:hover { background: #444; }
-        .summary-box {
-            margin-top: 24px; padding: 20px 24px; background: #f8f9fa;
-            border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .total-price { font-size: 24px; font-weight: 700; color: #d9480f; }
-        .empty-box { text-align: center; padding: 60px 0; color: #888; }
-        .soldout-row { opacity: 0.6; background-color: #fafafa; }
-        .test-bar {
-            margin-top: 30px; padding: 14px; background: #fff9db;
-            border: 1px dashed #fcc419; border-radius: 8px; font-size: 13px;
-        }
-    </style>
+            body {
+                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+                background-color: #f8f9fa;
+                margin: 0;
+                padding: 30px 16px;
+                color: #222;
+            }
+            .cart-container {
+                max-width: 960px;
+                margin: 0 auto;
+                background: #fff;
+                border-radius: 12px;
+                padding: 28px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            }
+            h2 { margin: 0 0 20px 0; font-size: 24px; }
+            .toolbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 2px solid #222;
+                margin-bottom: 12px;
+            }
+            table { width: 100%; border-collapse: collapse; }
+            th, td {
+                padding: 14px 10px;
+                border-bottom: 1px solid #eee;
+                text-align: center;
+                vertical-align: middle;
+            }
+            th { background-color: #fafafa; font-weight: 600; font-size: 14px; color: #555; }
+            .item-info {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 14px;
+                text-align: left;
+                min-width: 240px;
+                word-break: keep-all;
+            }
+            .thumb {
+                width: 68px; height: 68px; border-radius: 8px;
+                object-fit: cover; background: #f1f3f5; border: 1px solid #e9ecef; flex-shrink: 0;
+            }
+            .badge {
+                display: inline-block; font-size: 11px; font-weight: 700;
+                padding: 2px 7px; border-radius: 4px; margin-bottom: 4px;
+            }
+            .badge-product { background: #e7f5ff; color: #1971c2; }
+            .badge-package { background: #fff3bf; color: #e67700; }
+            .badge-soldout { background: #ffe3e3; color: #c92a2a; margin-left: 4px; }
+            .option-list {
+                margin-top: 6px; padding-left: 10px; border-left: 2px solid #dee2e6;
+                font-size: 12px; color: #666; line-height: 1.5;
+            }
+            .qty-box { display: inline-flex; align-items: center; gap: 4px; }
+            .qty-box input { width: 52px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+            .btn {
+                padding: 6px 12px; border: 1px solid #ccc; background: #fff;
+                border-radius: 6px; cursor: pointer; font-size: 13px;
+            }
+            .btn:hover { background: #f1f3f5; }
+            .btn-danger { border-color: #ffa8a8; color: #c92a2a; }
+            .btn-primary {
+                background: #222; color: #fff; border-color: #222;
+                font-size: 16px; font-weight: 600; padding: 14px 32px;
+            }
+            .btn-primary:hover { background: #444; }
+            .summary-box {
+                margin-top: 24px; padding: 20px 24px; background: #f8f9fa;
+                border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
+            }
+            .total-price { font-size: 24px; font-weight: 700; color: #d9480f; }
+            .empty-box { text-align: center; padding: 60px 0; color: #888; }
+            .soldout-row { opacity: 0.6; background-color: #fafafa; }
+            .test-bar {
+                margin-top: 30px; padding: 14px; background: #fff9db;
+                border: 1px dashed #fcc419; border-radius: 8px; font-size: 13px;
+            }
+        </style>
     </head>
     <body>
         <div id="app" class="cart-container">
-            <h2>🛒 장바구니</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0;">🛒 장바구니</h2>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn" @click="fnGoMypage">마이페이지</button>
+                    <button class="btn" @click="fnGoMain">메인으로</button>
+                </div>
+            </div>
 
             <!-- 상단 선택 컨트롤 바 -->
             <div class="toolbar">
@@ -241,8 +247,8 @@
                             if (data.result === "success") {
                                 self.cartList = data.list;
                                 self.selectedIds = self.cartList
-                                    .filter(item => item.available)
-                                    .map(item => item.cartItemId);
+                                .filter(item => item.available)
+                                .map(item => item.cartItemId);
                             } else {
                                 alert(data.message || "장바구니 조회에 실패했습니다.");
                             }
@@ -252,8 +258,8 @@
                 fnToggleAll(e) {
                     if (e.target.checked) {
                         this.selectedIds = this.cartList
-                            .filter(item => item.available)
-                            .map(item => item.cartItemId);
+                        .filter(item => item.available)
+                        .map(item => item.cartItemId);
                     } else {
                         this.selectedIds = [];
                     }
@@ -358,10 +364,16 @@
                     });
                 }
             },
+            fnGoMypage() {
+                location.href = "/member/mypage.do";
+            },
+            fnGoMain() {
+                location.href = "/";
+            },
             mounted() {
                 this.fnList();
             }
         });
-
+        
         app.mount('#app');
     </script>
