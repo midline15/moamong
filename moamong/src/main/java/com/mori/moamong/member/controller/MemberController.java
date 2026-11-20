@@ -166,10 +166,11 @@ public class MemberController {
 		return new Gson().toJson(resultMap);
 	}
 
-	// 회원 탈퇴
+	// 회원 탈퇴 (일반 회원: password 필수 / 소셜 회원: 빈 값 허용)
 	@RequestMapping(value = "/member/withdraw.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String withdraw(@RequestParam("password") String password, jakarta.servlet.http.HttpSession session) {
+	public String withdraw(@RequestParam(value = "password", required = false, defaultValue = "") String password,
+			jakarta.servlet.http.HttpSession session) {
 		Long memberId = Long.valueOf(String.valueOf(session.getAttribute("sessionId")));
 		HashMap<String, Object> resultMap = memberService.withdraw(memberId, password);
 		return new Gson().toJson(resultMap);
