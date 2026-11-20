@@ -13,4 +13,22 @@ public interface NoticeMapper {
     // 공지사항 목록
     List<Notice> selectNoticeList(HashMap<String, Object> map);
 
+    // 공지사항 전체 개수 (페이징용)
+    int selectNoticeCnt(HashMap<String, Object> map);
+
+    // 공지사항 상세
+    Notice selectNotice(HashMap<String, Object> map);
+
+    // 조회수 증가
+    int updateNoticeViewCount(HashMap<String, Object> map);
+
+    // 공지사항 등록
+    int insertNotice(HashMap<String, Object> map);
+
+    // 공지사항 수정
+    int updateNotice(HashMap<String, Object> map);
+
+    // 공지사항 삭제
+    int deleteNotice(HashMap<String, Object> map);
+
 }

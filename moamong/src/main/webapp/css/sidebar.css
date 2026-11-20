@@ -1,233 +1,570 @@
+/* =========================================
+   sidebar.css  -  모아몽 사이드바 (드로어 방식)
+   - 왼쪽에서 슬라이드, 전체 높이
+   - 2·3차 메뉴는 옆으로 펼쳐지지 않고 아코디언으로 펼침
+========================================= */
 
-/* =========================
-   기본 초기화
-========================= */
 
-* {
-    margin: 0;
-    padding: 0;
+/* =========================================
+   1. 변수 / 스코프 초기화
+========================================= */
+
+.menu-container,
+.menu-container *,
+.sidebar-overlay {
     box-sizing: border-box;
 }
 
-body {
-    background-color: #fff;
-    font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
-    font-size: 15px;
+.menu-container {
+    --sb-bg: #fffdf9;
+    --sb-bg-soft: #f8f2e9;
+    --sb-line: #efe7da;
+    --sb-line-strong: #e3d6c1;
+    --sb-gold: #94764b;
+    --sb-gold-light: #c49a62;
+    --sb-text: #39342e;
+    --sb-muted: #9a8f80;
+
+    font-family: "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+}
+
+.menu-container ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-container p {
+    margin: 0;
+}
+
+.menu-container a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.menu-container button {
+    font: inherit;
+    color: inherit;
+    border: none;
+    background: none;
+    cursor: pointer;
 }
 
 
-/* =========================
-   전체 사이드바 영역
-========================= */
+/* =========================================
+   2. 배경 오버레이
+========================================= */
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(35, 30, 24, 0.42);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.35s ease,
+        visibility 0s linear 0.35s;
+
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+        opacity 0.35s ease,
+        visibility 0s;
+}
+
+
+/* =========================================
+   3. 드로어 본체
+========================================= */
 
 .menu-container {
     position: fixed;
-    top: 125px;
-    left: 20px;
-    width: 220px;
-    z-index: 1000;
-    overflow: visible;
+    top: 0;
+    left: 0;
 
-    /* 처음에는 왼쪽 밖으로 숨김 */
-    transform: translateX(-250px);
+    width: 320px;
+    max-width: 86vw;
+    height: 100vh;
+    height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--sb-bg);
+
+    transform: translateX(-100%);
     visibility: hidden;
 
-    /* 부드러운 슬라이드 */
-    transition: transform 0.3s ease,
-                visibility 0.3s ease;
+    transition:
+        transform 0.45s cubic-bezier(.22, 1, .36, 1),
+        box-shadow 0.45s ease,
+        visibility 0s linear 0.45s;
+
+    z-index: 1000;
 }
 
-/* 햄버거 버튼 클릭 시 표시 */
 .menu-container.active {
     transform: translateX(0);
     visibility: visible;
+
+    box-shadow: 14px 0 40px rgba(60, 45, 25, 0.16);
+
+    transition:
+        transform 0.45s cubic-bezier(.22, 1, .36, 1),
+        box-shadow 0.45s ease,
+        visibility 0s;
 }
 
 
-/* =========================
-   공통 메뉴 설정
-========================= */
+/* =========================================
+   4. 상단 (로고 + 닫기)
+========================================= */
 
-.main-menu,
-.sub-menu,
-.third-menu {
-    list-style: none;
-    background-color: #fff;
-    width: 220px;
+.menu-head {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 88px;
+    padding: 0 20px 0 28px;
+
+    border-bottom: 1px solid var(--sb-line);
 }
 
+.menu-logo {
+    display: flex;
+    align-items: center;
+}
 
-/* =========================
-   1차 메뉴
-========================= */
+.menu-logo img {
+    display: block;
+    height: 34px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+}
 
-.main-menu {
+.menu-close {
     position: relative;
-    border: 1px solid #e8e8e8;
+
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid var(--sb-line-strong);
+    border-radius: 50%;
+    background: #fff;
+
+    transition:
+        background 0.3s ease,
+        border-color 0.3s ease,
+        transform 0.3s ease;
 }
 
-/* 메뉴 항목 */
-.main-menu > li,
-.sub-menu > li,
-.third-menu > li {
+/* CSS로 그린 X (폰트에 상관없이 항상 또렷함) */
+.menu-close::before,
+.menu-close::after {
+    content: "";
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: 16px;
+    height: 1.5px;
+
+    background: var(--sb-gold);
+
+    transition: background 0.3s ease;
+}
+
+.menu-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.menu-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.menu-close:hover {
+    background: var(--sb-gold);
+    border-color: var(--sb-gold);
+    transform: rotate(90deg);
+}
+
+.menu-close:hover::before,
+.menu-close:hover::after {
+    background: #fff;
+}
+
+
+/* =========================================
+   5. 메뉴 영역 (스크롤)
+========================================= */
+
+.menu-nav {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.main-menu > li {
+    border-bottom: 1px solid var(--sb-line);
+}
+
+
+/* =========================================
+   6. 1차 메뉴 (링크 / 펼침 버튼 공통)
+========================================= */
+
+.menu-link,
+.menu-toggle {
     position: relative;
-    height: 55px;
-    border-bottom: 1px solid #eeeeee;
-}
 
-/* 메뉴 링크 */
-.main-menu a,
-.sub-menu a,
-.third-menu a {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     width: 100%;
+    padding: 20px 28px;
+
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-align: left;
+    color: var(--sb-text);
+
+    transition:
+        color 0.3s ease,
+        background 0.3s ease,
+        padding 0.3s ease;
+}
+
+/* 왼쪽 골드 포인트 */
+.menu-link::before,
+.menu-toggle::before {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: 3px;
     height: 100%;
 
-    padding: 0 20px;
+    background: var(--sb-gold-light);
 
-    color: #222;
-    font-size: 15px;
-    text-decoration: none;
-    background-color: #fff;
-
-    transition: background-color 0.2s ease,
-                color 0.2s ease;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
 }
 
-/* 1차 메뉴 글자 강조 */
-.main-menu > li > a {
-    font-weight: 600;
+.menu-link:hover,
+.menu-toggle:hover,
+.menu-link:focus-visible,
+.menu-toggle:focus-visible,
+.has-submenu.open > .menu-toggle {
+    color: var(--sb-gold);
+    background: var(--sb-bg-soft);
+}
+
+.menu-link:hover::before,
+.menu-toggle:hover::before,
+.menu-link:focus-visible::before,
+.menu-toggle:focus-visible::before,
+.has-submenu.open > .menu-toggle::before {
+    transform: scaleY(1);
+}
+
+.menu-link:focus-visible,
+.menu-toggle:focus-visible,
+.menu-close:focus-visible,
+.chip-list a:focus-visible,
+.menu-auth a:focus-visible {
+    outline: 2px solid var(--sb-gold-light);
+    outline-offset: -2px;
 }
 
 
-/* =========================
-   호버 효과
-========================= */
+/* =========================================
+   7. 화살표 (아래 ↔ 위)
+========================================= */
 
-.menu-container li:hover > a,
-.menu-container li:focus-within > a {
-    color: #c99d63;
-    background-color: #faf4eb;
-}
-
-
-/* =========================
-   화살표
-========================= */
-
-.arrow {
+.menu-arrow {
     width: 8px;
     height: 8px;
+    margin-right: 3px;
 
-    border-top: 1.5px solid #222;
-    border-right: 1.5px solid #222;
+    border-right: 1.5px solid #a89b88;
+    border-bottom: 1.5px solid #a89b88;
 
-    transform: rotate(45deg);
-    margin-right: 4px;
+    transform: rotate(45deg) translate(-2px, -2px);
     flex-shrink: 0;
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease;
 }
 
-/* 화살표 호버 */
-.menu-container li:hover > a .arrow,
-.menu-container li:focus-within > a .arrow {
-    border-color: #c99d63;
+.has-submenu.open > .menu-toggle .menu-arrow {
+    border-color: var(--sb-gold-light);
+    transform: rotate(-135deg) translate(-2px, -2px);
 }
 
 
-/* =========================
-   2차 메뉴
-========================= */
+/* =========================================
+   8. 아코디언 (선물키트 하위)
+========================================= */
 
-.sub-menu {
-    display: none;
+.submenu-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+
+    background: var(--sb-bg-soft);
+
+    transition:
+        grid-template-rows 0.4s ease,
+        visibility 0s linear 0.4s;
+}
+
+.has-submenu.open > .submenu-wrap {
+    grid-template-rows: 1fr;
+    visibility: visible;
+
+    transition:
+        grid-template-rows 0.4s ease,
+        visibility 0s;
+}
+
+.submenu-inner {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.sub-group {
+    padding: 22px 28px 4px;
+}
+
+.sub-group:last-child {
+    padding-bottom: 26px;
+}
+
+.sub-group + .sub-group {
+    padding-top: 20px;
+}
+
+.sub-title {
+    margin-bottom: 12px;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sb-gold);
+}
+
+
+/* =========================================
+   9. 선물 태그 모양 칩 (3차 메뉴)
+========================================= */
+
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip-list a {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 8px 14px 8px 26px;
+
+    font-size: 13px;
+    color: var(--sb-text);
+
+    background: #fff;
+    border: 1px solid var(--sb-line-strong);
+    border-radius: 999px;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease;
+}
+
+/* 선물 태그의 끈 구멍 */
+.chip-list a::before {
+    content: "";
 
     position: absolute;
-    top: -1px;
-    left: 100%;
+    left: 11px;
+    top: 50%;
 
-    border: 1px solid #e8e8e8;
-    z-index: 1001;
+    width: 6px;
+    height: 6px;
+
+    border: 1.5px solid var(--sb-gold-light);
+    border-radius: 50%;
+
+    transform: translateY(-50%);
+    transition: border-color 0.25s ease;
 }
 
-/* 1차 메뉴 호버 시 표시 */
-.main-menu > li.has-submenu:hover > .sub-menu,
-.main-menu > li.has-submenu:focus-within > .sub-menu {
-    display: block;
+.chip-list a:hover,
+.chip-list a:focus-visible {
+    background: var(--sb-gold);
+    border-color: var(--sb-gold);
+    color: #fff;
 }
 
-
-/* =========================
-   3차 메뉴
-========================= */
-
-.third-menu {
-    display: none;
-
-    position: absolute;
-    top: -1px;
-    left: 100%;
-
-    border: 1px solid #e8e8e8;
-    z-index: 1002;
-}
-
-/* 2차 메뉴 호버 시 표시 */
-.sub-menu > li.has-submenu:hover > .third-menu,
-.sub-menu > li.has-submenu:focus-within > .third-menu {
-    display: block;
+.chip-list a:hover::before,
+.chip-list a:focus-visible::before {
+    border-color: #f7e5bb;
 }
 
 
-/* =========================
-   로고 영역
-========================= */
+/* =========================================
+   10. 하단 (로그인 + 고객센터 정보)
+========================================= */
 
-.main-menu > .logo-area {
-    height: 75px;
-    border-bottom: none;
+.menu-foot {
+    flex-shrink: 0;
+
+    padding: 22px 28px 28px;
+
+    background: var(--sb-bg-soft);
+    border-top: 1px solid var(--sb-line);
 }
 
-.main-menu > .logo-area > .logo {
+.menu-auth {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.menu-auth a {
+    flex: 1;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    height: 100%;
+    height: 42px;
 
-    color: #c99d63;
+    font-size: 14px;
+    font-weight: 600;
+
+    border-radius: 21px;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.menu-auth .auth-login {
+    color: var(--sb-gold);
+    background: #fff;
+    border: 1px solid var(--sb-line-strong);
+}
+
+.menu-auth .auth-login:hover {
+    border-color: var(--sb-gold);
+}
+
+.menu-auth .auth-signup {
+    color: #fff;
+    background: var(--sb-gold);
+    border: 1px solid var(--sb-gold);
+}
+
+.menu-auth .auth-signup:hover {
+    background: #765a36;
+    border-color: #765a36;
+}
+
+.menu-cs {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--sb-muted);
+}
+
+.menu-cs strong {
+    display: block;
+
     font-size: 20px;
-    font-weight: bold;
-    background-color: #fff;
-}
-
-/* 로고 호버 */
-.main-menu > .logo-area:hover > .logo {
-    color: #b78a50;
-    background-color: #fff;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--sb-text);
 }
 
 
-/* =========================
-   하위 메뉴 크기
-========================= */
+/* =========================================
+   11. 배경 스크롤 방지
+========================================= */
 
-.sub-menu,
-.third-menu {
-    min-height: 100%;
+body.sidebar-open {
+    overflow: hidden;
 }
 
 
-/* =========================
-   모바일 화면
-========================= */
+/* =========================================
+   12. 모바일
+========================================= */
 
 @media screen and (max-width: 600px) {
 
     .menu-container {
-        left: 20px;
+        width: 300px;
     }
 
+    .menu-head {
+        height: 76px;
+        padding: 0 16px 0 22px;
+    }
+
+    .menu-logo img {
+        height: 30px;
+    }
+
+    .menu-link,
+    .menu-toggle {
+        padding: 18px 22px;
+        font-size: 15px;
+    }
+
+    .sub-group {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+
+    .menu-foot {
+        padding: 20px 22px 24px;
+    }
+}
+
+
+/* =========================================
+   13. 모션 최소화
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .menu-container,
+    .menu-container *,
+    .sidebar-overlay {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+    }
 }

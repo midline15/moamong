@@ -1,0 +1,147 @@
+/* =========================================
+   고객센터 - 1:1문의 (상태 뱃지 / 답변 영역)
+   ※ 색상 변수는 notice/list.css 의 :root 사용
+========================================= */
+
+
+/* =========================================
+   답변 상태 뱃지
+========================================= */
+
+.cs-status {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 2px;
+    vertical-align: middle;
+}
+
+/* 답변 대기 */
+.cs-status.wait {
+    color: #8D877C;
+    background: #F4F1EA;
+}
+
+/* 답변 완료 */
+.cs-status.done {
+    color: #fff;
+    background: var(--point);
+}
+
+/* 상세 제목 옆 뱃지 간격 */
+.cs-view-head h3 .cs-status {
+    margin-right: 8px;
+}
+
+
+/* =========================================
+   답변 영역
+========================================= */
+
+.cs-answer {
+    margin-top: 20px;
+    background: var(--ivory);
+    border-top: 2px solid var(--point);
+    border-bottom: 1px solid var(--border);
+}
+
+.cs-answer-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.cs-answer-head strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: #514636;
+}
+
+.cs-answer-head span {
+    font-size: 11px;
+    color: var(--sub-text);
+}
+
+.cs-answer-body {
+    padding: 24px 20px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #4B4640;
+    white-space: pre-wrap;      /* 줄바꿈 유지 */
+    word-break: break-all;
+}
+
+/* 답변 대기 안내 */
+.cs-answer.empty {
+    padding: 30px 20px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--sub-text);
+}
+
+
+/* =========================================
+   답변 작성 폼 (관리자)
+========================================= */
+
+.cs-answer-form {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid var(--border);
+}
+
+.cs-answer-form > label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #62594C;
+}
+
+.cs-answer-form textarea {
+    width: 100%;
+    height: 180px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    line-height: 1.7;
+    color: var(--text);
+    border: 1px solid #E5E0D7;
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border 0.2s ease;
+}
+
+.cs-answer-form textarea:focus {
+    border-color: var(--point);
+}
+
+.cs-answer-form .cs-btn-area {
+    margin-top: 12px;
+}
+
+
+/* =========================================
+   모바일
+========================================= */
+
+@media (max-width: 768px) {
+
+    .cs-answer-head,
+    .cs-answer-body {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .cs-answer-form {
+        padding: 14px 12px;
+    }
+
+    .cs-answer-form textarea {
+        height: 140px;
+    }
+}
