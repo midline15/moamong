@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mori.moamong.member.mapper.AddressMapper">
+
+	<select id="selectAddressList" parameterType="long" resultType="hashmap">
+		SELECT
+		address_id AS addressId,
+		member_id AS memberId,
+		recipient_name AS recipientName,
+		recipient_phone AS recipientPhone,
+		postal_code AS postalCode,
+		address_default AS addressDefault,
+		IFNULL(address_detail, '') AS addressDetail,
+		IFNULL(address_name, '') AS addressName,
+		is_default AS isDefault,
+		DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt,
+		DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updatedAt
+		FROM ADDRESS
+		WHERE member_id = #{memberId}
+		ORDER BY is_default DESC, address_id DESC
+	</select>
+
+	<select id="selectAddressOne" parameterType="hashmap" resultType="hashmap">
+		SELECT
+		address_id AS addressId,
+		member_id AS memberId,
+		recipient_name AS recipientName,
+		recipient_phone AS recipientPhone,
+		postal_code AS postalCode,
+		address_default AS addressDefault,
+		IFNULL(address_detail, '') AS addressDetail,
+		IFNULL(address_name, '') AS addressName,
+		is_default AS isDefault
+		FROM ADDRESS
+		WHERE address_id = #{addressId}
+		AND member_id = #{memberId}
+	</select>
+
+	<select id="selectDefaultAddress" parameterType="long" resultType="hashmap">
+		SELECT
+		address_id AS addressId,
+		member_id AS memberId,
+		recipient_name AS recipientName,
+		recipient_phone AS recipientPhone,
+		postal_code AS postalCode,
+		address_default AS addressDefault,
+		IFNULL(address_detail, '') AS addressDetail,
+		IFNULL(address_name, '') AS addressName,
+		is_default AS isDefault
+		FROM ADDRESS
+		WHERE member_id = #{memberId}
+		ORDER BY is_default DESC, address_id DESC
+		LIMIT 1
+	</select>
+
+	<select id="countAddressByMemberId" parameterType="long" resultType="int">
+		SELECT COUNT(*)
+		FROM ADDRESS
+		WHERE member_id = #{memberId}
+	</select>
+
+	<update id="resetDefaultAddress" parameterType="long">
+		UPDATE ADDRESS
+		SET is_default = 0,
+		updated_at = NOW()
+		WHERE member_id = #{memberId}
+		AND is_default = 1
+	</update>
+
+	<update id="updateDefaultAddress" parameterType="hashmap">
+		UPDATE ADDRESS
+		SET is_default = 1,
+		updated_at = NOW()
+		WHERE address_id = #{addressId}
+		AND member_id = #{memberId}
+	</update>
+
+	<insert id="insertAddress" parameterType="hashmap" useGeneratedKeys="true"
+		keyProperty="addressId">
+		INSERT INTO ADDRESS (
+		member_id,
+		recipient_name,
+		recipient_phone,
+		postal_code,
+		address_default,
+		address_detail,
+		address_name,
+		is_default,
+		created_at,
+		updated_at
+		) VALUES (
+		#{memberId},
+		#{recipientName},
+		#{recipientPhone},
+		#{postalCode},
+		#{addressDefault},
+		#{addressDetail},
+		#{addressName},
+		#{isDefault},
+		NOW(),
+		NOW()
+		)
+	</insert>
+
+	<update id="updateAddress" parameterType="hashmap">
+		UPDATE ADDRESS
+		SET recipient_name = #{recipientName},
+		recipient_phone = #{recipientPhone},
+		postal_code = #{postalCode},
+		address_default = #{addressDefault},
+		address_detail = #{addressDetail},
+		address_name = #{addressName},
+		is_default = #{isDefault},
+		updated_at = NOW()
+		WHERE address_id = #{addressId}
+		AND member_id = #{memberId}
+	</update>
+
+	<delete id="deleteAddress" parameterType="hashmap">
+		DELETE FROM ADDRESS
+		WHERE address_id = #{addressId}
+		AND member_id = #{memberId}
+	</delete>
+
+</mapper>
