@@ -1,5 +1,6 @@
 package com.mori.moamong.product.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import com.mori.moamong.dto.Category;
 import com.mori.moamong.dto.Product;
 import com.mori.moamong.product.service.ProductService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -42,10 +44,26 @@ public class ProductController {
     }
 
     // 상품 상세 페이지로 이동
+    // 세션에 상품아이디 등록해서 무분별한 조회수 증가 방지
     @RequestMapping("/product/view.do")
-    public String view(@RequestParam HashMap<String, Object> map, Model model) {
+    public String view(@RequestParam HashMap<String, Object> map, Model model, HttpSession session) {
 
-        model.addAttribute("categoryId", map.get("categoryId"));
+        String productId = map.get("productId").toString();
+
+        ArrayList<String> viewList = (ArrayList<String>) session.getAttribute("viewList");
+
+        if (viewList == null) {
+            viewList = new ArrayList<String>();
+        }
+
+        if (!viewList.contains(productId)) {
+            productService.updateProductViewCount(map);
+            viewList.add(productId);
+        }
+
+        session.setAttribute("viewList", viewList);
+
+        model.addAttribute("productId", productId);
 
         return "product/view";
     }
@@ -54,6 +72,13 @@ public class ProductController {
     @RequestMapping("/product/add.do")
     public String add(Model model) {
         return "product/add";
+    }
+
+    // 상품 수정페이지로 이동
+    @RequestMapping("/product/edit.do")
+    public String edit(@RequestParam HashMap<String, Object> map, Model model) {
+        model.addAttribute("productId", map.get("productId"));
+        return "product/edit";
     }
 
     // 메인카테고리, 서브카테고리, 메인카테고리에 해당하는 상품리스트 조회
@@ -103,19 +128,42 @@ public class ProductController {
         return new Gson().toJson(resultMap);
     }
 
+    // 상품 추가, 이미지 업로드
     @RequestMapping(value = "/product/add.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String add(Model model,
             @RequestParam HashMap<String, Object> map,
-            @RequestParam(value = "productImageList", required = false) MultipartFile[] productImageList) throws Exception {
+            @RequestParam(value = "productImageList", required = false) MultipartFile[] productImageList,
+            @RequestParam(value = "thumbnailImage", required = false) MultipartFile thumbnailImage)
+            throws Exception {
 
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
         // 상품 등록 및 이미지 업로드 처리
-        int result = productService.addProduct(map, productImageList);
+        int result = productService.addProduct(map, thumbnailImage, productImageList);
 
         resultMap.put("result", result);
 
         return new Gson().toJson(resultMap);
     }
+
+    // 상품 수정, 이미지교체
+    @RequestMapping(value = "/product/edit.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String editDox(
+            Model model,
+            @RequestParam HashMap<String, Object> map,
+            @RequestParam(value = "productImageList", required = false) MultipartFile[] productImageList,
+            @RequestParam(value = "thumbnailImage", required = false) MultipartFile thumbnailImage)
+            throws Exception {
+
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+
+        int result = productService.editProduct(map, thumbnailImage, productImageList);
+
+        resultMap.put("result", result);
+
+        return new Gson().toJson(resultMap);
+    }
+
 }
