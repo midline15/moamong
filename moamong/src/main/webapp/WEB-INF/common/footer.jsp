@@ -41,11 +41,11 @@
 
         <!-- 사업자 정보 -->
         <div class="footer-company">
-            <p>상호명 : 기프트온 | 대표자 : 홍길동</p>
+            <p>상호명 : 모아몽 | 대표자 : 홍길동</p>
             <p>사업자등록번호 : 000-00-00000</p>
             <p>주소 : 서울특별시 ○○구 ○○로</p>
             <p>고객센터 : 1588-0000 | 운영시간 : 평일 09:00~18:00</p>
-            <p>Copyright © GIFT-ON. All rights reserved.</p>
+            <p>Copyright © MOAMONG. All rights reserved.</p>
         </div>
 
     </div>
