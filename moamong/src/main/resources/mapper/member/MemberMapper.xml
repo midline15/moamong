@@ -158,5 +158,41 @@
 		)
 	</insert>
 
+	<!-- 아이디 찾기용 조회 (이름 + 이메일 일치, 탈퇴 회원 제외) -->
+	<select id="selectMemberByNameAndEmail" parameterType="hashmap"
+		resultType="Member">
+		SELECT
+		member_id,
+		login_id,
+		member_name,
+		email,
+		status,
+		created_at,
+		social_type
+		FROM MEMBER
+		WHERE member_name = #{memberName}
+		AND email = #{email}
+		AND status != 'WITHDRAWN'
+		LIMIT 1
+	</select>
+
+	<!-- 비밀번호 재설정 본인확인 조회 (아이디 + 이름 + 이메일 일치, 탈퇴 회원 제외) -->
+	<select id="selectMemberForPasswordReset" parameterType="hashmap"
+		resultType="Member">
+		SELECT
+		member_id,
+		login_id,
+		member_name,
+		email,
+		status,
+		social_type
+		FROM MEMBER
+		WHERE login_id = #{loginId}
+		AND member_name = #{memberName}
+		AND email = #{email}
+		AND status != 'WITHDRAWN'
+		LIMIT 1
+	</select>
+
 
 </mapper>

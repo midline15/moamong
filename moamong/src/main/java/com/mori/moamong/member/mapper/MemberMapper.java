@@ -40,4 +40,11 @@ public interface MemberMapper {
 
 	// 소셜 로그인 최초 가입
 	int insertSocialMember(HashMap<String, Object> map);
+	
+	// 아이디 찾기 (이름 + 이메일)
+	Member selectMemberByNameAndEmail(HashMap<String, Object> map);
+
+	// 비밀번호 재설정 본인 확인 (아이디 + 이름 + 이메일)
+	Member selectMemberForPasswordReset(HashMap<String, Object> map);
+
 }
