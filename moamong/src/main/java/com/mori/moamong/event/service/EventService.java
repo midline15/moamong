@@ -1,10 +1,9 @@
 package com.mori.moamong.event.service;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashMap;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -19,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class EventService {
-
+@Autowired
+EventMapper eventMapper;
     // 이벤트 목록 (상태 필터 + 페이징, 카드 6개씩)
     public HashMap<String, Object> getEventList(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
