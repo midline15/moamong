@@ -31,4 +31,13 @@ public interface InquiryMapper {
     // 1:1문의 삭제
     int deleteInquiry(HashMap<String, Object> map);
 
+    // 1:1문의 이미지 목록
+    List<HashMap<String, Object>> selectInquiryImageList(HashMap<String, Object> map);
+
+    // 1:1문의 이미지 등록
+    int insertInquiryImage(HashMap<String, Object> map);
+
+    // 1:1문의 이미지 전체 삭제 (문의 기준)
+    int deleteInquiryImage(HashMap<String, Object> map);
+
 }

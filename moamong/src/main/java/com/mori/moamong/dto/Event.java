@@ -8,8 +8,9 @@ public class Event {
     private Long eventId;
     private String eventTitle;
     private String eventContent;
-    private LocalDateTime startedAt;
-    private LocalDateTime endedAt;
+    private String startedAt;
+    private String endedAt;
     private String eventStatus;
-    private LocalDateTime createdAt;
+    private String createdAt;
+    private String thumbnailUrl;    // 목록 카드용 썸네일 (EVENT_IMAGE 조회)
 }

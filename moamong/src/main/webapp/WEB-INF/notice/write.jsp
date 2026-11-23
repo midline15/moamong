@@ -17,10 +17,10 @@
     <!-- Vue -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <!-- Toast UI Editor (텍스트 에디터) -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.css">
-    <script src="https://uicdn.toast.com/editor/3.2.2/toastui-editor-all.min.js"></script>
-    <script src="https://uicdn.toast.com/editor/3.2.2/i18n/ko-kr.js"></script>
+    <!-- Summernote (텍스트 에디터) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.9.0/summernote-lite.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.9.0/summernote-lite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.9.0/lang/summernote-ko-KR.min.js"></script>
 
     <!-- HTML 안전하게 출력하기 위한 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
@@ -86,7 +86,7 @@
                     <div class="cs-form-row">
                         <label>내용</label>
                         <!-- 텍스트 에디터 영역 -->
-                        <div class="cs-editor" ref="editor"></div>
+                        <div class="cs-editor"><textarea ref="editor"></textarea></div>
                     </div>
 
                 </div>
@@ -112,7 +112,7 @@
 </html>
 
 <script>
-    // 에디터 객체 (Vue data에 넣으면 프록시 문제가 생겨서 밖에 둠)
+    // 에디터 객체 (jQuery 객체, Vue data에 넣으면 프록시 문제가 생겨서 밖에 둠)
     let editor = null;
 
     const app = Vue.createApp({
@@ -122,7 +122,8 @@
                 noticeId: "${noticeId}",    // 있으면 수정, 없으면 등록
                 adminId: 1,                 // TODO: 로그인 세션의 관리자 번호로 교체
                 noticeTitle: "",            // 제목
-                isPinned: false             // 상단 고정 여부
+                isPinned: false,            // 상단 고정 여부
+                imageList: []               // 업로드한 이미지 정보 (NOTICE_IMAGE 저장용)
             };
         },
 
@@ -141,21 +142,72 @@
             fnEditor: function () {
                 let self = this;
 
-                editor = new toastui.Editor({
-                    el: self.$refs.editor,
-                    height: "420px",
-                    initialEditType: "wysiwyg",     // 바로 보이는 대로 편집
-                    hideModeSwitch: true,           // 마크다운 전환 버튼 숨김
-                    language: "ko-KR",
+                editor = $(self.$refs.editor);
+                editor.summernote({
+                    lang: "ko-KR",
+                    height: 420,
                     placeholder: "내용을 입력하세요",
-                    // 이미지는 base64로 DB에 들어가 너무 커져서 뺌
-                    toolbarItems: [
-                        ["heading", "bold", "italic", "strike"],
-                        ["hr", "quote"],
-                        ["ul", "ol", "task"],
-                        ["table", "link"],
-                        ["code", "codeblock"]
-                    ]
+                    dialogsInBody: true,
+                    fontSizes: ["11", "12", "13", "14", "16", "18", "20", "24", "28", "32"],
+                    toolbar: [
+                        ["style", ["style"]],
+                        ["font", ["bold", "italic", "underline", "strikethrough", "clear"]],
+                        ["fontsize", ["fontsize"]],
+                        ["color", ["color"]],               // 글자색 + 배경색
+                        ["para", ["ul", "ol", "paragraph"]],// paragraph 안에 좌/중/우/양쪽 정렬
+                        ["table", ["table"]],
+                        ["insert", ["link", "picture", "hr"]]
+                    ],
+                    callbacks: {
+                        // 이미지 첨부 / 붙여넣기 / 드래그 시 서버로 업로드
+                        onImageUpload: function (files) {
+                            for (let i = 0; i < files.length; i++) {
+                                self.fnImageUpload(files[i]);
+                            }
+                        }
+                    }
+                });
+            },
+
+            // 이미지 업로드
+            fnImageUpload: function (file) {
+                let self = this;
+
+                // 용량 체크 (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("이미지는 5MB 이하만 올릴 수 있습니다.");
+                    return;
+                }
+
+                let formData = new FormData();
+                formData.append("file", file);
+
+                $.ajax({
+                    url: "http://localhost:8080/common/image-upload.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: formData,
+                    processData: false,     // FormData는 그대로 전송
+                    contentType: false,
+
+                    success: function (data) {
+                        console.log(data);
+                        if (data.result == "success") {
+                            // 에디터에 이미지 삽입
+                            editor.summernote("insertImage", data.imageUrl, function ($image) {
+                                $image.attr("alt", data.imageOriginName);
+                            });
+                            // 저장할 때 쓸 이미지 정보 보관
+                            self.imageList.push({
+                                imageUrl: data.imageUrl,
+                                imageOriginName: data.imageOriginName,
+                                imageName: data.imageName,
+                                imageSize: data.imageSize
+                            });
+                        } else {
+                            alert(data.msg || "이미지 업로드에 실패했습니다.");
+                        }
+                    }
                 });
             },
 
@@ -177,8 +229,10 @@
                         if (data.result == "success") {
                             self.noticeTitle = data.info.noticeTitle;
                             self.isPinned = data.info.isPinned ? true : false;
+                            // 기존에 올린 이미지 정보 (수정 시 유지하기 위해)
+                            self.imageList = data.imageList || [];
                             // 에디터에 기존 내용 채우기
-                            editor.setHTML(data.info.noticeContent || "");
+                            editor.summernote("code", data.info.noticeContent || "");
                         } else {
                             alert(data.msg || "공지사항을 불러오지 못했습니다.");
                             location.href = "/notice/list.do";
@@ -191,22 +245,29 @@
             fnSave: function () {
                 let self = this;
 
-                // 입력값 체크 (에디터가 비어있는지는 마크다운 기준으로 확인)
+                // 입력값 체크 (이미지만 넣은 경우는 비어있지 않은 것으로 처리됨)
                 if (self.noticeTitle.trim() == "") {
                     alert("제목을 입력해주세요.");
                     return;
                 }
-                if (editor.getMarkdown().trim() == "") {
+                if (editor.summernote("isEmpty")) {
                     alert("내용을 입력해주세요.");
                     return;
                 }
+
+                // 본문에 실제로 남아있는 이미지만 저장 (지운 이미지는 제외)
+                let html = editor.summernote("code");
+                let images = self.imageList.filter(function (img) {
+                    return html.indexOf(img.imageUrl) > -1;
+                });
 
                 let param = {
                     noticeId: self.noticeId,
                     adminId: self.adminId,
                     noticeTitle: self.noticeTitle,
-                    noticeContent: editor.getHTML(),    // HTML로 저장
-                    isPinned: self.isPinned ? 1 : 0
+                    noticeContent: html,                    // HTML로 저장 (색상/정렬/크기 포함)
+                    isPinned: self.isPinned ? 1 : 0,
+                    images: JSON.stringify(images)          // NOTICE_IMAGE 저장용
                 };
 
                 let url = self.isEdit

@@ -129,7 +129,7 @@
 }
 
 /* =========================================
-   텍스트 에디터 (Toast UI) 베이지 테마
+   텍스트 에디터 (Summernote) 베이지 테마
 ========================================= */
 
 /* 작성 폼 안에서의 위치 */
@@ -139,42 +139,35 @@
     margin: 10px 14px;
 }
 
-/* 툴바 */
-.cs-editor .toastui-editor-defaultUI {
+/* 에디터 테두리 */
+.cs-editor .note-editor.note-frame {
     border: 1px solid #E5E0D7;
     border-radius: 0;
-    font-family: inherit;
+    box-shadow: none;
 }
 
-.cs-editor .toastui-editor-defaultUI-toolbar {
+.cs-editor .note-editor.note-frame:focus-within {
+    border-color: var(--point);
+}
+
+/* 툴바 */
+.cs-editor .note-toolbar {
     background: var(--ivory);
     border-bottom: 1px solid var(--border);
 }
 
-/* 선택/호버 시 포인트 색상 (아이콘 이미지는 유지해야 해서 background-color만 지정) */
-.cs-editor .toastui-editor-toolbar-icons:hover {
+.cs-editor .note-btn:hover,
+.cs-editor .note-btn.active {
     background-color: var(--beige);
     border-color: var(--point);
-}
-
-.cs-editor .toastui-editor-toolbar-icons.active {
-    background-color: var(--beige);
 }
 
 /* 입력 영역 */
-.cs-editor .toastui-editor-contents {
+.cs-editor .note-editable {
     font-family: inherit;
     font-size: 13px;
+    line-height: 1.7;
     color: var(--text);
-}
-
-.cs-editor .ProseMirror {
-    padding: 14px 16px;
-}
-
-/* 포커스 시 테두리 */
-.cs-editor .toastui-editor-defaultUI:focus-within {
-    border-color: var(--point);
 }
 
 
@@ -278,6 +271,7 @@
 
 .cs-html img {
     max-width: 100%;
+    height: auto;
 }
 
 
