@@ -25,7 +25,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
 public class OrderController {
-
+	@org.springframework.beans.factory.annotation.Value("${portone.imp.code}")
+	private String impCode;
 	private final OrderService orderService;
 
 	// 1. 주문서 페이지 이동 (/order/checkout.do?cartItemIds=1,2,3)
@@ -39,6 +40,7 @@ public class OrderController {
 			return "redirect:/cart/list.do";
 		}
 		model.addAttribute("cartItemIds", cartItemIds);
+		model.addAttribute("impCode", impCode);
 		return "order/checkout";
 	}
 

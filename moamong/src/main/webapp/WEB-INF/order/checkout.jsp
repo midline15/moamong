@@ -10,7 +10,8 @@
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <script src="https://daumcdn.net"></script>
+        <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+        <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
         <style>
             body {
                 font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -318,36 +319,63 @@
                 if (!this.delivery.recipientName.trim()) { alert("수령인 이름을 입력해주세요."); return; }
                 if (!this.delivery.recipientPhone.trim()) { alert("수령인 연락처를 입력해주세요."); return; }
                 if (!this.delivery.postalCode || !this.delivery.addressDefault) { alert("배송지 주소를 입력해주세요."); return; }
-                
-                if (!confirm("총 " + this.finalAmount.toLocaleString() + "원을 결제하시겠습니까?")) return;
-                
-                const cartItemIds = this.items.map(item => Number(item.cartItemId));
-                const payload = {
-                    cartItemIds: cartItemIds,
-                    recipientName: this.delivery.recipientName.trim(),
-                    recipientPhone: this.delivery.recipientPhone.trim(),
-                    postalCode: this.delivery.postalCode,
-                    addressDefault: this.delivery.addressDefault,
-                    addressDetail: this.delivery.addressDetail.trim(),
-                    extraValues: this.extraValues
-                };
-                
-                $.ajax({
-                    url: "/order/create.dox",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(payload),
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.result === "success") {
-                            alert(data.message + "\n주문번호: " + data.orderNumber);
-                            location.href = "/order/list.do";
-                        } else {
-                            alert(data.message || "주문 처리에 실패했습니다.");
-                        }
+
+                let self = this;
+                const IMP = window.IMP;
+                IMP.init("${impCode}");
+
+                const merchantUid = "MOA_" + new Date().getTime();
+                const orderName = this.items.length > 1
+                    ? this.items[0].itemName + " 외 " + (this.items.length - 1) + "건"
+                    : this.items[0].itemName;
+
+                IMP.request_pay({
+                    pg: "html5_inicis.INIpayTest",
+                    pay_method: "card",
+                    merchant_uid: merchantUid,
+                    name: orderName,
+                    // [테스트결제용] 무조건 1원 결제 (원복 시: amount: this.finalAmount,)
+                    amount: 1,
+                    buyer_name: this.delivery.recipientName.trim(),
+                    /*amount: this.finalAmount,*/
+                    buyer_name: this.delivery.recipientName.trim(),
+                    buyer_tel: this.delivery.recipientPhone.trim(),
+                    buyer_addr: this.delivery.addressDefault + " " + this.delivery.addressDetail.trim(),
+                    buyer_postcode: this.delivery.postalCode
+                }, function (rsp) {
+                    if (!rsp.success) {
+                        alert("결제가 취소되었거나 실패했습니다.\n(" + (rsp.error_msg || "") + ")");
+                        return;
                     }
+                    const payload = {
+                        cartItemIds: self.items.map(item => Number(item.cartItemId)),
+                        recipientName: self.delivery.recipientName.trim(),
+                        recipientPhone: self.delivery.recipientPhone.trim(),
+                        postalCode: self.delivery.postalCode,
+                        addressDefault: self.delivery.addressDefault,
+                        addressDetail: self.delivery.addressDetail.trim(),
+                        extraValues: self.extraValues,
+                        impUid: rsp.imp_uid,
+                        payMethod: rsp.pay_method || "KAKAOPAY"
+                    };
+                    $.ajax({
+                        url: "/order/create.dox",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(payload),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.result === "success") {
+                                alert(data.message + "\n주문번호: " + data.orderNumber);
+                                location.href = "/order/list.do";
+                            } else {
+                                alert(data.message || "주문 처리에 실패했습니다.");
+                            }
+                        }
+                    });
                 });
             }
+
         },
         mounted() {
             this.fnLoadCheckout();
