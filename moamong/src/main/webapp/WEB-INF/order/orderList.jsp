@@ -32,6 +32,16 @@
         .snapshot-box { margin-top: 6px; padding-left: 10px; border-left: 2px solid #dee2e6; font-size: 12px; color: #666; line-height: 1.5; }
         .order-foot { background: #fcfcfc; padding: 12px 18px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
         .empty-box { text-align: center; padding: 60px 0; color: #888; }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        .modal-box { background: #fff; width: 92%; max-width: 420px; border-radius: 12px; padding: 22px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .reason-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; cursor: pointer; font-size: 14px; }
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+        .tab-btn {
+            padding: 8px 16px; border: 1px solid #dee2e6; background: #fff;
+            border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; color: #555;
+        }
+        .tab-btn:hover { background: #f1f3f5; }
+        .tab-btn.active { background: #222; color: #fff; border-color: #222; }
     </style>
 </head>
 <body>
@@ -44,21 +54,26 @@
                 <button class="btn" @click="fnGoMain">메인으로</button>
             </div>
         </div>
+        <div class="filter-tabs">
+            <button class="tab-btn" :class="{ active: currentTab === 'ALL' }" @click="currentTab = 'ALL'">
+                전체 ({{ orderList.length }})
+            </button>
+            <button class="tab-btn" :class="{ active: currentTab === 'PAID' }" @click="currentTab = 'PAID'">
+                결제완료 ({{ paidCount }})
+            </button>
+            <button class="tab-btn" :class="{ active: currentTab === 'CANCELED' }" @click="currentTab = 'CANCELED'">
+                주문취소 ({{ canceledCount }})
+            </button>
+        </div>
+        <div v-if="filteredOrderList.length === 0" class="empty-box">해당 상태의 주문 내역이 없습니다.</div>
 
-        <div v-if="orderList.length === 0" class="empty-box">주문 내역이 없습니다.</div>
-
-        <div v-for="order in orderList" :key="order.orderId" class="order-card">
-            <div class="order-head">
-                <div>
-                    <strong>{{ order.orderedAt }}</strong>
-                    <span style="color:#868e96; margin-left:8px;">주문번호: {{ order.orderNumber }}</span>
-                </div>
-                <span class="status-badge" :class="fnStatusClass(order.orderStatus)">{{ fnStatusLabel(order.orderStatus) }}</span>
-            </div>
+        <div v-for="order in filteredOrderList" :key="order.orderId" class="order-card">
 
             <div class="order-body">
                 <div v-for="item in order.items" :key="item.orderItemId" class="item-row">
-                    <img class="thumb" :src="item.thumbnailUrl || defaultThumb" @error="fnImgError">
+                    <img class="thumb"
+                    :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb"
+                    @error="fnImgError">
                     <div style="flex:1;">
                         <div>
                             <span style="font-size:11px; color:#666;">{{ item.itemType === 'PRODUCT' ? '[단품]' : '[패키지]' }}</span>
@@ -103,6 +118,24 @@
                         class="btn btn-danger" @click="fnCancelOrder(order.orderId)">주문 취소</button>
             </div>
         </div>
+        <div v-if="showCancelModal" class="modal-backdrop" @click.self="showCancelModal = false">
+            <div class="modal-box">
+                <h3 style="margin:0 0 14px 0; font-size:18px;">주문 취소 사유 선택</h3>
+                <label v-for="r in cancelReasons" :key="r" class="reason-item">
+                    <input type="radio" :value="r" v-model="selectedReason">
+                    <span>{{ r }}</span>
+                </label>
+                <div v-if="selectedReason === '기타 (직접 입력)'" style="margin-top:8px;">
+                    <textarea v-model="customReason" rows="3" maxlength="200"
+                    style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:13px;"
+                    placeholder="취소 사유를 직접 입력해주세요 (최대 200자)"></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                    <button class="btn" @click="showCancelModal = false">닫기</button>
+                    <button class="btn btn-danger" @click="fnConfirmCancel">취소 확정</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
@@ -111,14 +144,24 @@
         data() {
             return {
                 orderList: [],
-                defaultThumb: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjNmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTQlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODY4ZTk2IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiI+TU9BTU9ORzwvdGV4dD48L3N2Zz4="
+                currentTab: "ALL",   // <--- 추가 (쉼표 확인!)
+                defaultThumb: "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100'><rect width='100' height='100' fill='%23f1f3f5'/></svg>",
+                showCancelModal: false,
+                cancelTargetOrderId: null,
+                cancelReasons: ["단순 변심", "옵션 / 수량 선택 실수", "배송지 입력 오류", "다른 상품으로 재주문 예정", "기타 (직접 입력)"],
+                selectedReason: "단순 변심",
+                customReason: ""
             };
         },
         methods: {
             fnGoMain() { location.href = "/"; },
             fnGoMypage() { location.href = "/member/mypage.do"; },
             fnGoCart() { location.href = "/cart/list.do"; },
-            fnImgError(e) { e.target.src = this.defaultThumb; },
+
+            fnImgError(e) {
+                e.target.onerror = null;
+                e.target.src = this.defaultThumb;
+            },
 
             fnStatusLabel(status) {
                 const map = {
@@ -152,30 +195,63 @@
                 });
             },
             fnCancelOrder(orderId) {
+                this.cancelTargetOrderId = orderId;
+                this.selectedReason = "단순 변심";
+                this.customReason = "";
+                this.showCancelModal = true;
+            },
+            fnConfirmCancel() {
                 let self = this;
-                const reason = prompt("주문 취소 사유를 입력해주세요.", "구매자 단순 변심");
-                if (reason === null) return;
+                let finalReason = this.selectedReason;
+                if (finalReason === "기타 (직접 입력)") {
+                    if (!this.customReason.trim()) {
+                        alert("기타 취소 사유를 입력해주세요.");
+                        return;
+                    }
+                    finalReason = "기타: " + this.customReason.trim();
+                }
 
                 $.ajax({
                     url: "/order/cancel.dox",
                     type: "POST",
-                    data: { orderId: orderId, cancelReason: reason },
+                    data: { orderId: this.cancelTargetOrderId, cancelReason: finalReason },
                     dataType: "json",
                     success: function (data) {
                         if (data.result === "success") {
                             alert(data.message);
+                            self.showCancelModal = false;
                             self.fnList();
                         } else {
                             alert(data.message || "주문 취소에 실패했습니다.");
                         }
                     }
                 });
-            }
+            },
+            
         },
         mounted() {
             this.fnList();
-        }
+        },
+
+        computed: {
+            paidCount() {
+                return this.orderList.filter(o => o.orderStatus !== "CANCELED").length;
+            },
+            canceledCount() {
+                return this.orderList.filter(o => o.orderStatus === "CANCELED").length;
+            },
+            filteredOrderList() {
+                if (this.currentTab === "ALL") {
+                    return this.orderList;
+                }
+                if (this.currentTab === "CANCELED") {
+                    return this.orderList.filter(o => o.orderStatus === "CANCELED");
+                }
+                return this.orderList.filter(o => o.orderStatus !== "CANCELED");
+            }
+        },
     });
 
     app.mount('#app');
 </script>
+

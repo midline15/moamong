@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.google.gson.Gson;
 import com.mori.moamong.event.service.EventService;
 
+
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @Controller
 public class EventController {

@@ -14,10 +14,11 @@ import com.google.gson.reflect.TypeToken;
 import com.mori.moamong.dto.Event;
 import com.mori.moamong.event.mapper.EventMapper;
 
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @Service
 public class EventService {
-    private final EventMapper eventMapper;
 
     // 이벤트 목록 (상태 필터 + 페이징, 카드 6개씩)
     public HashMap<String, Object> getEventList(HashMap<String, Object> map) {

@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
 <mapper namespace="com.mori.moamong.coupon.mapper.CouponMapper">
-    <!-- TODO: MyBatis SQL statements -->
+
+	<select id="selectCouponList" parameterType="hashmap" resultType="com.mori.moamong.dto.Coupon">
+    <!-- 회원이 발급받은 전체 쿠폰 조회 -->
+    SELECT
+	    MC.member_coupon_id,
+	    MC.member_id,
+	    MC.coupon_id,
+	    C.coupon_name,
+	    C.discount_type,
+	    C.discount_value,
+	    C.minimum_order_amount,
+	    C.maximum_discount_amount,
+	    MC.issued_at,
+	    C.valid_from,
+	    C.valid_until,
+	    MC.used_at,
+	    MC.coupon_status,
+	    OC.order_id,
+	    OC.discount_amount,
+
+	    CASE
+	        WHEN MC.coupon_status = 'USED'
+	            THEN 'USED'
+	        WHEN MC.coupon_status = 'EXPIRED'
+	            THEN 'EXPIRED'
+	        WHEN C.valid_until &lt; NOW()
+	            THEN 'EXPIRED'
+	        ELSE 'AVAILABLE'
+	    END AS display_status
+
+		FROM MEMBER_COUPON MC
+		
+		INNER JOIN COUPON C
+		    ON MC.coupon_id = C.coupon_id
+		
+		LEFT JOIN ORDER_COUPON OC
+		    ON MC.member_coupon_id = OC.member_coupon_id
+		
+		WHERE MC.member_id = #{memberId}
+		
+		ORDER BY MC.issued_at DESC
+	</select>
+		
 </mapper>
+
