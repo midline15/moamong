@@ -1,0 +1,84 @@
+
+    /* 화면 전체의 기본 글꼴과 여백을 설정합니다. */
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    /* 포인트 내역 테이블의 기본 모양을 설정합니다. */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    /* 테이블의 제목과 데이터 칸의 테두리와 여백을 설정합니다. */
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px 10px;
+        text-align: center;
+    }
+
+    /* 테이블 제목 부분의 배경색을 설정합니다. */
+    th {
+        background-color: #f2f2f2;
+    }
+
+    /* 짝수 번째 줄의 배경색을 설정합니다. */
+    tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    /* 포인트 유형을 표시할 때 사용하는 공통 스타일입니다. */
+    .type {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    /* 포인트 적립 */
+    .earn {
+        color: #16803c;
+        background-color: #dcfce7;
+    }
+
+    /* 포인트 사용 */
+    .use {
+        color: #1d4ed8;
+        background-color: #dbeafe;
+    }
+
+    /* 포인트 취소 */
+    .cancel {
+        color: #7e22ce;
+        background-color: #f3e8ff;
+    }
+
+    /* 포인트 만료 */
+    .expire {
+        color: #b91c1c;
+        background-color: #fee2e2;
+    }
+
+    /* 관리자 포인트 조정 */
+    .adjust {
+        color: #92400e;
+        background-color: #fef3c7;
+    }
+
+    /* 포인트 숫자를 강조합니다. */
+    .point {
+        font-weight: bold;
+    }
+
+    /* 조회 결과가 없을 때 표시하는 문구입니다. */
+    .empty {
+        padding: 30px;
+        color: #888;
+    }
+
