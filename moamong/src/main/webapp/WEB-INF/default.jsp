@@ -19,7 +19,7 @@ pageEncoding="UTF-8"%>
                 color: #222;
             }
             .container {
-                max-width: 760px; /* 기존 640px -> 760px로 변경 */
+                max-width: 640px;
                 margin: 20px auto;
                 padding: 28px;
                 background: #fff;
@@ -27,7 +27,6 @@ pageEncoding="UTF-8"%>
                 border-radius: 12px;
                 box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             }
-            
             .top-nav {
                 display: flex;
                 justify-content: space-between;
@@ -104,8 +103,6 @@ pageEncoding="UTF-8"%>
                 <button class="btn btn-primary" @click="fnGoMypage">마이페이지</button>
                 <button class="btn" @click="fnGoCart">🛒 장바구니 ({{ cartCount }})</button>
                 <button class="btn" @click="fnGoWishlist">❤️ 찜 목록</button>
-                <button class="btn" @click="fnGoOrderList">📦 주문 내역</button>
-                <button class="btn" @click="fnGoAddress">📍 배송지 관리</button>
                 <button class="btn btn-danger" @click="fnLogout">로그아웃</button>
             </div>
             <% } else { %>
@@ -187,12 +184,6 @@ pageEncoding="UTF-8"%>
                     }
                 });
             },
-            fnGoOrderList() {
-                location.href = "/order/list.do";
-            },
-            fnGoAddress() {
-                location.href = "/address/list.do";
-            }
         },
         mounted() {
             this.fnGetCartCount();

@@ -176,34 +176,4 @@ public class MemberController {
 		return new Gson().toJson(resultMap);
 	}
 
-	// 아이디/비밀번호 찾기 페이지 이동
-	@RequestMapping("/member/find-account.do")
-	public String findAccountPage() {
-		return "member/findAccount";
-	}
-
-	// 아이디 찾기 처리
-	@RequestMapping(value = "/member/find-id.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String findId(@RequestParam HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = memberService.findLoginId(map);
-		return new Gson().toJson(resultMap);
-	}
-
-	// 비밀번호 재설정 전 본인 확인
-	@RequestMapping(value = "/member/verify-reset.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String verifyReset(@RequestParam HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = memberService.verifyMemberForReset(map);
-		return new Gson().toJson(resultMap);
-	}
-
-	// 비밀번호 재설정 처리
-	@RequestMapping(value = "/member/reset-password.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String resetPassword(@RequestParam HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = memberService.resetPassword(map);
-		return new Gson().toJson(resultMap);
-	}
-
 }

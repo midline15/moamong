@@ -141,8 +141,9 @@
                         </td>
                         <td>
                             <img class="thumb"
-                            :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb"
-                            @error="fnImgError">
+                            :src="item.thumbnailUrl || defaultThumb"
+                            @error="fnImgError"
+                            alt="상품 이미지">
                             <div>
                                 <div>
                                     <span v-if="item.itemType === 'PRODUCT'" class="badge badge-product">단품</span>
@@ -209,7 +210,7 @@
                 return {
                     cartList: [],
                     selectedIds: [],
-                    defaultThumb: "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100'><rect width='100' height='100' fill='%23f1f3f5'/></svg>"
+                    defaultThumb: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjNmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTQlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODY4ZTk2IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiI+TU9BTU9ORzwvdGV4dD48L3N2Zz4="
                 };
             },
             computed: {
@@ -240,7 +241,6 @@
                     location.href = "/";
                 },
                 fnImgError(e) {
-                    e.target.onerror = null;
                     e.target.src = this.defaultThumb;
                 },
                 fnList() {
@@ -351,7 +351,8 @@
                         alert("주문할 상품을 1개 이상 선택해주세요.");
                         return;
                     }
-                    location.href = "/order/checkout.do?cartItemIds=" + this.selectedIds.join(",");
+                    alert("아직 미구현된 기능입니다. 업데이트를 기다려주십시오.");
+                    //location.href = "/order/checkout.do?cartItemIds=" + this.selectedIds.join(",");
                 },
                 fnTestAddProduct(productId) {
                     let self = this;

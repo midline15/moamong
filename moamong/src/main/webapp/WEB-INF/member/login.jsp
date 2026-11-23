@@ -117,12 +117,6 @@ pageEncoding="UTF-8"%>
             <button class="btn-login" @click="fnLogin">로그인</button>
             <button class="btn-join" @click="fnJoin">회원가입</button>
 
-            <div style="text-align: center; margin-top: 12px;">
-                <a href="/member/find-account.do" style="font-size: 13px; color: #666; text-decoration: none;">
-                    아이디 / 비밀번호 찾기
-                </a>
-            </div>
-            
             <div class="divider">간편 소셜 로그인</div>
             <div class="social-group">
                 <button class="btn-kakao" @click="fnSocialLogin('KAKAO')">카카오로 시작하기</button>
