@@ -30,7 +30,6 @@ public class ProductController {
     // 상품 카테고리별 목록으로 이동
     @RequestMapping("/product/list.do")
     public String list(@RequestParam HashMap<String, Object> map, Model model) {
-
         return "product/list";
     }
 

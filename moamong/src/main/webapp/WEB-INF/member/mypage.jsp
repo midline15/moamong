@@ -109,6 +109,14 @@ pageEncoding="UTF-8"%>
                     <h4>💬 상품 문의 / 1:1 문의</h4>
                     <p>내가 작성한 문의글과 답변을 확인합니다.</p>
                 </div>
+				<div class="menu-card"@click="fnGoPoint(member.memberId)">
+				    <h4>🅿️ 포인트 사용내역</h4>
+				    <p>내 포인트 사용 내역을 볼 수 있습니다.</p>
+				</div>
+				<div class="menu-card"@click="fnGoCoupon(member.memberId)">
+				    <h4>🎫 내 쿠폰 목록</h4>
+				    <p>보유한 쿠폰을 확인 할 수 있습니다.</p>
+				</div>
             </div>
         </div>
     </body>
@@ -123,7 +131,8 @@ pageEncoding="UTF-8"%>
                     memberName: "",
                     email: "",
                     role: "",
-                    socialType: null
+                    socialType: null,
+					memberId : ""
                 },
                 cartCount: 0
                 
@@ -151,6 +160,7 @@ pageEncoding="UTF-8"%>
                     dataType: "json",
                     success: function (data) {
                         if (data.result === "success" && data.list) {
+							
                             self.cartCount = data.list.length;
                         }
                     }
@@ -173,11 +183,18 @@ pageEncoding="UTF-8"%>
             },
             fnGoWishlist() {
                 location.href = "/wishlist/list.do";
-            }
+            },
+			fnGoPoint(memberId){
+				pageChange("/point/history.do", {memberId : memberId})
+			},
+			fnGoCoupon(memberId){
+				pageChange("/coupon/mylist.do", {memberId : memberId})
+			}
         },
         mounted() {
             this.fnGetMyInfo();
             this.fnGetCartCount();
+			
         }
     });
     
