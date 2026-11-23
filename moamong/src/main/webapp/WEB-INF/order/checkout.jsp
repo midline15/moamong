@@ -141,11 +141,11 @@
                 <input type="text" class="form-control" v-model="delivery.recipientPhone" placeholder="010-0000-0000">
                 <label>우편번호 *</label>
                 <div style="display:flex; gap:8px;">
-                    <input type="text" class="form-control" v-model="delivery.postalCode" readonly style="width:140px; background:#f1f3f5;">
+                    <input type="text" class="form-control" v-model="delivery.postalCode" style="width:140px; background:#f1f3f5;">
                     <button type="button" class="btn" @click="fnSearchPostcode">우편번호 검색</button>
                 </div>
                 <label>기본 주소 *</label>
-                <input type="text" class="form-control" v-model="delivery.addressDefault" readonly style="background:#f1f3f5;">
+                <input type="text" class="form-control" v-model="delivery.addressDefault" style="background:#f1f3f5;">
                 <label>상세 주소</label>
                 <input type="text" class="form-control" v-model="delivery.addressDetail" placeholder="동/호수 등 상세 주소">
             </div>
@@ -154,13 +154,16 @@
 
             <div v-for="item in items" :key="item.cartItemId" class="item-card">
                 <div class="item-row">
-                    <img class="thumb" :src="item.thumbnailUrl || defaultThumb" @error="fnImgError">
+                    <img class="thumb"
+                    :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb"
+                    @error="fnImgError">
                     <div style="flex:1;">
                         <div style="font-size:12px; color:#666; margin-bottom:2px;">{{ item.itemType === 'PRODUCT' ? '[단품]' : '[패키지]' }}</div>
                         <strong style="font-size:15px;">{{ item.itemName }}</strong>
                         <div style="font-size:13px; color:#555; margin-top:4px;">{{ Number(item.unitPrice).toLocaleString() }}원 × {{ item.quantity }}개</div>
                     </div>
                     <strong style="font-size:16px;">{{ Number(item.lineAmount).toLocaleString() }}원</strong>
+                    <button type="button" class="btn" style="padding:4px 9px; color:#868e96;" @click="fnRemoveCheckoutItem(item.cartItemId)" title="이번 주문에서 제외">✕</button>
                 </div>
 
                 <div v-if="item.itemType === 'PACKAGE'" class="option-list">
@@ -228,13 +231,13 @@
                 totalAdditionalAmount: 0,
                 shippingFee: 0,
                 finalAmount: 0,
-                defaultThumb: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjNmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTQlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODY4ZTk2IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiI+TU9BTU9ORzwvdGV4dD48L3N2Zz4="
+                defaultThumb: "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100'><rect width='100' height='100' fill='%23f1f3f5'/></svg>"
             };
         },
         methods: {
             fnGoCart() { location.href = "/cart/list.do"; },
             fnGoAddress() { location.href = "/address/list.do"; },
-            fnImgError(e) { e.target.src = this.defaultThumb; },
+            fnImgError(e) { e.target.onerror = null; e.target.src = this.defaultThumb; },
             
             fnLoadCheckout() {
                 let self = this;
@@ -261,6 +264,32 @@
                         }
                     }
                 });
+            },
+            fnRemoveCheckoutItem(cartItemId) {
+                if (this.items.length <= 1) {
+                    alert("최소 1개 이상의 주문 상품이 필요합니다.");
+                    return;
+                }
+                if (!confirm("이 상품을 이번 주문에서 제외하시겠습니까?")) return;
+                this.items = this.items.filter(item => item.cartItemId !== cartItemId);
+                delete this.extraValues[cartItemId];
+                this.fnRecalcSummary();
+            },
+            fnRecalcSummary() {
+                let prodSum = 0;
+                let optSum = 0;
+                for (let item of this.items) {
+                    let qty = Number(item.quantity);
+                    let base = Number(item.basePrice);
+                    let unit = Number(item.unitPrice);
+                    prodSum += base * qty;
+                    optSum += (unit - base) * qty;
+                }
+                let subTotal = prodSum + optSum;
+                this.totalProductAmount = prodSum;
+                this.totalAdditionalAmount = optSum;
+                this.shippingFee = subTotal >= 30000 ? 0 : 3000;
+                this.finalAmount = subTotal + this.shippingFee;
             },
             fnSelectAddress(addr) {
                 this.delivery.recipientName = addr.recipientName || "";
@@ -292,7 +321,7 @@
                 
                 if (!confirm("총 " + this.finalAmount.toLocaleString() + "원을 결제하시겠습니까?")) return;
                 
-                const cartItemIds = this.cartItemIdsStr.split(",").map(id => Number(id.trim())).filter(Boolean);
+                const cartItemIds = this.items.map(item => Number(item.cartItemId));
                 const payload = {
                     cartItemIds: cartItemIds,
                     recipientName: this.delivery.recipientName.trim(),
