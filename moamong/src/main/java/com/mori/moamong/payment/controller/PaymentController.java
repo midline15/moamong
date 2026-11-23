@@ -1,13 +1,19 @@
 package com.mori.moamong.payment.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.mori.moamong.payment.service.PaymentService;
-
-@RequiredArgsConstructor
 @Controller
 public class PaymentController {
-    private final PaymentService paymentService;
 
+	@Value("${portone.imp.code}")
+	private String impCode;
+
+	@RequestMapping("/payment/index.do")
+	public String paymentIndex(Model model) {
+		model.addAttribute("impCode", impCode);
+		return "payment/index";
+	}
 }
