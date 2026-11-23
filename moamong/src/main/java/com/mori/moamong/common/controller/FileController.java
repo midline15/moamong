@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 @Controller
 public class FileController {
 
-    @Value("${file.upload-dir}")
+    @Value("${file.upload-dir:C:/moamong/upload}")
     private String uploadDir;
 
     // 허용 확장자 (svg는 스크립트가 들어갈 수 있어서 제외)
