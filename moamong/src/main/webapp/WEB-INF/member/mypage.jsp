@@ -9,117 +9,62 @@ pageEncoding="UTF-8"%>
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <style>
-            .container {
-                width: 600px;
-                margin: 40px auto;
-                padding: 24px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-            }
-            .top-nav {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 2px solid #222;
-                padding-bottom: 12px;
-            }
-            .profile-box {
-                background: #f9f9f9;
-                padding: 16px;
-                border-radius: 6px;
-                margin: 16px 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .menu-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                margin-top: 16px;
-            }
-            .menu-card {
-                border: 1px solid #ddd;
-                padding: 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                background: #fff;
-                text-align: left;
-            }
-            .menu-card:hover {
-                background: #f4f4f4;
-            }
-            .menu-card h4 {
-                margin: 0 0 6px 0;
-                font-size: 15px;
-            }
-            .menu-card p {
-                margin: 0;
-                font-size: 12px;
-                color: #666;
-            }
-            button {
-                padding: 8px 14px;
-                cursor: pointer;
-                border-radius: 4px;
-                border: 1px solid #ccc;
-                background: #fff;
-                font-weight: bold;
-            }
-        </style>
+        <!-- 공통 레이아웃 CSS (헤더 · 사이드바 · 푸터 · 마이페이지) -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage/mypage.css">
     </head>
     <body>
-        <div id="app" class="container">
-            <div class="top-nav">
-                <h2 style="margin:0;">마이페이지</h2>
-                <button @click="fnGoMain">메인으로</button>
-            </div>
+        <%@ include file="/WEB-INF/common/header.jsp"%>
 
-            <!-- 내 프로필 요약 -->
-            <div class="profile-box">
-                <div>
-                    <div style="font-size: 18px; font-weight: bold;">{{ member.memberName }}님 ({{ member.socialType ? member.socialType : member.loginId }})</div>
-                    <div style="font-size: 13px; color: #555; margin-top: 4px;">
-                        이메일: {{ member.email }} | 등급: {{ member.role }}
+        <div id="app" class="mp-wrap">
+            <% request.setAttribute("activeMenu", "home"); %>
+            <%@ include file="/WEB-INF/common/mypageSidebar.jsp"%>
+
+            <main class="mp-content">
+                <div class="mp-head">
+                    <h2>마이페이지</h2>
+                    <span class="mp-breadcrumb">홈 &gt; 마이페이지</span>
+                </div>
+
+                <!-- 회원 프로필 요약 -->
+                <div class="mp-card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:18px; font-weight:700;">
+                            {{ member.memberName }}님
+                            <span style="font-size:13px; font-weight:500; color:#94764b; margin-left:6px;">
+                                ({{ member.socialType ? member.socialType : member.loginId }})
+                            </span>
+                        </div>
+                        <div style="font-size:13px; color:#85817b; margin-top:6px;">
+                            이메일: {{ member.email }} · 등급: {{ member.role }}
+                        </div>
+                    </div>
+                    <button class="mp-btn mp-btn-gold" @click="fnGoEdit">내 정보 관리</button>
+                </div>
+
+                <!-- 핵심 메뉴 요약 카드 -->
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:20px;">
+                    <div class="mp-card" style="cursor:pointer; text-align:center;" @click="fnGoOrderList">
+                        <div style="font-size:12px; color:#85817b;">주문/배송</div>
+                        <div style="font-size:17px; font-weight:700; margin-top:6px;">주문 목록 &rarr;</div>
+                    </div>
+                    <div class="mp-card" style="cursor:pointer; text-align:center;" @click="fnGoCancelList">
+                        <div style="font-size:12px; color:#85817b;">취소/반품/환불</div>
+                        <div style="font-size:17px; font-weight:700; margin-top:6px;">반품 목록 &rarr;</div>
+                    </div>
+                    <div class="mp-card" style="cursor:pointer; text-align:center;" @click="fnGoAddress">
+                        <div style="font-size:12px; color:#85817b;">배송지 설정</div>
+                        <div style="font-size:17px; font-weight:700; margin-top:6px;">배송지 관리 &rarr;</div>
                     </div>
                 </div>
-                <button @click="fnGoEdit">회원정보 수정 / 탈퇴</button>
-            </div>
-
-            <!-- 쇼핑몰 메뉴 허브 (역할 분담 기반) -->
-            <div class="menu-grid">
-                <div class="menu-card" @click="fnGoOrderList">
-                    <h4>📦 주문 내역 조회</h4>
-                    <p>주문한 상품의 결제 및 배송 상태를 확인합니다.</p>
-                </div>
-                <div class="menu-card" @click="fnGoWishlist">
-                    <h4>❤️ 찜 목록</h4>
-                    <p>관심 등록한 상품 및 패키지를 모아봅니다.</p>
-                </div>
-                <div class="menu-card" @click="fnGoCart">
-                    <h4>🛒 장바구니 ({{ cartCount }})</h4>
-                    <p>장바구니에 담아둔 상품을 확인하고 주문합니다.</p>
-                </div>
-                <div class="menu-card" @click="fnGoAddress">
-                    <h4>📍 배송지 관리</h4>
-                    <p>기본 배송지 및 추가 배송지를 등록·수정합니다.</p>
-                </div>
-                <div class="menu-card">
-                    <h4>💬 상품 문의 / 1:1 문의</h4>
-                    <p>내가 작성한 문의글과 답변을 확인합니다.</p>
-                </div>
-				<div class="menu-card"@click="fnGoPoint(member.memberId)">
-				    <h4>🅿️ 포인트 사용내역</h4>
-				    <p>내 포인트 사용 내역을 볼 수 있습니다.</p>
-				</div>
-				<div class="menu-card"@click="fnGoCoupon(member.memberId)">
-				    <h4>🎫 내 쿠폰 목록</h4>
-				    <p>보유한 쿠폰을 확인 할 수 있습니다.</p>
-				</div>
-            </div>
+            </main>
         </div>
+
+        <%@ include file="/WEB-INF/common/footer.jsp"%>
     </body>
+
 </html>
 
 <script>
@@ -132,14 +77,12 @@ pageEncoding="UTF-8"%>
                     email: "",
                     role: "",
                     socialType: null,
-					memberId : ""
-                },
-                cartCount: 0
-                
+                    memberId: ""
+                }
             };
         },
         methods: {
-            fnGetMyInfo: function () {
+            fnGetMyInfo() {
                 let self = this;
                 $.ajax({
                     url: "/member/myinfo.dox",
@@ -152,51 +95,14 @@ pageEncoding="UTF-8"%>
                     }
                 });
             },
-            fnGetCartCount: function () {
-                let self = this;
-                $.ajax({
-                    url: "/cart/list.dox",
-                    type: "POST",
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.result === "success" && data.list) {
-							
-                            self.cartCount = data.list.length;
-                        }
-                    }
-                });
-            },
-            fnGoCart: function () {
-                location.href = "/cart/list.do";
-            },
-            fnGoEdit: function () {
-                location.href = "/member/edit.do";
-            },
-            fnGoMain: function () {
-                location.href = "/";
-            },
-            fnGoOrderList: function () {
-                location.href = "/order/list.do";
-            },
-            fnGoAddress: function () {
-                location.href = "/address/list.do";
-            },
-            fnGoWishlist() {
-                location.href = "/wishlist/list.do";
-            },
-			fnGoPoint(memberId){
-				pageChange("/point/history.do", {memberId : memberId})
-			},
-			fnGoCoupon(memberId){
-				pageChange("/coupon/mylist.do", {memberId : memberId})
-			}
+            fnGoEdit() { location.href = "/member/edit.do"; },
+            fnGoOrderList() { location.href = "/order/list.do"; },
+            fnGoCancelList() { location.href = "/order/cancel-list.do"; },
+            fnGoAddress() { location.href = "/address/list.do"; }
         },
         mounted() {
             this.fnGetMyInfo();
-            this.fnGetCartCount();
-			
         }
     });
-    
     app.mount('#app');
 </script>

@@ -3,30 +3,47 @@
 <mapper namespace="com.mori.moamong.payment.mapper.PaymentMapper">
 	<!-- TODO: MyBatis SQL statements -->
 
-	<insert id="insertPayment" parameterType="com.mori.moamong.dto.Payment"
-		useGeneratedKeys="true" keyProperty="paymentId">
+	<!-- 1. 결제 내역(PAYMENT) 1건 등록 (생성된 PK를 paymentId에 세팅) -->
+	<insert id="insertPayment" parameterType="com.mori.moamong.dto.Payment" useGeneratedKeys="true" keyProperty="paymentId">
 		INSERT INTO PAYMENT (
-		order_id, payment_key, payment_method,
-		payment_amount, payment_status, paid_at
+			order_id,
+			payment_key,
+			payment_method,
+			payment_amount,
+			payment_status,
+			paid_at
 		) VALUES (
-		#{orderId}, #{paymentKey}, #{paymentMethod},
-		#{paymentAmount}, #{paymentStatus}, NOW()
+			#{orderId},
+			#{paymentKey},
+			#{paymentMethod},
+			#{paymentAmount},
+			#{paymentStatus},
+			NOW()
 		)
 	</insert>
 
-	<select id="selectPaymentByOrderId"
-		resultType="com.mori.moamong.dto.Payment">
-		SELECT payment_id, order_id, payment_key, payment_method,
-		payment_amount, payment_status, paid_at, created_at
+	<!-- 2. 주문 번호(order_id)로 최신 결제 내역 1건 조회 -->
+	<select id="selectPaymentByOrderId" resultType="com.mori.moamong.dto.Payment">
+		SELECT
+			payment_id,
+			order_id,
+			payment_key,
+			payment_method,
+			payment_amount,
+			payment_status,
+			paid_at,
+			created_at
 		FROM PAYMENT
 		WHERE order_id = #{orderId}
 		ORDER BY payment_id DESC
 		LIMIT 1
 	</select>
 
+	<!-- 3. 결제 상태(payment_status) 변경 (예: PAID -> CANCELED) -->
 	<update id="updatePaymentStatus">
 		UPDATE PAYMENT
-		SET payment_status = #{paymentStatus}
+		SET
+			payment_status = #{paymentStatus}
 		WHERE payment_id = #{paymentId}
 	</update>
 	

@@ -1,47 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.chatbot.mapper.ChatbotMapper">
-
+	<!-- 1. 세션 키로 현재 진행 중인(ACTIVE) 챗봇 상담방 조회 -->
 	<select id="selectActiveRoomBySessionKey" resultType="map">
-		SELECT chatbot_id, member_id, session_key, chatbot_status
+		SELECT
+			chatbot_id,
+			member_id,
+			session_key,
+			chatbot_status
 		FROM CHATBOT
 		WHERE session_key = #{sessionKey}
-		AND chatbot_status = 'ACTIVE'
+		  AND chatbot_status = 'ACTIVE'
 		LIMIT 1
 	</select>
 
-	<insert id="insertChatRoom" parameterType="map" useGeneratedKeys="true"
-		keyProperty="chatbot_id">
-		INSERT INTO CHATBOT (member_id, session_key, chatbot_status)
-		VALUES (#{memberId}, #{sessionKey}, 'ACTIVE')
+	<!-- 2. 신규 챗봇 상담방 생성 (생성된 PK를 chatbot_id에 세팅) -->
+	<insert id="insertChatRoom" parameterType="map" useGeneratedKeys="true" keyProperty="chatbot_id">
+		INSERT INTO CHATBOT (
+			member_id,
+			session_key,
+			chatbot_status
+		) VALUES (
+			#{memberId},
+			#{sessionKey},
+			'ACTIVE'
+		)
 	</insert>
 
+	<!-- 3. 비로그인 상담방에 로그인 회원 번호(member_id) 연동 -->
 	<update id="updateRoomMemberId">
 		UPDATE CHATBOT
-		SET member_id = #{memberId}
+		SET
+			member_id = #{memberId}
 		WHERE chatbot_id = #{chatbotId}
-		AND member_id IS NULL
+		  AND member_id IS NULL
 	</update>
 
-	<insert id="insertChatMessage" parameterType="map" useGeneratedKeys="true"
-		keyProperty="message_id">
-		INSERT INTO CHATBOT_MESSAGE (chatbot_id, sender_type, message_content)
-		VALUES (#{chatbotId}, #{senderType}, #{messageContent})
+	<!-- 4. 챗봇 대화 메시지 1건 저장 (생성된 PK를 message_id에 세팅) -->
+	<insert id="insertChatMessage" parameterType="map" useGeneratedKeys="true" keyProperty="message_id">
+		INSERT INTO CHATBOT_MESSAGE (
+			chatbot_id,
+			sender_type,
+			message_content
+		) VALUES (
+			#{chatbotId},
+			#{senderType},
+			#{messageContent}
+		)
 	</insert>
 
+	<!-- 5. 상담방 번호(chatbot_id)로 전체 대화 이력 오름차순 조회 -->
 	<select id="selectMessagesByChatbotId" resultType="map">
-		SELECT message_id, sender_type, message_content,
-		DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
+		SELECT
+			message_id,
+			sender_type,
+			message_content,
+			DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
 		FROM CHATBOT_MESSAGE
 		WHERE chatbot_id = #{chatbotId}
 		ORDER BY message_id ASC
 	</select>
 
+	<!-- 6. 상담 종료 처리 (상태를 ENDED로 변경 및 종료 일시 기록) -->
 	<update id="closeChatRoom">
 		UPDATE CHATBOT
-		SET chatbot_status = 'ENDED',
-		ended_at = NOW()
+		SET
+			chatbot_status = 'ENDED',
+			ended_at = NOW()
 		WHERE session_key = #{sessionKey}
-		AND chatbot_status = 'ACTIVE'
+		  AND chatbot_status = 'ACTIVE'
 	</update>
 </mapper>

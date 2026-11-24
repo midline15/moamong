@@ -72,4 +72,23 @@ public interface OrderMapper {
 
 	// 주문 결제 내역 단건 조회
 	HashMap<String, Object> selectOrderPayment(Long orderId);
+
+	// ==================== 4. 취소/반품/환불 내역 및 관리자 승인 처리 ====================
+
+	// 사용자 전용 취소/환불 통합 내역 목록 조회
+	List<HashMap<String, Object>> selectCancelRefundList(Long memberId);
+
+	// 반품(RETURN) 신청 등록
+	int insertReturn(HashMap<String, Object> map);
+
+	// 환불(REFUND) 요청 등록
+	int insertRefund(HashMap<String, Object> map);
+
+	// [관리자 승인 처리용] 반품 및 환불 최종 승인 업데이트
+	int approveReturnAndRefund(HashMap<String, Object> map);
+
+	// 반품/환불 단건 상세 조회
+	HashMap<String, Object> selectReturnRefundDetail(@Param("returnId") Long returnId,
+			@Param("memberId") Long memberId);
+
 }

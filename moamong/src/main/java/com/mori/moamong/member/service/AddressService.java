@@ -13,6 +13,7 @@ public class AddressService {
 
     private final AddressMapper addressMapper;
 
+    // 내 배송지 전체 목록 조회
     public HashMap<String, Object> getAddressList(Long memberId) {
         HashMap<String, Object> res = new HashMap<>();
         List<HashMap<String, Object>> list = addressMapper.selectAddressList(memberId);
@@ -21,6 +22,7 @@ public class AddressService {
         return res;
     }
 
+    // 주문서(Checkout)용 기본 배송지 1건 조회
     public HashMap<String, Object> getDefaultAddress(Long memberId) {
         HashMap<String, Object> res = new HashMap<>();
         HashMap<String, Object> address = addressMapper.selectDefaultAddress(memberId);
@@ -29,6 +31,7 @@ public class AddressService {
         return res;
     }
 
+    // 신규 배송지 등록 (첫 등록 시 자동 기본 배송지 지정)
     @Transactional
     public HashMap<String, Object> addAddress(HashMap<String, Object> paramMap) {
         HashMap<String, Object> res = new HashMap<>();
@@ -54,6 +57,7 @@ public class AddressService {
         return res;
     }
 
+    // 기존 배송지 정보 수정 및 기본 배송지 여부 갱신
     @Transactional
     public HashMap<String, Object> editAddress(HashMap<String, Object> paramMap) {
         HashMap<String, Object> res = new HashMap<>();
@@ -80,7 +84,7 @@ public class AddressService {
         res.put("message", "배송지가 수정되었습니다.");
         return res;
     }
-
+    // 특정 배송지를 기본 배송지로 단독 변경
     @Transactional
     public HashMap<String, Object> setDefaultAddress(HashMap<String, Object> paramMap) {
         HashMap<String, Object> res = new HashMap<>();
@@ -101,6 +105,7 @@ public class AddressService {
         return res;
     }
 
+    // 배송지 삭제 (기본 배송지 삭제 시 남은 최신 배송지를 기본으로 자동 승격)
     @Transactional
     public HashMap<String, Object> removeAddress(HashMap<String, Object> paramMap) {
         HashMap<String, Object> res = new HashMap<>();
@@ -131,3 +136,4 @@ public class AddressService {
         return res;
     }
 }
+

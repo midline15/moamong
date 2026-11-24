@@ -44,7 +44,6 @@ public class OrderService {
 			res.put("message", "유효하지 않거나 이미 삭제된 상품이 포함되어 있습니다.");
 			return res;
 		}
-
 		int productTotal = 0;
 		int optionTotal = 0;
 		for (HashMap<String, Object> item : items) {
@@ -102,7 +101,6 @@ public class OrderService {
 			productTotal += (basePrice * qty);
 			optionTotal += (extraPricePerOne * qty);
 		}
-
 		int sumAmount = productTotal + optionTotal;
 		int shippingFee = sumAmount >= FREE_SHIPPING_MIN ? 0 : BASIC_SHIPPING_FEE;
 		int finalAmount = sumAmount + shippingFee;
@@ -153,7 +151,6 @@ public class OrderService {
 			}
 			return check;
 		}
-
 		@SuppressWarnings("unchecked")
 		List<HashMap<String, Object>> items = (List<HashMap<String, Object>>) check.get("items");
 		long finalAmount = toInt(check.get("finalAmount"));
@@ -181,16 +178,10 @@ public class OrderService {
 
 			// [테스트결제용] PG 검증 금액 1원 고정 (원복 시 아래 1줄 삭제)
 			long testPayAmount = 1L;
-
 			if (!impUid.isEmpty()) {
 				// [테스트결제용] 원복 시 testPayAmount -> finalAmount 로 변경
 				paymentService.verifyAndSavePayment(orderId, impUid, payMethod, testPayAmount);
 			}
-
-			/*
-			 * if (!impUid.isEmpty()) { paymentService.verifyAndSavePayment(orderId, impUid,
-			 * payMethod, finalAmount); }
-			 */
 
 			for (HashMap<String, Object> item : items) {
 				String type = String.valueOf(item.get("itemType"));
@@ -257,7 +248,6 @@ public class OrderService {
 			}
 
 			orderMapper.deleteOrderedCartItems(memberId, cartItemIds);
-
 			res.put("result", "success");
 			res.put("orderId", orderId);
 			res.put("orderNumber", orderNumber);
@@ -275,21 +265,9 @@ public class OrderService {
 	public HashMap<String, Object> getOrderList(Long memberId) {
 		HashMap<String, Object> res = new HashMap<>();
 		List<HashMap<String, Object>> orders = orderMapper.selectOrderList(memberId);
-
 		for (HashMap<String, Object> order : orders) {
 			Long orderId = toLong(order.get("orderId"));
-			List<HashMap<String, Object>> items = orderMapper.selectOrderItems(orderId);
-			for (HashMap<String, Object> item : items) {
-				Long orderItemId = toLong(item.get("orderItemId"));
-				if ("PACKAGE".equals(item.get("itemType"))) {
-					item.put("packageItems", orderMapper.selectOrderPackageItems(orderItemId));
-					item.put("packageExtras", orderMapper.selectOrderPackageExtras(orderItemId));
-				} else {
-					item.put("packageItems", List.of());
-					item.put("packageExtras", List.of());
-				}
-			}
-			order.put("items", items);
+			order.put("items", loadOrderItemsWithSnapshots(orderId));
 			if ("CANCELED".equals(order.get("orderStatus"))) {
 				order.put("cancelInfo", orderMapper.selectOrderCancel(orderId));
 			}
@@ -308,22 +286,9 @@ public class OrderService {
 			res.put("message", "존재하지 않거나 접근 권한이 없는 주문입니다.");
 			return res;
 		}
-
-		List<HashMap<String, Object>> items = orderMapper.selectOrderItems(orderId);
-		for (HashMap<String, Object> item : items) {
-			Long orderItemId = toLong(item.get("orderItemId"));
-			if ("PACKAGE".equals(item.get("itemType"))) {
-				item.put("packageItems", orderMapper.selectOrderPackageItems(orderItemId));
-				item.put("packageExtras", orderMapper.selectOrderPackageExtras(orderItemId));
-			} else {
-				item.put("packageItems", List.of());
-				item.put("packageExtras", List.of());
-			}
-		}
-
 		res.put("result", "success");
 		res.put("order", order);
-		res.put("items", items);
+		res.put("items", loadOrderItemsWithSnapshots(orderId));
 		res.put("payment", orderMapper.selectOrderPayment(orderId));
 		if ("CANCELED".equals(order.get("orderStatus"))) {
 			res.put("cancelInfo", orderMapper.selectOrderCancel(orderId));
@@ -347,24 +312,7 @@ public class OrderService {
 			res.put("message", "현재 주문 상태(" + status + ")에서는 취소할 수 없습니다.");
 			return res;
 		}
-
-		List<HashMap<String, Object>> items = orderMapper.selectOrderItems(orderId);
-		for (HashMap<String, Object> item : items) {
-			int qty = toInt(item.get("quantity"));
-			if ("PRODUCT".equals(item.get("itemType"))) {
-				Long productId = toLong(item.get("productId"));
-				if (productId != null)
-					orderMapper.increaseProductStock(productId, qty);
-			} else {
-				Long orderItemId = toLong(item.get("orderItemId"));
-				for (HashMap<String, Object> pi : orderMapper.selectOrderPackageItems(orderItemId)) {
-					Long subProdId = toLong(pi.get("productId"));
-					int setQty = toInt(pi.get("quantity"));
-					if (subProdId != null)
-						orderMapper.increaseProductStock(subProdId, setQty * qty);
-				}
-			}
-		}
+		restoreStockByOrder(orderId);
 
 		String reason = (cancelReason == null || cancelReason.trim().isEmpty()) ? "구매자 단순 변심" : cancelReason.trim();
 		paymentService.cancelPaymentByOrderId(orderId, reason);
@@ -380,6 +328,133 @@ public class OrderService {
 		res.put("result", "success");
 		res.put("message", "결제 및 주문이 취소되었으며 재고가 복구되었습니다.");
 		return res;
+	}
+
+	// ==================== 5. 사용자 전용 취소/환불 통합 내역 조회 ====================
+	public HashMap<String, Object> getCancelRefundList(Long memberId) {
+		HashMap<String, Object> res = new HashMap<>();
+		res.put("result", "success");
+		res.put("list", orderMapper.selectCancelRefundList(memberId));
+		return res;
+	}
+
+	// ==================== 5-1. 취소/환불 단건 상세 내역 조회 ====================
+	public HashMap<String, Object> getCancelRefundDetail(Long memberId, String claimType, Long claimId, Long orderId) {
+		HashMap<String, Object> detail = getOrderDetail(memberId, orderId);
+		if (!"success".equals(detail.get("result")))
+			return detail;
+		detail.put("claimType", claimType);
+		if ("RETURN".equals(claimType)) {
+			detail.put("returnInfo", orderMapper.selectReturnRefundDetail(claimId, memberId));
+		} else {
+			detail.put("cancelInfo", orderMapper.selectOrderCancel(orderId));
+		}
+		return detail;
+	}
+
+	// ==================== 5-2. 반품 및 환불 신청 (+ 임시 관리자 자동 승인 처리) ====================
+	@Transactional
+	public HashMap<String, Object> requestReturnAndRefund(Long memberId, Map<String, Object> payload) {
+		HashMap<String, Object> res = new HashMap<>();
+		Long orderId = toLong(payload.get("orderId"));
+		Long productId = toLong(payload.get("productId"));
+		int returnQty = Math.max(1, toInt(payload.get("returnQuantity")));
+		long refundAmount = toInt(payload.get("refundAmount"));
+		String reason = toStr(payload.get("returnReason")).isEmpty() ? "단순 변심" : toStr(payload.get("returnReason"));
+		String content = toStr(payload.get("returnContent"));
+
+		if (orderMapper.selectOrderOne(orderId, memberId) == null) {
+			res.put("result", "fail");
+			res.put("message", "유효하지 않은 주문입니다.");
+			return res;
+		}
+
+		// [STEP 1] 사용자 반품/환불 신청 등록 (초기 상태: REQUESTED / WAITING)
+		HashMap<String, Object> retMap = new HashMap<>();
+		retMap.put("orderId", orderId);
+		retMap.put("productId", productId);
+		retMap.put("memberId", memberId);
+		retMap.put("returnReason", reason);
+		retMap.put("returnContent", content.isEmpty() ? null : content);
+		retMap.put("refundAmount", refundAmount);
+		retMap.put("returnQuantity", returnQty);
+		orderMapper.insertReturn(retMap);
+		Long returnId = toLong(retMap.get("returnId"));
+
+		HashMap<String, Object> refMap = new HashMap<>();
+		refMap.put("returnId", returnId);
+		refMap.put("orderId", orderId);
+		refMap.put("memberId", memberId);
+		refMap.put("refundAmount", refundAmount);
+		refMap.put("refundMethod", "CARD");
+		refMap.put("refundReason", reason);
+		orderMapper.insertRefund(refMap);
+
+		// =========================================================================
+		// [STEP 2] ⚠️ 임시 관리자 자동 승인 처리 블록 (추후 관리자 기능 분리 시 이동 대상)
+		// - 현재는 관리자 승인 페이지 구현 전이므로 신청 즉시 승인(COMPLETED) 처리함
+		// - 추후 분리 시: 아래 approveAdminRefund(...) 호출 1줄을 주석 처리하고,
+		// AdminOrderController(/admin/refund/approve.dox)에서 approveAdminRefund를 호출할 것
+		// =========================================================================
+		approveAdminRefund(returnId, orderId, productId, returnQty, memberId);
+
+		res.put("result", "success");
+		res.put("message", "반품 및 환불 처리가 완료되었습니다.");
+		return res;
+	}
+
+	/**
+	 * [관리자 승인 전용 로직] 반품/환불 최종 승인 + 재고 복구 + PG 환불 연동 추후 관리자 페이지 [환불 승인] 버튼 클릭 시 이
+	 * 메서드만 단독 호출하면 됩니다.
+	 */
+	@Transactional
+	public void approveAdminRefund(Long returnId, Long orderId, Long productId, int restoreQty, Long adminId) {
+		HashMap<String, Object> approveMap = new HashMap<>();
+		approveMap.put("returnId", returnId);
+		approveMap.put("adminId", adminId); // 추후 실제 관리자 sessionId 전달
+		approveMap.put("refundContent", "관리자 승인 완료 (시스템 자동 승인 처리)");
+		orderMapper.approveReturnAndRefund(approveMap);
+
+		if (productId != null && restoreQty > 0) {
+			orderMapper.increaseProductStock(productId, restoreQty);
+		}
+		paymentService.cancelPaymentByOrderId(orderId, "반품 승인 환불 완료");
+	}
+
+	// [내부 공통] 주문 상품 및 패키지 스냅샷 로딩
+	private List<HashMap<String, Object>> loadOrderItemsWithSnapshots(Long orderId) {
+		List<HashMap<String, Object>> items = orderMapper.selectOrderItems(orderId);
+		for (HashMap<String, Object> item : items) {
+			Long orderItemId = toLong(item.get("orderItemId"));
+			if ("PACKAGE".equals(item.get("itemType"))) {
+				item.put("packageItems", orderMapper.selectOrderPackageItems(orderItemId));
+				item.put("packageExtras", orderMapper.selectOrderPackageExtras(orderItemId));
+			} else {
+				item.put("packageItems", List.of());
+				item.put("packageExtras", List.of());
+			}
+		}
+		return items;
+	}
+
+	// [내부 공통] 주문 취소 시 단품 및 패키지 구성품 재고 복구
+	private void restoreStockByOrder(Long orderId) {
+		for (HashMap<String, Object> item : orderMapper.selectOrderItems(orderId)) {
+			int qty = toInt(item.get("quantity"));
+			if ("PRODUCT".equals(item.get("itemType"))) {
+				Long productId = toLong(item.get("productId"));
+				if (productId != null)
+					orderMapper.increaseProductStock(productId, qty);
+			} else {
+				Long orderItemId = toLong(item.get("orderItemId"));
+				for (HashMap<String, Object> pi : orderMapper.selectOrderPackageItems(orderItemId)) {
+					Long subProdId = toLong(pi.get("productId"));
+					int setQty = toInt(pi.get("quantity"));
+					if (subProdId != null)
+						orderMapper.increaseProductStock(subProdId, setQty * qty);
+				}
+			}
+		}
 	}
 
 	private String makeOrderNumber() {

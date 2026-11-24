@@ -22,11 +22,13 @@ public class ChatbotService {
 			+ "배송비는 30,000원 이상 구매 시 무료이며, 미만 시 3,000원입니다. " + "커스텀 패키지는 원하는 상품과 선물 박스, 메시지 카드를 조합해 주문할 수 있습니다. "
 			+ "이전 대화 맥락을 기억하여 자연스럽게 이어서 답변하고, 3~4문장 이내로 친절하게 한국어로 안내하세요.";
 
+	// 생성자: 시스템 프롬프트를 포함한 Spring AI ChatClient 초기화
 	public ChatbotService(ChatbotMapper chatbotMapper, ChatClient.Builder builder) {
 		this.chatbotMapper = chatbotMapper;
 		this.chatClient = builder.defaultSystem(SYSTEM_PROMPT).build();
 	}
 
+	// 활성 상담방 조회 또는 신규 생성 (비로그인 방의 로그인 회원 연동 포함)
 	@Transactional
 	public Long getOrCreateRoom(String sessionKey, Long memberId) {
 		Map<String, Object> room = chatbotMapper.selectActiveRoomBySessionKey(sessionKey);
@@ -44,6 +46,7 @@ public class ChatbotService {
 		return ((Number) newRoom.get("chatbot_id")).longValue();
 	}
 
+	// 최근 10개 대화 이력을 Spring AI Message 리스트로 변환
 	private List<Message> buildRecentHistory(Long chatbotId) {
 		List<Map<String, Object>> rows = chatbotMapper.selectMessagesByChatbotId(chatbotId);
 		int start = Math.max(0, rows.size() - 10);
@@ -60,7 +63,8 @@ public class ChatbotService {
 		}
 		return history;
 	}
-
+	
+	// 사용자 메시지 저장 후 AI 응답 생성 및 DB 기록
 	@Transactional
 	public Map<String, Object> sendMessage(String sessionKey, Long memberId, String userMsg) {
 		Long chatbotId = getOrCreateRoom(sessionKey, memberId);
@@ -86,6 +90,7 @@ public class ChatbotService {
 		return result;
 	}
 
+	// 현재 활성 상담방의 전체 대화 내역 조회
 	public List<Map<String, Object>> getChatHistory(String sessionKey) {
 		Map<String, Object> room = chatbotMapper.selectActiveRoomBySessionKey(sessionKey);
 		if (room == null)
@@ -94,8 +99,10 @@ public class ChatbotService {
 		return chatbotMapper.selectMessagesByChatbotId(chatbotId);
 	}
 
+	// 현재 진행 중인 상담방 종료 처리
 	@Transactional
 	public void endChatRoom(String sessionKey) {
 		chatbotMapper.closeChatRoom(sessionKey);
 	}
 }
+
