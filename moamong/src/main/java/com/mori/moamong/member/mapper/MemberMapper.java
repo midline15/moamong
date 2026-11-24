@@ -46,5 +46,15 @@ public interface MemberMapper {
 
 	// 비밀번호 재설정 본인 확인 (아이디 + 이름 + 이메일)
 	Member selectMemberForPasswordReset(HashMap<String, Object> map);
+	
+	// 최종 로그인 일시 갱신
+	int updateLastLoginAt(Long memberId);
+
+	// 30일 미접속 활성 회원 휴면(INACTIVE) 일괄 전환
+	int updateInactiveMembers(int days);
+
+	// 휴면 계정 해제 (INACTIVE -> ACTIVE + last_login_at 갱신)
+	int activateDormantMember(Long memberId);
+
 
 }

@@ -206,4 +206,20 @@ public class MemberController {
 		return new Gson().toJson(resultMap);
 	}
 
+	// [추가] 휴면 계정 해제 처리 (비밀번호 인증)
+	@RequestMapping(value = "/member/activate-dormant.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String activateDormant(@RequestParam HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = memberService.activateDormant(map);
+		return new Gson().toJson(resultMap);
+	}
+
+	// [수정] 소셜 휴면 계정 해제 처리 (즉시 해제)
+	@RequestMapping(value = "/member/activate-social-dormant.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String activateSocialDormant() {
+		HashMap<String, Object> resultMap = memberService.activateSocialDormant();
+		return new Gson().toJson(resultMap);
+	}
+
 }

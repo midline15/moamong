@@ -98,6 +98,51 @@ pageEncoding="UTF-8"%>
                 border: 1px solid #ddd;
             }
             
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            }
+            
+            .modal-box {
+                position: relative;
+                z-index: 10000;
+                width: 340px;
+                background: #fff;
+                padding: 24px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            }
+            
+            .modal-box h3 {
+                margin: 0 0 12px;
+                font-size: 18px;
+                text-align: center;
+            }
+            
+            .modal-desc {
+                font-size: 13px;
+                color: #555;
+                line-height: 1.5;
+                margin-bottom: 16px;
+                text-align: center;
+            }
+            
+            .modal-actions {
+                display: flex;
+                gap: 8px;
+                margin-top: 12px;
+            }
+            
+            .modal-actions button {
+                margin-top: 0;
+            }
+            
         </style>
     </head>
     <body>
@@ -122,24 +167,57 @@ pageEncoding="UTF-8"%>
                     아이디 / 비밀번호 찾기
                 </a>
             </div>
-            
+
             <div class="divider">간편 소셜 로그인</div>
             <div class="social-group">
                 <button class="btn-kakao" @click="fnSocialLogin('KAKAO')">카카오로 시작하기</button>
                 <button class="btn-naver" @click="fnSocialLogin('NAVER')">네이버로 시작하기</button>
                 <button class="btn-google" @click="fnSocialLogin('GOOGLE')">구글로 시작하기</button>
             </div>
+
+            <!-- 휴면 계정 해제 모달 (반드시 #app 내부에 위치) -->
+            <div v-if="showDormantModal" class="modal-overlay">
+                <div class="modal-box">
+                    <h3>휴면 계정 안내</h3>
+                    <p class="modal-desc" v-if="!isSocialDormant">
+                        30일 이상 미접속으로 휴면 전환된 계정입니다.<br>
+                        비밀번호를 다시 입력해 휴면을 해제해주세요.
+                    </p>
+                    <p class="modal-desc" v-else>
+                        30일 이상 미접속으로 휴면 전환된 소셜 계정입니다.<br>
+                        아래 버튼을 누르시면 휴면이 즉시 해제됩니다.
+                    </p>
+                    <div class="form-group" v-if="!isSocialDormant">
+                        <label>비밀번호 확인</label>
+                        <input ref="dormantInput" type="password" v-model="dormantPwd" @keyup.enter="fnActivateDormant" placeholder="비밀번호 입력">
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-login" @click="fnActivateDormant">휴면 해제</button>
+                        <button class="btn-join" @click="showDormantModal = false; dormantPwd = '';">취소</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
-</html>
 
+</html>
 <script>
     const app = Vue.createApp({
         data() {
             return {
                 memberId: "",
-                password: ""
+                password: "",
+                showDormantModal: false,
+                isSocialDormant: false,
+                dormantPwd: ""
             };
+        },
+        mounted() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("dormant") === "social") {
+                this.isSocialDormant = true;
+                this.showDormantModal = true;
+            }
         },
         methods: {
             fnLogin: function () {
@@ -152,34 +230,47 @@ pageEncoding="UTF-8"%>
                     alert("비밀번호를 입력해주세요.");
                     return;
                 }
-                
-                let param = {
-                    memberId: self.memberId.trim(),
-                    pwd: self.password
-                };
                 $.ajax({
                     url: "/member/login.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: { memberId: self.memberId.trim(), pwd: self.password },
+                    success: function (data) {
+                        if (data.isInactive) {
+                            self.isSocialDormant = false;
+                            self.showDormantModal = true;
+                            self.$nextTick(() => {
+                                if (self.$refs.dormantInput) self.$refs.dormantInput.focus();
+                            });
+                            return;
+                        }
+                        alert(data.message);
+                        if (data.loginFlg) location.href = "/";
+                    }
+                });
+            },
+            fnActivateDormant: function () {
+                let self = this;
+                let url = self.isSocialDormant ? "/member/activate-social-dormant.dox" : "/member/activate-dormant.dox";
+                let param = self.isSocialDormant ? {} : { memberId: self.memberId.trim(), pwd: self.dormantPwd };
+                if (!self.isSocialDormant && (!self.dormantPwd || self.dormantPwd.trim() === "")) {
+                    alert("비밀번호를 입력해주세요.");
+                    return;
+                }
+                $.ajax({
+                    url: url,
                     dataType: "json",
                     type: "POST",
                     data: param,
                     success: function (data) {
                         alert(data.message);
-                        if (data.loginFlg) {
-                            location.href = "/";
-                        }
+                        if (data.result === "success") location.href = "/";
                     }
                 });
             },
-            
-            fnJoin: function () {
-                location.href = "/member/join.do";
-            },
-            
-            fnSocialLogin: function (provider) {
-                location.href = "/oauth2/authorization/" + provider.toLowerCase();
-            }
+            fnJoin: function () { location.href = "/member/join.do"; },
+            fnSocialLogin: function (provider) { location.href = "/oauth2/authorization/" + provider.toLowerCase(); }
         }
     });
-    
     app.mount('#app');
 </script>

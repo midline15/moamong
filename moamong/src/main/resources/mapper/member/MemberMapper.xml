@@ -9,7 +9,8 @@
 		member_name,
 		email,
 		role,
-		status
+		status,
+		last_login_at
 		FROM MEMBER
 	</select>
 
@@ -23,7 +24,8 @@
 		email,
 		role,
 		status,
-		created_at
+		created_at,
+		last_login_at
 		FROM MEMBER
 		WHERE login_id = #{memberId}
 	</select>
@@ -53,7 +55,8 @@
 		phone,
 		role,
 		status,
-		created_at
+		created_at,
+		last_login_at
 		) VALUES (
 		#{loginId},
 		#{password},
@@ -62,6 +65,7 @@
 		NULLIF(#{phone}, ''),
 		'MEMBER',
 		'ACTIVE',
+		NOW(),
 		NOW()
 		)
 	</insert>
@@ -79,6 +83,7 @@
 		status,
 		created_at,
 		updated_at,
+		last_login_at,
 		social_type,
 		social_user_id
 		FROM MEMBER
@@ -127,6 +132,7 @@
 		role,
 		status,
 		created_at,
+		last_login_at,
 		social_type,
 		social_user_id
 		FROM MEMBER
@@ -143,6 +149,7 @@
 		role,
 		status,
 		created_at,
+		last_login_at,
 		social_type,
 		social_user_id,
 		connected_at
@@ -151,6 +158,7 @@
 		#{email},
 		'MEMBER',
 		'ACTIVE',
+		NOW(),
 		NOW(),
 		#{socialType},
 		#{socialUserId},
@@ -194,5 +202,31 @@
 		LIMIT 1
 	</select>
 
+	<!-- 최종 로그인 일시 갱신 -->
+	<update id="updateLastLoginAt" parameterType="long">
+		UPDATE MEMBER
+		SET last_login_at = NOW()
+		WHERE member_id = #{memberId}
+	</update>
+
+	<!-- 30일 이상 미접속 ACTIVE 회원 휴면(INACTIVE) 일괄 전환 (&lt; == < 혹은 &gt; == >) -->
+	<update id="updateInactiveMembers" parameterType="int">
+		UPDATE MEMBER
+		SET status = 'INACTIVE',
+		updated_at = NOW()
+		WHERE status = 'ACTIVE'
+		AND COALESCE(last_login_at, updated_at, created_at)
+		&lt; DATE_SUB(NOW(), INTERVAL #{days} DAY)
+	</update>
+
+	<!-- 휴면 계정 해제 (ACTIVE 전환 및 최종 로그인 갱신) -->
+	<update id="activateDormantMember" parameterType="long">
+		UPDATE MEMBER
+		SET status = 'ACTIVE',
+		last_login_at = NOW(),
+		updated_at = NOW()
+		WHERE member_id = #{memberId}
+		AND status = 'INACTIVE'
+	</update>
 
 </mapper>
