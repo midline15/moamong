@@ -1,5 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.giftpackage.mapper.GiftPackageMapper">
-    <!-- TODO: MyBatis SQL statements -->
+    
+    <!-- 대상 또는 목적 기준 패키지 목록 조회 -->
+    <select id="selectPackageList" resultType="com.mori.moamong.dto.GiftPackage">
+        SELECT
+            packageId,
+            packageName,
+            packageDescription,
+            packageGrade,
+            packagePrice,
+            packageStatus,
+            viewCount,
+            createdAt,
+            updatedAt,
+            thumbnailUrl
+        FROM (
+            SELECT
+                P.PACKAGE_ID AS packageId,
+                P.PACKAGE_NAME AS packageName,
+                P.PACKAGE_DESCRIPTION AS packageDescription,
+                P.PACKAGE_GRADE AS packageGrade,
+                P.PACKAGE_PRICE AS packagePrice,
+                P.PACKAGE_STATUS AS packageStatus,
+                P.VIEW_COUNT AS viewCount,
+                P.CREATED_AT AS createdAt,
+                P.UPDATED_AT AS updatedAt,
+                (
+                    SELECT PI.IMAGE_URL
+                    FROM PACKAGE_IMAGE PI
+                    WHERE PI.PACKAGE_ID = P.PACKAGE_ID
+                    AND PI.IMAGE_TYPE = 'THUMBNAIL'
+                ) AS thumbnailUrl,
+                ROW_NUMBER() OVER (
+                    PARTITION BY P.PACKAGE_GRADE
+                    ORDER BY P.CREATED_AT DESC
+                ) AS rowNum
+            FROM PACKAGE P
+            <choose>
+                <when test="targetType != null and targetType != ''">
+                    JOIN PACKAGE_TARGET PT
+                        ON P.PACKAGE_ID = PT.PACKAGE_ID
+                </when>
+                <when test="purposeType != null and purposeType != ''">
+                    JOIN PACKAGE_PURPOSE PP
+                        ON P.PACKAGE_ID = PP.PACKAGE_ID
+                </when>
+            </choose>
+            WHERE P.PACKAGE_STATUS = 'SELLING'
+            <choose>
+                <when test="targetType != null and targetType != ''">
+                    AND PT.TARGET_TYPE = #{targetType}
+                </when>
+                <when test="purposeType != null and purposeType != ''">
+                    AND PP.PURPOSE_TYPE = #{purposeType}
+                </when>
+            </choose>
+        ) AS packageList
+        WHERE rowNum &lt;= 5
+        ORDER BY packageGrade, rowNum
+    </select>
+
+    <!-- 패키지 등급별 목록 조회 -->
+    <select id="selectPackageListByGrade" resultType="com.mori.moamong.dto.GiftPackage">
+        SELECT
+            P.PACKAGE_ID AS packageId,
+            P.PACKAGE_NAME AS packageName,
+            P.PACKAGE_DESCRIPTION AS packageDescription,
+            P.PACKAGE_GRADE AS packageGrade,
+            P.PACKAGE_PRICE AS packagePrice,
+            P.PACKAGE_STATUS AS packageStatus,
+            P.VIEW_COUNT AS viewCount,
+            P.CREATED_AT AS createdAt,
+            P.UPDATED_AT AS updatedAt,
+            (
+                SELECT PI.IMAGE_URL
+                FROM PACKAGE_IMAGE PI
+                WHERE PI.PACKAGE_ID = P.PACKAGE_ID
+                AND PI.IMAGE_TYPE = 'THUMBNAIL'
+            ) AS thumbnailUrl
+        FROM PACKAGE P
+        WHERE P.PACKAGE_GRADE = #{packageGrade}
+        AND P.PACKAGE_STATUS = 'SELLING'
+        ORDER BY P.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 패키지 등급별 전체 개수 조회 -->
+    <select id="selectPackageCountByGrade" resultType="int">
+        SELECT COUNT(*)
+        FROM PACKAGE
+        WHERE PACKAGE_GRADE = #{packageGrade}
+        AND PACKAGE_STATUS = 'SELLING'
+    </select>
 </mapper>

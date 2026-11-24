@@ -1,0 +1,202 @@
+
+/* ==============================
+   기본 설정
+============================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 30px;
+    background: #f5f6f8;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+#app {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ==============================
+   페이지 제목
+============================== */
+
+.page-header {
+    margin-bottom: 25px;
+}
+
+.page-header h2 {
+    margin: 0 0 8px;
+    font-size: 26px;
+}
+
+.page-header p {
+    margin: 0;
+    color: #888;
+    font-size: 14px;
+}
+
+/* ==============================
+   입력 영역
+============================== */
+
+.form-section {
+    background: #fff;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.section-title {
+    margin: 0 0 22px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+
+/* ==============================
+   상품 기본 정보
+============================== */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #e76f8a;
+}
+
+/* ==============================
+   대표 이미지
+============================== */
+
+.image-upload {
+    padding: 20px;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.selected-file {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.thumbnail-preview {
+    margin-bottom: 15px;
+}
+
+.thumbnail-preview img {
+    display: block;
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+}
+
+/* ==============================
+   하단 버튼
+============================== */
+
+.button-area {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.button-area button {
+    min-width: 110px;
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    border: 1px solid #ddd;
+    background: white;
+    color: #555;
+}
+
+.btn-submit {
+    border: none;
+    background: #e76f8a;
+    color: white;
+    font-weight: 600;
+}
+
+/* ==============================
+   반응형
+============================== */
+
+@media (max-width: 700px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .form-section {
+        padding: 18px;
+    }
+
+}
+
+/* Summernote 상품정보 표 */
+
+.note-editable .product-spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #faf6f0;
+    font-size: 12px;
+}
+
+.note-editable .product-spec-table th,
+.note-editable .product-spec-table td {
+    padding: 13px 18px;
+    text-align: left;
+    vertical-align: top;
+    border: 1px solid #eee;
+}
+
+.note-editable .product-spec-table th {
+    width: 25%;
+    font-weight: 500;
+}
