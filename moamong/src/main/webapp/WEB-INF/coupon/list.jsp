@@ -1,294 +1,589 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	<!DOCTYPE html>
+	<html lang="ko">
 
-<!DOCTYPE html>
-<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>쿠폰 관리</title>
 
-    <title>내 쿠폰함</title>
+		<!-- jQuery 라이브러리 -->
+		<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="/js/page-change.js"></script>
-	<link rel="stylesheet" href="/css/coupon/list.css">
- 
-</head>
+		<!-- Vue 3 라이브러리 -->
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-<body>
+		<!-- 프로젝트 공통 JS -->
+		<script src="/js/page-change.js"></script>
 
-<div id="app" class="container">
+		<!-- 쿠폰 목록 CSS -->
+		<link rel="stylesheet" href="/css/coupon/list.css">
 
-    <h2>🎫 내 쿠폰 목록</h2>
-    <p>회원님이 발급받은 쿠폰 내역을 확인할 수 있습니다.</p>
+	</head>
 
-    <!-- 쿠폰 요약 -->
-    <div class="summary">
+	<body>
 
-        <div class="summary-item">
-            <h2>{{ couponList.length }}</h2>
-            전체 쿠폰
-        </div>
+		<!-- ====================================== -->
+		<!-- 추후 공통 상단 영역 추가 예정 -->
+		<!-- ====================================== -->
 
-        <div class="summary-item">
-            <h2>{{ availableCount }}</h2>
-            보유 쿠폰
-        </div>
 
-        <div class="summary-item">
-            <h2>{{ usedCount }}</h2>
-            사용 완료
-        </div>
+		<!-- ====================================== -->
+		<!-- 추후 공통 사이드바 영역 추가 예정 -->
+		<!-- ====================================== -->
 
-        <div class="summary-item">
-            <h2>{{ expiredCount }}</h2>
-            만료 쿠폰
-        </div>
 
-    </div>
+		<!-- ====================================== -->
+		<!-- 관리자 콘텐츠 영역 시작 -->
+		<!-- ====================================== -->
 
-    <!-- 쿠폰 상태 탭 -->
-    <div class="tabs">
+		<div id="app" class="container">
 
-        <button
-            v-for="tab in tabs"
-            :key="tab.value"
-            :class="{ active: currentTab === tab.value }"
-            @click="currentTab = tab.value">
+			<!-- 페이지 제목 -->
+			<div class="page-header">
 
-            {{ tab.name }}
+				<div>
+					<h2>쿠폰 관리</h2>
+					<p>등록된 쿠폰을 확인하고 관리할 수 있습니다.</p>
+				</div>
 
-        </button>
+				<!-- 쿠폰 등록 화면으로 이동 -->
+				<button class="btn-primary" @click="fnAdd">
+					+ 쿠폰 등록
+				</button>
 
-    </div>
+			</div>
 
-    <!-- 쿠폰 목록 -->
-    <div
-        v-for="coupon in filteredCoupons"
-        :key="coupon.memberCouponId"
-        class="coupon-card"
-        :class="{
-            used: coupon.displayStatus === 'USED',
-            expired: coupon.displayStatus === 'EXPIRED'
-        }">
 
-        <div class="coupon-info">
+			<!-- 쿠폰 요약 정보 -->
+			<div class="summary">
 
-            <!-- 상태 -->
-            <span
-                class="status"
-                :class="coupon.displayStatus.toLowerCase()">
+				<div class="summary-item">
+					<span>전체 쿠폰</span>
+					<strong>{{ totalCount }}</strong>
+				</div>
 
-                {{ fnStatusName(coupon.displayStatus) }}
+				<div class="summary-item">
+					<span>사용 가능</span>
+					<strong>{{ activeCount }}</strong>
+				</div>
 
-            </span>
+				<div class="summary-item">
+					<span>사용 예정</span>
+					<strong>{{ upcomingCount }}</strong>
+				</div>
 
-            <!-- 할인 정보 -->
-            <div class="discount">
+				<div class="summary-item">
+					<span>기간 만료</span>
+					<strong>{{ expiredCount }}</strong>
+				</div>
 
-                <span v-if="coupon.discountType === 'FIXED'">
-                    {{ Number(coupon.discountValue).toLocaleString() }}원
-                </span>
+			</div>
 
-                <span v-else-if="coupon.discountType === 'RATE'">
-                    {{ coupon.discountValue }}%
-                </span>
 
-            </div>
+			<!-- 검색 영역 -->
+			<div class="search-area">
 
-            <!-- 쿠폰 이름 -->
-            <strong>{{ coupon.couponName }}</strong>
+				<div class="search-box">
 
-            <p>
-                {{ Number(coupon.minimumOrderAmount).toLocaleString() }}원 이상 구매 시 사용
-            </p>
+					<select v-model="searchType">
 
-            <p>
-                발급일 : {{ coupon.issuedAt }}
-            </p>
+						<option value="couponName">쿠폰명</option>
+						<option value="discountType">할인 </option>
 
-            <p>
-                유효기간 : {{ coupon.validFrom }} ~ {{ coupon.validUntil }}
-            </p>
+					</select>
 
-            <p v-if="coupon.maximumDiscountAmount">
-                최대 할인 금액 :
-                {{ Number(coupon.maximumDiscountAmount).toLocaleString() }}원
-            </p>
+					<input type="text" v-model="keyword" placeholder="검색어를 입력하세요." @keyup.enter="fnSearch">
 
-        </div>
+					<button class="btn-search" @click="fnSearch">
+						검색
+					</button>
 
-        <!-- 사용한 쿠폰의 주문 정보 -->
-        <div class="coupon-extra">
+					<button class="btn-reset" @click="fnReset">
+						초기화
+					</button>
 
-            <div v-if="coupon.displayStatus === 'USED'">
+				</div>
 
-                <p>사용 주문 번호</p>
+			</div>
 
-                <strong>
-                    {{ coupon.orderId || '-' }}
-                </strong>
 
-                <p>실제 할인 금액</p>
+			<!-- 쿠폰 목록 -->
+			<div class="table-wrap">
 
-                <strong>
-                    {{ Number(coupon.discountAmount || 0).toLocaleString() }}원
-                </strong>
+				<table>
 
-            </div>
+					<thead>
+						<tr>
+							<th>번호</th>
+							<th>쿠폰명</th>
+							<th>할인 유형</th>
+							<th>할인 혜택</th>
+							<th>최소 주문 금액</th>
+							<th>최대 할인 금액</th>
+							<th>사용 시작일</th>
+							<th>사용 종료일</th>
+							<th>관리</th>
+						</tr>
+					</thead>
 
-            <div v-else>
-                <span>🎫</span>
-            </div>
+					<tbody>
 
-        </div>
+						<tr v-for="coupon in filteredCoupons" :key="coupon.couponId">
 
-    </div>
+							<td>{{ coupon.couponId }}</td>
 
-    <!-- 내역이 없는 경우 -->
-    <div v-if="filteredCoupons.length === 0" class="empty">
-        해당 쿠폰 내역이 없습니다.
-    </div>
+							<td class="coupon-name">
+								{{ coupon.couponName || '-' }}
+							</td>
 
-</div>
+							<td>
 
-<script>
+								<span class="type-badge" :class="fnDiscountClass(coupon.discountType)">
 
-const app = Vue.createApp({
+									{{ fnDiscountType(coupon.discountType) }}
 
-    data() {
-        return {
+								</span>
 
-            couponList: [],
+							</td>
 
-            memberId: "${memberId}",
+							<td class="discount-value">
 
-            currentTab: "ALL",
+								<span v-if="coupon.discountType === 'FIXED'">
+									{{ fnNumber(coupon.discountValue) }}원
+								</span>
 
-            tabs: [
-                { name: "전체", value: "ALL" },
-                { name: "보유 쿠폰", value: "AVAILABLE" },
-                { name: "사용 완료", value: "USED" },
-                { name: "만료 쿠폰", value: "EXPIRED" }
-            ]
+								<span v-else-if="coupon.discountType === 'RATE'">
+									{{ coupon.discountValue }}%
+								</span>
 
-        };
-    },
+								<span v-else>
+									-
+								</span>
 
-    computed: {
+							</td>
 
-        availableCount() {
-            return this.couponList.filter(
-                c => c.displayStatus === "AVAILABLE"
-            ).length;
-        },
+							<td>
+								{{ fnNumber(coupon.minimumOrderAmount) }}원
+							</td>
 
-        usedCount() {
-            return this.couponList.filter(
-                c => c.displayStatus === "USED"
-            ).length;
-        },
+							<td>
 
-        expiredCount() {
-            return this.couponList.filter(
-                c => c.displayStatus === "EXPIRED"
-            ).length;
-        },
+								<span v-if="coupon.maximumDiscountAmount != null">
+									{{ fnNumber(coupon.maximumDiscountAmount) }}원
+								</span>
 
-        filteredCoupons() {
+								<span v-else>
+									-
+								</span>
 
-            if (this.currentTab === "ALL") {
-                return this.couponList;
-            }
+							</td>
 
-            return this.couponList.filter(
-                c => c.displayStatus === this.currentTab
-            );
+							<td>
+								{{ fnDate(coupon.validFrom) }}
+							</td>
 
-        }
+							<td>
+								{{ fnDate(coupon.validUntil) }}
+							</td>
 
-    },
+							<td>
 
-    methods: {
+								<button class="btn-edit" @click="fnEdit(coupon.couponId)">
 
-        fnStatusName(status) {
+									수정
 
-            if (status === "AVAILABLE") {
-                return "보유 중";
-            }
+								</button>
 
-            if (status === "USED") {
-                return "사용 완료";
-            }
+								<button class="btn-delete" @click="fnRemove(coupon.couponId)">
 
-            if (status === "EXPIRED") {
-                return "기간 만료";
-            }
+									삭제
 
-            return status;
+								</button>
 
-        },
+							</td>
 
-        fnGetCouponList() {
+						</tr>
 
-            let self = this;
 
-            $.ajax({
+						<!-- 검색 결과가 없는 경우 -->
+						<tr v-if="filteredCoupons.length === 0">
 
-                url: "/coupon/mylist.dox",
+							<td colspan="9" class="empty">
+								등록된 쿠폰이 없습니다.
+							</td>
 
-                type: "POST",
+						</tr>
 
-                dataType: "json",
+					</tbody>
 
-                data: {
-                    memberId: self.memberId
-                },
+				</table>
 
-                success: function(data) {
+			</div>
 
-                    if (data.result === "success") {
 
-                        self.couponList = data.list || [];
+			<!-- 목록 하단 -->
+			<div class="list-footer">
 
-                    } else {
+				<span>
+					총 {{ filteredCoupons.length }}개의 쿠폰
+				</span>
 
-                        alert(data.message || "쿠폰 조회에 실패했습니다.");
+			</div>
 
-                    }
+		</div>
 
-                },
+		<!-- ====================================== -->
+		<!-- 관리자 콘텐츠 영역 종료 -->
+		<!-- ====================================== -->
 
-                error: function(xhr, status, error) {
 
-                    console.log(xhr.responseText);
-                    console.log(error);
+		<!-- ====================================== -->
+		<!-- 추후 공통 하단 영역 추가 예정 -->
+		<!-- ====================================== -->
 
-                    alert("서버 통신 중 오류가 발생했습니다.");
 
-                }
+		<script>
 
-            });
+			const app = Vue.createApp({
 
-        }
+				data() {
 
-    },
+					return {
 
-    mounted() {
+						// DB에서 조회한 쿠폰 목록을 저장하는 배열
+						couponList: [],
 
+						// 검색 종류
+						searchType: "couponName",
 
-        this.fnGetCouponList();
+						// 검색어
+						keyword: "",
 
-    }
+						// 전체 쿠폰 개수
+						totalCount: 0
 
-});
+					};
 
-app.mount("#app");
+				},
 
-</script>
 
-</body>
-</html>
+				computed: {
+
+					// 현재 사용 가능한 쿠폰 개수
+					activeCount() {
+
+						let now = new Date();
+
+						return this.couponList.filter(coupon => {
+
+							let start = new Date(coupon.validFrom);
+							let end = new Date(coupon.validUntil);
+
+							return start <= now && end >= now;
+
+						}).length;
+
+					},
+
+
+					// 아직 사용 시작일이 되지 않은 쿠폰 개수
+					upcomingCount() {
+
+						let now = new Date();
+
+						return this.couponList.filter(coupon => {
+
+							return new Date(coupon.validFrom) > now;
+
+						}).length;
+
+					},
+
+
+					// 사용 기간이 지난 쿠폰 개수
+					expiredCount() {
+
+						let now = new Date();
+
+						return this.couponList.filter(coupon => {
+
+							return new Date(coupon.validUntil) < now;
+
+						}).length;
+
+					},
+
+
+					// 검색 조건에 맞는 쿠폰 목록
+					filteredCoupons() {
+
+						let self = this;
+
+						// 검색어가 비어 있다면 전체 목록을 보여줍니다.
+						if (!self.keyword || !self.keyword.trim()) {
+
+							return self.couponList;
+
+						}
+
+						// 검색어를 소문자로 변경합니다.
+						let keyword = self.keyword.toLowerCase();
+
+						return self.couponList.filter(coupon => {
+
+							// 쿠폰명이 없는 경우 빈 문자열로 처리합니다.
+							let couponName = String(coupon.couponName || "").toLowerCase();
+
+							// 쿠폰명 검색
+							if (self.searchType === "couponName") {
+
+								return couponName.includes(keyword);
+
+							}
+
+							// 할인 유형 검색
+							if (self.searchType === "discountType") {
+
+								let discountType = self.fnDiscountType(coupon.discountType);
+
+								return discountType.toLowerCase().includes(keyword);
+
+							}
+
+							return true;
+
+						});
+
+					}
+
+				},
+
+
+				methods: {
+
+					// 숫자를 천 단위 콤마 형식으로 변경합니다.
+					fnNumber(value) {
+
+						return Number(value || 0).toLocaleString();
+
+					},
+
+
+					// 할인 유형을 한글로 변경합니다.
+					fnDiscountType(type) {
+
+						if (type === "FIXED") {
+
+							return "정액 할인";
+
+						}
+
+						if (type === "RATE") {
+
+							return "정률 할인";
+
+						}
+
+						return "-";
+
+					},
+
+
+					// 할인 유형에 따른 CSS 클래스를 반환합니다.
+					fnDiscountClass(type) {
+
+						if (type === "FIXED") {
+
+							return "fixed";
+
+						}
+
+						if (type === "RATE") {
+
+							return "rate";
+
+						}
+
+						return "";
+
+					},
+
+
+					// 날짜를 화면에 보기 좋게 표시합니다.
+					fnDate(value) {
+
+						if (!value) {
+
+							return "-";
+
+						}
+
+						return String(value).replace("T", " ");
+
+					},
+
+
+					// 검색 실행
+					fnSearch() {
+
+
+					},
+
+
+					// 검색 초기화
+					fnReset() {
+
+						this.keyword = "";
+						this.searchType = "couponName";
+
+					},
+
+
+					// 쿠폰 등록 페이지 이동
+					fnAdd() {
+
+						location.href = "/coupon/add.do";
+
+					},
+
+
+					// 쿠폰 수정 페이지 이동
+					fnEdit(couponId) {
+
+						location.href = "/coupon/edit.do?couponId=" + couponId;
+
+					},
+
+
+					// 쿠폰 삭제
+					fnRemove(couponId) {
+
+						let self = this;
+
+						// 삭제하기 전에 사용자에게 확인을 받습니다.
+						if (!confirm("정말 해당 쿠폰을 삭제하시겠습니까?")) {
+
+							return;
+
+						}
+
+						$.ajax({
+
+							url: "/coupon/remove.dox",
+
+							type: "POST",
+
+							dataType: "json",
+
+							data: {
+
+								couponId: couponId
+
+							},
+
+							success: function (data) {
+
+								if (data.result === "success") {
+
+									alert("쿠폰이 삭제되었습니다.");
+
+									// 삭제 후 목록을 다시 조회합니다.
+									self.fnGetCouponList();
+
+								} else {
+
+									alert(data.message || "쿠폰 삭제에 실패했습니다.");
+
+								}
+
+							},
+
+							error: function (xhr, status, error) {
+
+								console.log(xhr.responseText);
+								console.log(error);
+
+								alert("서버 통신 중 오류가 발생했습니다.");
+
+							}
+
+						});
+
+					},
+
+
+					// 쿠폰 목록 조회
+					fnGetCouponList() {
+
+						let self = this;
+
+						$.ajax({
+
+							url: "/coupon/list.dox",
+
+							type: "POST",
+
+							dataType: "json",
+
+							data: {},
+
+							success: function (data) {
+
+								if (data.result === "success") {
+
+									// 서버에서 받은 쿠폰 목록을 배열에 저장합니다.
+									self.couponList = Array.isArray(data.list) ? data.list : [];
+
+									// 전체 쿠폰 개수를 저장합니다.
+									self.totalCount = self.couponList.length;
+
+								} else {
+
+									self.couponList = [];
+									self.totalCount = 0;
+
+									alert(data.message || "쿠폰 조회에 실패했습니다.");
+
+								}
+
+							},
+
+							error: function (xhr, status, error) {
+
+								console.log(xhr.responseText);
+								console.log(error);
+
+								self.couponList = [];
+								self.totalCount = 0;
+
+								alert("쿠폰 목록을 불러오는 중 오류가 발생했습니다.");
+
+							}
+
+						});
+
+					}
+
+				},
+
+
+				mounted() {
+
+					// 화면이 처음 열리면 쿠폰 목록을 조회합니다.
+					this.fnGetCouponList();
+
+				}
+
+			});
+
+
+			app.mount("#app");
+
+		</script>
+
+	</body>
+
+	</html>
