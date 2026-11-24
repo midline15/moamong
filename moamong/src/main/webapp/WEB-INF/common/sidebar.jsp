@@ -97,9 +97,15 @@
     <div class="menu-foot">
 
         <div class="menu-auth">
-            <a href="#" class="auth-login">로그인</a>
-            <a href="#" class="auth-signup">회원가입</a>
+            <% if (session.getAttribute("sessionId") == null) { %>
+                <a href="/member/login.do" class="auth-login">로그인</a>
+                <a href="/member/join.do" class="auth-signup">회원가입</a>
+            <% } else { %>
+                <a href="/member/mypage.do" class="auth-login">마이페이지</a>
+                <a href="/member/logout.do" class="auth-signup">로그아웃</a>
+            <% } %>
         </div>
+
 
         <div class="menu-cs">
             <strong>1588-0000</strong>

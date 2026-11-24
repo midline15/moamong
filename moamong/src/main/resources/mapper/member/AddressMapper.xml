@@ -2,124 +2,135 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.member.mapper.AddressMapper">
 
+	<!-- 1. 회원 번호로 내 배송지 전체 목록 조회 (기본 배송지 우선 정렬) -->
 	<select id="selectAddressList" parameterType="long" resultType="hashmap">
 		SELECT
-		address_id AS addressId,
-		member_id AS memberId,
-		recipient_name AS recipientName,
-		recipient_phone AS recipientPhone,
-		postal_code AS postalCode,
-		address_default AS addressDefault,
-		IFNULL(address_detail, '') AS addressDetail,
-		IFNULL(address_name, '') AS addressName,
-		is_default AS isDefault,
-		DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt,
-		DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updatedAt
+			address_id AS addressId,
+			member_id AS memberId,
+			recipient_name AS recipientName,
+			recipient_phone AS recipientPhone,
+			postal_code AS postalCode,
+			address_default AS addressDefault,
+			IFNULL(address_detail, '') AS addressDetail,
+			IFNULL(address_name, '') AS addressName,
+			is_default AS isDefault,
+			DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt,
+			DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updatedAt
 		FROM ADDRESS
 		WHERE member_id = #{memberId}
 		ORDER BY is_default DESC, address_id DESC
 	</select>
 
+	<!-- 2. 배송지 단건 상세 조회 (본인 소유 검증 포함) -->
 	<select id="selectAddressOne" parameterType="hashmap" resultType="hashmap">
 		SELECT
-		address_id AS addressId,
-		member_id AS memberId,
-		recipient_name AS recipientName,
-		recipient_phone AS recipientPhone,
-		postal_code AS postalCode,
-		address_default AS addressDefault,
-		IFNULL(address_detail, '') AS addressDetail,
-		IFNULL(address_name, '') AS addressName,
-		is_default AS isDefault
+			address_id AS addressId,
+			member_id AS memberId,
+			recipient_name AS recipientName,
+			recipient_phone AS recipientPhone,
+			postal_code AS postalCode,
+			address_default AS addressDefault,
+			IFNULL(address_detail, '') AS addressDetail,
+			IFNULL(address_name, '') AS addressName,
+			is_default AS isDefault
 		FROM ADDRESS
 		WHERE address_id = #{addressId}
-		AND member_id = #{memberId}
+		  AND member_id = #{memberId}
 	</select>
 
+	<!-- 3. 주문서(Checkout) 초기 세팅용 기본 배송지 1건 조회 -->
 	<select id="selectDefaultAddress" parameterType="long" resultType="hashmap">
 		SELECT
-		address_id AS addressId,
-		member_id AS memberId,
-		recipient_name AS recipientName,
-		recipient_phone AS recipientPhone,
-		postal_code AS postalCode,
-		address_default AS addressDefault,
-		IFNULL(address_detail, '') AS addressDetail,
-		IFNULL(address_name, '') AS addressName,
-		is_default AS isDefault
+			address_id AS addressId,
+			member_id AS memberId,
+			recipient_name AS recipientName,
+			recipient_phone AS recipientPhone,
+			postal_code AS postalCode,
+			address_default AS addressDefault,
+			IFNULL(address_detail, '') AS addressDetail,
+			IFNULL(address_name, '') AS addressName,
+			is_default AS isDefault
 		FROM ADDRESS
 		WHERE member_id = #{memberId}
 		ORDER BY is_default DESC, address_id DESC
 		LIMIT 1
 	</select>
 
+	<!-- 4. 회원별 등록된 배송지 총 개수 조회 -->
 	<select id="countAddressByMemberId" parameterType="long" resultType="int">
 		SELECT COUNT(*)
 		FROM ADDRESS
 		WHERE member_id = #{memberId}
 	</select>
 
+	<!-- 5. 기존 기본 배송지 해제 (전체 is_default = 0 초기화) -->
 	<update id="resetDefaultAddress" parameterType="long">
 		UPDATE ADDRESS
-		SET is_default = 0,
-		updated_at = NOW()
+		SET
+			is_default = 0,
+			updated_at = NOW()
 		WHERE member_id = #{memberId}
-		AND is_default = 1
+		  AND is_default = 1
 	</update>
-
+	
+	<!-- 6. 특정 배송지를 기본 배송지로 지정 (is_default = 1) -->
 	<update id="updateDefaultAddress" parameterType="hashmap">
 		UPDATE ADDRESS
-		SET is_default = 1,
-		updated_at = NOW()
+		SET
+			is_default = 1,
+			updated_at = NOW()
 		WHERE address_id = #{addressId}
-		AND member_id = #{memberId}
+		  AND member_id = #{memberId}
 	</update>
 
-	<insert id="insertAddress" parameterType="hashmap" useGeneratedKeys="true"
-		keyProperty="addressId">
+	<!-- 7. 신규 배송지 등록 (생성된 PK를 addressId에 세팅) -->
+	<insert id="insertAddress" parameterType="hashmap" useGeneratedKeys="true" keyProperty="addressId">
 		INSERT INTO ADDRESS (
-		member_id,
-		recipient_name,
-		recipient_phone,
-		postal_code,
-		address_default,
-		address_detail,
-		address_name,
-		is_default,
-		created_at,
-		updated_at
+			member_id,
+			recipient_name,
+			recipient_phone,
+			postal_code,
+			address_default,
+			address_detail,
+			address_name,
+			is_default,
+			created_at,
+			updated_at
 		) VALUES (
-		#{memberId},
-		#{recipientName},
-		#{recipientPhone},
-		#{postalCode},
-		#{addressDefault},
-		#{addressDetail},
-		#{addressName},
-		#{isDefault},
-		NOW(),
-		NOW()
+			#{memberId},
+			#{recipientName},
+			#{recipientPhone},
+			#{postalCode},
+			#{addressDefault},
+			#{addressDetail},
+			#{addressName},
+			#{isDefault},
+			NOW(),
+			NOW()
 		)
 	</insert>
 
+	<!-- 8. 기존 배송지 정보 수정 -->
 	<update id="updateAddress" parameterType="hashmap">
 		UPDATE ADDRESS
-		SET recipient_name = #{recipientName},
-		recipient_phone = #{recipientPhone},
-		postal_code = #{postalCode},
-		address_default = #{addressDefault},
-		address_detail = #{addressDetail},
-		address_name = #{addressName},
-		is_default = #{isDefault},
-		updated_at = NOW()
+		SET
+			recipient_name = #{recipientName},
+			recipient_phone = #{recipientPhone},
+			postal_code = #{postalCode},
+			address_default = #{addressDefault},
+			address_detail = #{addressDetail},
+			address_name = #{addressName},
+			is_default = #{isDefault},
+			updated_at = NOW()
 		WHERE address_id = #{addressId}
-		AND member_id = #{memberId}
+		  AND member_id = #{memberId}
 	</update>
 
+	<!-- 9. 배송지 단건 삭제 (본인 소유 검증 포함) -->
 	<delete id="deleteAddress" parameterType="hashmap">
 		DELETE FROM ADDRESS
 		WHERE address_id = #{addressId}
-		AND member_id = #{memberId}
+		  AND member_id = #{memberId}
 	</delete>
 
 </mapper>

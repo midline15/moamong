@@ -1,0 +1,167 @@
+/* 마이페이지 2단 공통 레이아웃 */
+.mp-wrap {
+    max-width: 1200px;
+    margin: 24px auto 80px;
+    padding: 0 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 44px;
+    font-family: 'Pretendard', sans-serif;
+    color: #29251f;
+}
+
+/* 좌측 사이드바 */
+.mp-sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    background: #faf7f1;
+    min-height: 520px;
+}
+
+.mp-side-title {
+    height: 82px;
+    background: #dfd1bd;
+    color: #765a36;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mp-side-menu {
+    list-style: none;
+    padding: 12px 0;
+    margin: 0;
+}
+
+.mp-side-menu li a {
+    display: block;
+    padding: 12px 26px;
+    font-size: 13px;
+    color: #5c5346;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.mp-side-menu li a:hover,
+.mp-side-menu li.active a {
+    background: #efe7da;
+    color: #29251f;
+    font-weight: 700;
+}
+
+/* 우측 본문 영역 */
+.mp-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.mp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 26px 0 18px;
+    border-bottom: 1px solid #e3d6c1;
+    margin-bottom: 24px;
+}
+
+.mp-head h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #29251f;
+}
+
+.mp-breadcrumb {
+    font-size: 12px;
+    color: #9a8f80;
+}
+
+/* 공통 아이보리 카드 · 입력창 · 골드 버튼 */
+.mp-card {
+    background: #faf7f1;
+    border: 1px solid #efe7da;
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+}
+
+.mp-input {
+    width: 100%;
+    max-width: 380px;
+    padding: 10px 12px;
+    border: 1px solid #e3d6c1;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    color: #29251f;
+}
+
+.mp-input[readonly] {
+    background: #f3ede2;
+    color: #85817b;
+}
+
+.mp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #d5c4aa;
+    background: #fff;
+    color: #765a36;
+}
+
+.mp-btn-gold {
+    background: #c49a62;
+    border-color: #c49a62;
+    color: #fff;
+}
+
+.mp-btn-gold:hover {
+    background: #94764b;
+}
+
+.mp-btn-danger {
+    background: #b88b68;
+    border-color: #b88b68;
+    color: #fff;
+}
+
+/* 공통 모달 */
+.mp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 30, 24, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.mp-modal-box {
+    background: #fffdf9;
+    border: 1px solid #e3d6c1;
+    width: 92%;
+    max-width: 460px;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 28px rgba(60, 45, 25, 0.18);
+}
+
+@media (max-width: 860px) {
+    .mp-wrap {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .mp-sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+}
+

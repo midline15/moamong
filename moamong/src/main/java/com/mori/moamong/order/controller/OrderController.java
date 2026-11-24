@@ -159,4 +159,40 @@ public class OrderController {
 		}
 		return list;
 	}
+
+	// 7. 사용자 전용 취소/환불 내역 페이지 이동 (/order/cancel-list.do)
+	@RequestMapping(value = "/order/cancel-list.do")
+	public String cancelListPage(HttpSession session) {
+		if (session.getAttribute("sessionId") == null) {
+			return "redirect:/member/login.do";
+		}
+		return "order/cancelList";
+	}
+
+	// 8. 취소/환불 통합 내역 목록 조회 (.dox)
+	@RequestMapping(value = "/order/cancel-list.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> cancelList(HttpSession session) {
+		Long memberId = getMemberId(session);
+		return memberId == null ? noLoginMap() : orderService.getCancelRefundList(memberId);
+	}
+
+	// 9. 취소/환불 단건 상세 내역 조회 (.dox)
+	@RequestMapping(value = "/order/cancel-detail.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> cancelDetail(@RequestParam("claimType") String claimType,
+			@RequestParam("claimId") Long claimId, @RequestParam("orderId") Long orderId, HttpSession session) {
+		Long memberId = getMemberId(session);
+		return memberId == null ? noLoginMap()
+				: orderService.getCancelRefundDetail(memberId, claimType, claimId, orderId);
+	}
+
+	// 10. 반품/환불 신청 (+ 임시 관리자 자동 승인 처리) (.dox)
+	@RequestMapping(value = "/order/return-request.dox", method = RequestMethod.POST, consumes = "application/json")
+	@ResponseBody
+	public HashMap<String, Object> requestReturn(@RequestBody Map<String, Object> payload, HttpSession session) {
+		Long memberId = getMemberId(session);
+		return memberId == null ? noLoginMap() : orderService.requestReturnAndRefund(memberId, payload);
+	}
+
 }

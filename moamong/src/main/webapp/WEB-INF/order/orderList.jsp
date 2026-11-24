@@ -46,14 +46,16 @@
 </head>
 <body>
     <div id="app" class="container">
-        <div class="top-nav">
+                <div class="top-nav">
             <h2>📦 주문 내역 조회</h2>
             <div style="display:flex; gap:8px;">
+                <button class="btn" @click="fnGoCancelList">취소/환불 내역</button>
                 <button class="btn" @click="fnGoCart">장바구니</button>
                 <button class="btn" @click="fnGoMypage">마이페이지</button>
                 <button class="btn" @click="fnGoMain">메인으로</button>
             </div>
         </div>
+
         <div class="filter-tabs">
             <button class="tab-btn" :class="{ active: currentTab === 'ALL' }" @click="currentTab = 'ALL'">
                 전체 ({{ orderList.length }})
@@ -161,6 +163,8 @@
             fnGoMypage() { location.href = "/member/mypage.do"; },
             fnGoCart() { location.href = "/cart/list.do"; },
             fnGoDetail(orderId) { location.href = "/order/detail.do?orderId=" + orderId; },
+                        fnGoCancelList() { location.href = "/order/cancel-list.do"; },
+
 
             fnImgError(e) {
                 e.target.onerror = null;
