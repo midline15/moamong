@@ -86,7 +86,7 @@ public class ProductController {
     // 메인카테고리, 서브카테고리, 메인카테고리에 해당하는 상품리스트 조회
     @RequestMapping(value = "/product/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public String login(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+    public String list(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
