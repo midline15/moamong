@@ -1,0 +1,127 @@
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #f7f8fa;
+        font-family: Arial, sans-serif;
+        margin: 0;
+    }
+
+    .container {
+        width: 850px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .summary {
+        display: flex;
+        gap: 15px;
+        margin: 25px 0;
+    }
+
+    .summary-item {
+        flex: 1;
+        padding: 20px;
+        background: #f5f7fa;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .summary-item h2 {
+        color: #477bdb;
+        margin: 0 0 8px;
+        font-size: 27px;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 10px;
+        border-bottom: 1px solid #ddd;
+        margin: 25px 0;
+    }
+
+    .tabs button {
+        border: none;
+        background: none;
+        padding: 12px 15px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .tabs button.active {
+        color: #477bdb;
+        border-bottom: 2px solid #477bdb;
+        font-weight: bold;
+    }
+
+    .coupon-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-left: 5px solid #477bdb;
+        border-radius: 10px;
+        padding: 22px;
+        margin-bottom: 15px;
+    }
+
+    .coupon-card.used,
+    .coupon-card.expired {
+        border-left-color: #aaa;
+        opacity: 0.65;
+    }
+
+    .discount {
+        font-size: 28px;
+        font-weight: bold;
+        color: #477bdb;
+        margin: 12px 0;
+    }
+
+    .coupon-card.used .discount,
+    .coupon-card.expired .discount {
+        color: #888;
+    }
+
+    .coupon-info p {
+        color: #777;
+        font-size: 13px;
+        margin: 7px 0;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #e8f2ff;
+        color: #477bdb;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .status.used,
+    .status.expired {
+        background: #eee;
+        color: #777;
+    }
+
+    .coupon-extra {
+        text-align: right;
+        font-size: 13px;
+        color: #777;
+    }
+
+    .empty {
+        text-align: center;
+        padding: 60px;
+        color: #999;
+    }
+
+    @media (max-width: 900px) {
+        .container {
+            width: 95%;
+        }
+    }

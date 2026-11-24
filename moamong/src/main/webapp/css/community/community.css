@@ -1,34 +1,70 @@
 /* =========================================
    커뮤니티 (소셜)
-   ※ 색상 변수는 notice/list.css 의 :root 사용
+   팔레트 : #DFC69F / #F0DFC3 / #FBF5EB / #C5A477
+   ※ 색상 변수는 이 파일 안(.cm-wrap)에서 직접 정의합니다.
 ========================================= */
 
 
 /* =========================================
-   공통 영역
+   공통 영역 + 색상 변수
 ========================================= */
 
 .cm-wrap {
+    /* 팔레트 */
+    --cm-1: #DFC69F;            /* 연한 포인트 : 테두리, 포커스 */
+    --cm-2: #F0DFC3;            /* 베이지     : 칩, 구분선, 강조 바탕 */
+    --cm-3: #FBF5EB;            /* 아이보리   : 바탕 */
+    --cm-4: #C5A477;            /* 메인 포인트 : 버튼, 활성 상태 */
+    --cm-on-point: #fff;        /* 포인트 색 위의 글자색 (잘 안 보이면 #43362A 로) */
+
+    /* 글자색 & 포인트 액센트 */
+    --cm-ink: #2E241B;
+    --cm-sub: #6E5F4E;
+    --cm-mute: #968670;
+    --cm-heart: #E04848;        /* 활성/호버 좋아요 레드 */
+    --cm-heart-bg: #FFF1F0;     /* 좋아요 활성 배경 */
+
     width: 100%;
     max-width: 960px;
     margin: 0 auto;
     padding: 40px 20px 80px;
+    color: var(--cm-ink);
     box-sizing: border-box;
 }
 
-/* 타이틀 */
+/* 키보드로 이동할 때 보이는 테두리 */
+.cm-wrap a:focus-visible,
+.cm-wrap button:focus-visible {
+    outline: 2px solid var(--cm-4);
+    outline-offset: 2px;
+}
+
+/* 타이틀 : 깔끔한 미니멀 언더라인 */
 .cm-title {
     margin: 0 0 28px;
     text-align: center;
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--text);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--cm-ink);
 }
 
 .cm-title span {
+    position: relative;
     display: inline-block;
-    padding: 0 14px 6px;
-    border-bottom: 1px solid var(--point);
+    padding: 0 4px 12px;
+}
+
+.cm-title span::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 36px;
+    height: 2.5px;
+    margin-left: -18px;
+    border-radius: 2px;
+    background: var(--cm-4);
 }
 
 
@@ -37,10 +73,11 @@
 ========================================= */
 
 .cm-box {
-    padding: 14px 16px 16px;
-    background: linear-gradient(180deg, #FDF6EC 0%, #FBF5EB 100%);
-    border: 1px solid #F3E7D3;
-    border-radius: 24px;
+    padding: 18px;
+    background: var(--cm-3);
+    border: 1px solid var(--cm-2);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(46, 36, 27, 0.04);
 }
 
 /* 해시태그 탭 */
@@ -55,31 +92,44 @@
 
 .cm-tab li a {
     display: block;
-    padding: 8px 20px;
+    padding: 7px 14px;
     font-size: 13px;
-    color: #6B6359;
+    font-weight: 500;
+    color: var(--cm-sub);
     text-decoration: none;
-    border-radius: 30px;
-    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid transparent;
+    border-radius: 9px;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .cm-tab li a:hover {
-    color: #514636;
-    background: rgba(197, 164, 119, 0.15);
+    color: var(--cm-ink);
+    background: #fff;
+    border-color: var(--cm-2);
 }
 
 .cm-tab li.on a {
-    color: #fff;
+    color: var(--cm-on-point);
     font-weight: 600;
-    background: var(--point);
+    background: var(--cm-4);
+    border-color: var(--cm-4);
+    box-shadow: 0 2px 8px rgba(197, 164, 119, 0.35);
 }
 
 /* 글쓰기 박스 */
 .cm-write {
-    padding: 14px 18px 12px;
+    padding: 16px 18px 12px;
     background: #fff;
-    border: 1px solid #F3E7D3;
-    border-radius: 18px;
+    border: 1px solid var(--cm-1);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(46, 36, 27, 0.03);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cm-write:focus-within {
+    border-color: var(--cm-4);
+    box-shadow: 0 0 0 3px rgba(197, 164, 119, 0.22);
 }
 
 .cm-write-main {
@@ -92,13 +142,13 @@
 .cm-write-main textarea {
     flex: 1;
     min-width: 0;
-    min-height: 44px;
+    min-height: 48px;
     max-height: 240px;
-    padding: 10px 0 22px;
+    padding: 8px 0 22px;
     font-size: 14px;
     font-family: inherit;
-    line-height: 1.6;
-    color: var(--text);
+    line-height: 1.65;
+    color: var(--cm-ink);
     background: none;
     border: none;
     outline: none;
@@ -107,7 +157,7 @@
 }
 
 .cm-write-main textarea::placeholder {
-    color: #B8B2A8;
+    color: var(--cm-mute);
 }
 
 .cm-count {
@@ -115,20 +165,22 @@
     right: 0;
     bottom: 0;
     font-size: 11px;
-    color: #B8B2A8;
+    font-variant-numeric: tabular-nums;
+    color: var(--cm-mute);
 }
 
-/* 아바타 */
+/* 아바타 : 세련된 스쿼클/원형 + 은은한 링 */
 .cm-avatar {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
     color: #fff;
-    background: #EADFCF;
-    border-radius: 50%;
+    background: linear-gradient(145deg, var(--cm-4), #B38E5D);
+    border-radius: 13px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 0 1px var(--cm-2);
 }
 
 /* 첨부 이미지 미리보기 */
@@ -137,21 +189,23 @@
     flex-wrap: wrap;
     gap: 8px;
     list-style: none;
-    margin: 6px 0 4px 58px;
+    margin: 8px 0 4px 56px;
     padding: 0;
 }
 
 .cm-preview li {
     position: relative;
-    width: 76px;
-    height: 76px;
+    width: 74px;
+    height: 74px;
 }
 
 .cm-preview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border: 1px solid var(--cm-2);
     border-radius: 10px;
+    box-sizing: border-box;
 }
 
 .cm-preview button {
@@ -161,11 +215,11 @@
     width: 20px;
     height: 20px;
     padding: 0;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 18px;
     color: #fff;
-    background: #6B6359;
-    border: none;
+    background: var(--cm-ink);
+    border: 2px solid #fff;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -176,37 +230,40 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    margin-top: 6px;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--cm-3);
 }
 
 .cm-tools {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
 }
 
 .cm-icon-btn {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     padding: 0;
-    color: #6B6359;
+    color: var(--cm-sub);
     background: none;
     border: none;
-    border-radius: 50%;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.18s ease, color 0.18s ease;
 }
 
 .cm-icon-btn:hover:not(:disabled) {
-    background: var(--ivory);
+    color: var(--cm-ink);
+    background: var(--cm-3);
 }
 
 .cm-icon-btn:disabled {
-    color: #CFC9BE;
+    color: var(--cm-2);
     cursor: not-allowed;
 }
 
@@ -215,11 +272,11 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-left: 10px;
-    padding-left: 12px;
-    border-left: 1px solid var(--border);
+    margin-left: 8px;
+    padding-left: 10px;
+    border-left: 1px solid var(--cm-2);
     font-size: 12px;
-    color: #6B6359;
+    color: var(--cm-sub);
     cursor: pointer;
 }
 
@@ -229,10 +286,10 @@
 
 .cm-switch .track {
     position: relative;
-    width: 34px;
+    width: 36px;
     height: 20px;
-    background: #DDD6C9;
-    border-radius: 20px;
+    background: var(--cm-2);
+    border-radius: 10px;
     transition: background 0.2s ease;
 }
 
@@ -244,53 +301,62 @@
     height: 16px;
     background: #fff;
     border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    transition: left 0.2s ease;
+    box-shadow: 0 1px 3px rgba(46, 36, 27, 0.2);
+    transition: transform 0.2s ease;
 }
 
-.cm-switch input:checked+.track {
-    background: var(--point);
+.cm-switch input:checked + .track {
+    background: var(--cm-4);
 }
 
-.cm-switch input:checked+.track .knob {
-    left: 16px;
+.cm-switch input:checked + .track .knob {
+    transform: translateX(16px);
 }
 
 .cm-switch em {
     font-style: normal;
+    font-weight: 500;
 }
 
 .cm-switch small {
     font-size: 11px;
-    color: #B8B2A8;
+    color: var(--cm-mute);
 }
 
 .cm-switch.disabled {
     cursor: not-allowed;
-    opacity: 0.7;
+    opacity: 0.65;
 }
 
 /* 게시 버튼 */
 .cm-submit {
-    min-width: 72px;
+    min-width: 74px;
     height: 36px;
-    padding: 0 22px;
+    padding: 0 20px;
     font-size: 13px;
+    font-weight: 600;
     font-family: inherit;
-    color: #fff;
-    background: var(--point);
+    color: var(--cm-on-point);
+    background: var(--cm-4);
     border: none;
-    border-radius: 20px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
 }
 
 .cm-submit:hover:not(:disabled) {
-    background: #B08F62;
+    background: #B69364;
+    box-shadow: 0 4px 12px rgba(197, 164, 119, 0.35);
+}
+
+.cm-submit:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .cm-submit:disabled {
-    background: #E3D3B8;
+    color: var(--cm-mute);
+    background: var(--cm-3);
+    border: 1px solid var(--cm-2);
     cursor: not-allowed;
 }
 
@@ -301,12 +367,23 @@
 
 .cm-feed {
     max-width: 640px;
-    margin: 34px auto 0;
+    margin: 32px auto 0;
 }
 
+/* 게시글 카드 */
 .cm-post {
-    padding: 20px 0 8px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    padding: 20px 22px 6px;
+    background: #fff;
+    border: 1px solid var(--cm-2);
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(46, 36, 27, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cm-post:hover {
+    border-color: var(--cm-1);
+    box-shadow: 0 6px 22px rgba(46, 36, 27, 0.06);
 }
 
 /* 작성자 */
@@ -314,12 +391,13 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .cm-post-head .cm-avatar {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
 }
 
 .cm-post-head .who {
@@ -330,48 +408,47 @@
 .cm-post-head .name {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 6px;
 }
 
 .cm-post-head .name strong {
     font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--cm-ink);
 }
 
 .cm-post-head time {
     display: block;
     margin-top: 2px;
     font-size: 11px;
-    color: #A49D91;
+    color: var(--cm-mute);
 }
 
-/* 로그인 방식 표시 (아이콘 이미지 들어가기 전 임시) */
+/* 로그인 방식 표시 */
 .cm-social {
     display: inline-block;
     padding: 1px 7px;
     font-size: 10px;
     font-weight: 600;
     line-height: 16px;
-    color: #6B6359;
-    background: #F4F1EA;
-    border-radius: 10px;
+    color: var(--cm-sub);
+    background: var(--cm-3);
+    border: 1px solid var(--cm-2);
+    border-radius: 6px;
 }
 
-.cm-social.google {
-    color: #4285F4;
-    background: #fff;
-    border: 1px solid #DADCE0;
-}
-
-.cm-social.naver {
-    color: #fff;
-    background: #03C75A;
-}
-
-.cm-social.kakao {
-    color: #3B1E1E;
-    background: #FEE500;
+/* 관리자 배지 */
+.cm-admin {
+    display: inline-block;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    color: var(--cm-on-point);
+    background: var(--cm-4);
+    border-radius: 6px;
 }
 
 /* 더보기 */
@@ -379,41 +456,51 @@
     position: relative;
 }
 
-.cm-more>button {
-    padding: 4px 8px;
+.cm-more > button {
+    padding: 5px 8px;
     font-size: 14px;
     letter-spacing: 1px;
-    color: #8D877C;
+    color: var(--cm-mute);
     background: none;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.cm-more > button:hover {
+    color: var(--cm-ink);
+    background: var(--cm-3);
 }
 
 .cm-more ul {
     position: absolute;
-    top: 30px;
+    top: 32px;
     right: 0;
     z-index: 5;
-    min-width: 90px;
+    min-width: 100px;
     list-style: none;
     margin: 0;
-    padding: 6px 0;
+    padding: 5px;
     background: #fff;
-    border: 1px solid var(--border);
+    border: 1px solid var(--cm-2);
     border-radius: 10px;
-    box-shadow: 0 6px 18px rgba(120, 90, 50, 0.12);
+    box-shadow: 0 10px 24px rgba(46, 36, 27, 0.12);
 }
 
 .cm-more ul a {
     display: block;
-    padding: 9px 16px;
+    padding: 7px 12px;
     font-size: 12px;
-    color: #B5524A;
+    font-weight: 500;
+    color: var(--cm-sub);
     text-decoration: none;
+    border-radius: 6px;
 }
 
 .cm-more ul a:hover {
-    background: #FDF6EC;
+    color: var(--cm-heart);
+    background: var(--cm-heart-bg);
 }
 
 /* 이미지 */
@@ -421,7 +508,8 @@
     display: grid;
     gap: 4px;
     overflow: hidden;
-    border-radius: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(223, 198, 159, 0.45);
 }
 
 .cm-images img {
@@ -436,7 +524,7 @@
 }
 
 .cm-images.n1 img {
-    aspect-ratio: 5 / 3;
+    aspect-ratio: 16 / 10;
 }
 
 .cm-images.n2,
@@ -459,79 +547,162 @@
 
 /* 내용 */
 .cm-text {
-    margin: 14px 0 6px;
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--text);
+    margin: 14px 0 10px;
+    font-size: 14.5px;
+    line-height: 1.72;
+    color: var(--cm-ink);
     white-space: pre-wrap;
     word-break: break-word;
 }
 
-/* 해시태그 */
+/* 해시태그 : 깔끔한 태그 칩 */
 .cm-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 12px;
-    margin-bottom: 4px;
+    gap: 6px;
+    margin: 8px 0 4px;
 }
 
 .cm-tags a {
-    font-size: 13px;
-    color: #A49D91;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cm-sub);
     text-decoration: none;
-    transition: color 0.2s ease;
+    background: var(--cm-3);
+    border: 1px solid var(--cm-2);
+    border-radius: 7px;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .cm-tags a:hover {
-    color: #A18459;
+    color: var(--cm-ink);
+    background: var(--cm-2);
+    border-color: var(--cm-1);
 }
 
 /* 좋아요 / 댓글 */
 .cm-action {
     display: flex;
     align-items: center;
-    gap: 22px;
-    padding: 10px 0 12px;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 8px 0 10px;
+    border-top: 1px solid var(--cm-3);
 }
 
 .cm-action .like,
 .cm-action .comment {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 0;
+    gap: 6px;
+    padding: 6px 12px;
     font-size: 13px;
+    font-weight: 500;
     font-family: inherit;
-    color: #514636;
+    color: var(--cm-sub);
     background: none;
     border: none;
-}
-
-.cm-action .like {
+    border-radius: 8px;
     cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.14s ease;
 }
 
+/* 좋아요 : 예쁜 레드 포인트 */
 .cm-action .like:hover {
-    color: var(--point);
+    color: var(--cm-heart);
+    background: var(--cm-heart-bg);
 }
 
 .cm-action .like.on {
-    color: var(--point);
+    color: var(--cm-heart);
+    font-weight: 600;
+    background: var(--cm-heart-bg);
+}
+
+.cm-action .like svg,
+.cm-action .like i {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.2s ease, color 0.2s ease;
+}
+
+.cm-action .like:hover svg,
+.cm-action .like:hover i {
+    transform: scale(1.12);
+}
+
+.cm-action .like.on svg,
+.cm-action .like.on i {
+    color: var(--cm-heart);
+    fill: var(--cm-heart);
+    transform: scale(1.08);
+}
+
+/* 댓글 버튼 */
+.cm-action .comment:hover {
+    color: var(--cm-ink);
+    background: var(--cm-3);
+}
+
+.cm-action .comment.on {
+    color: var(--cm-ink);
+    font-weight: 600;
+    background: var(--cm-2);
 }
 
 /* 상태 문구 */
 .cm-empty,
 .cm-loading,
 .cm-end {
-    padding: 50px 0;
+    padding: 48px 0;
     text-align: center;
     font-size: 13px;
-    color: #AAA49A;
+    color: var(--cm-mute);
+}
+
+.cm-empty {
+    background: var(--cm-3);
+    border: 1px dashed var(--cm-1);
+    border-radius: 14px;
 }
 
 .cm-loading,
 .cm-end {
-    padding: 30px 0;
+    padding: 28px 0;
+}
+
+/* 불러오는 중 */
+.cm-loading::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    border: 2px solid var(--cm-2);
+    border-top-color: var(--cm-4);
+    border-radius: 50%;
+    animation: cm-spin 0.8s linear infinite;
+}
+
+@keyframes cm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 마지막 게시글 */
+.cm-end {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cm-end::before,
+.cm-end::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--cm-2);
 }
 
 .cm-sentinel {
@@ -543,8 +714,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px;
-    margin-top: 30px;
+    gap: 6px;
+    margin-top: 28px;
     font-size: 13px;
 }
 
@@ -554,53 +725,44 @@
     align-items: center;
     width: 32px;
     height: 32px;
-    color: #514636;
+    color: var(--cm-sub);
     text-decoration: none;
-    border-radius: 50%;
-    transition: all 0.2s ease;
+    border-radius: 8px;
+    transition: all 0.18s ease;
 }
 
 .cm-paging a:hover {
-    color: var(--point);
+    color: var(--cm-ink);
+    background: var(--cm-3);
 }
 
 .cm-paging a.nav {
-    color: #8D877C;
-    background: #F4F1EA;
+    color: var(--cm-sub);
+    background: var(--cm-3);
 }
 
 .cm-paging a.on {
-    color: #fff;
+    color: var(--cm-on-point);
     font-weight: 600;
-    background: var(--point);
+    background: var(--cm-4);
 }
+
 
 /* =========================================
    댓글 (아래로 펼쳐지는 영역)
 ========================================= */
 
-/* 댓글 아이콘 버튼 */
-.cm-action .comment {
-    cursor: pointer;
-}
-
-.cm-action .comment:hover,
-.cm-action .comment.on {
-    color: var(--point);
-}
-
-/* 펼침 애니메이션 (높이를 0 -> 내용만큼) */
 .cm-comments {
     display: grid;
     grid-template-rows: 0fr;
     visibility: hidden;
-    transition: grid-template-rows 0.35s ease, visibility 0s linear 0.35s;
+    transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.32s;
 }
 
 .cm-comments.open {
     grid-template-rows: 1fr;
     visibility: visible;
-    transition: grid-template-rows 0.35s ease, visibility 0s;
+    transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
 }
 
 .cm-comments-inner {
@@ -609,18 +771,19 @@
 }
 
 .cm-comments.open .cm-comments-inner {
-    margin: 0 0 12px;
-    padding: 6px 16px 14px;
-    background: #FDFBF7;
-    border-radius: 14px;
+    margin: 0 0 14px;
+    padding: 8px 16px 14px;
+    background: var(--cm-3);
+    border: 1px solid var(--cm-2);
+    border-radius: 12px;
 }
 
 /* 상태 문구 */
 .cm-c-state {
-    padding: 18px 0 8px;
+    padding: 16px 0 8px;
     text-align: center;
     font-size: 12px;
-    color: #AAA49A;
+    color: var(--cm-mute);
 }
 
 /* 댓글 목록 */
@@ -631,73 +794,77 @@
     padding: 0;
 }
 
-.cm-c-list>li {
-    padding: 12px 0 4px;
-    border-bottom: 1px solid #F3EEE5;
+.cm-c-list > li {
+    padding: 10px 0 4px;
+    border-bottom: 1px solid var(--cm-2);
 }
 
-.cm-c-list>li:last-child {
+.cm-c-list > li:last-child {
     border-bottom: none;
 }
 
+/* 대댓글 : 왼쪽에 세로선 */
 .cm-c-reply {
-    margin: 4px 0 4px 18px;
-    padding-left: 14px;
-    border-left: 2px solid #EFE4D0;
+    margin: 4px 0 4px 12px;
+    padding-left: 12px;
+    border-left: 2px solid var(--cm-1);
 }
 
 .cm-c-item {
-    padding: 4px 0 10px;
+    padding: 4px 0 8px;
 }
 
 .cm-c-top {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 6px;
 }
 
 .cm-c-top strong {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--cm-ink);
 }
 
 .cm-c-top time {
     font-size: 11px;
-    color: #A49D91;
+    color: var(--cm-mute);
 }
 
 .cm-c-text {
     margin: 4px 0 4px;
     font-size: 13px;
     line-height: 1.6;
-    color: #4B4640;
+    color: var(--cm-ink);
     white-space: pre-wrap;
     word-break: break-word;
 }
 
 .cm-c-text.deleted {
-    color: #B8B2A8;
+    color: var(--cm-mute);
     font-style: italic;
 }
 
 .cm-c-btns {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
 .cm-c-btns a {
     font-size: 11px;
-    color: #A49D91;
+    font-weight: 500;
+    color: var(--cm-mute);
     text-decoration: none;
+    transition: color 0.18s ease;
 }
 
 .cm-c-btns a:hover {
-    color: var(--point);
+    color: var(--cm-ink);
 }
 
 .cm-c-btns a.del:hover {
-    color: #B5524A;
+    color: var(--cm-heart);
 }
 
 /* 댓글 입력 */
@@ -710,15 +877,16 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
-    padding: 6px 12px;
+    padding: 6px 10px;
     font-size: 11px;
-    color: #8D877C;
-    background: #F4F1EA;
-    border-radius: 10px;
+    color: var(--cm-sub);
+    background: var(--cm-2);
+    border-radius: 8px;
 }
 
 .cm-c-to a {
-    color: #A18459;
+    color: var(--cm-ink);
+    font-weight: 600;
     text-decoration: none;
 }
 
@@ -730,49 +898,178 @@
 .cm-c-input input {
     flex: 1;
     min-width: 0;
-    height: 38px;
-    padding: 0 16px;
+    height: 36px;
+    padding: 0 14px;
     font-size: 13px;
     font-family: inherit;
-    color: var(--text);
+    color: var(--cm-ink);
     background: #fff;
-    border: 1px solid #E5E0D7;
-    border-radius: 20px;
+    border: 1px solid var(--cm-2);
+    border-radius: 9px;
     outline: none;
     box-sizing: border-box;
-    transition: border 0.2s ease;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cm-c-input input::placeholder {
+    color: var(--cm-mute);
 }
 
 .cm-c-input input:focus {
-    border-color: var(--point);
+    border-color: var(--cm-4);
+    box-shadow: 0 0 0 3px rgba(197, 164, 119, 0.2);
 }
 
 .cm-c-input input:disabled {
-    background: #F8F6F1;
+    background: var(--cm-3);
 }
 
 .cm-c-input button {
-    min-width: 60px;
-    height: 38px;
-    padding: 0 16px;
+    min-width: 58px;
+    height: 36px;
+    padding: 0 14px;
     font-size: 12px;
+    font-weight: 600;
     font-family: inherit;
-    color: #fff;
-    background: var(--point);
+    color: var(--cm-on-point);
+    background: var(--cm-4);
     border: none;
-    border-radius: 20px;
+    border-radius: 9px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.18s ease;
 }
 
 .cm-c-input button:hover:not(:disabled) {
-    background: #B08F62;
+    background: #B69364;
 }
 
 .cm-c-input button:disabled {
-    background: #E3D3B8;
+    color: var(--cm-mute);
+    background: var(--cm-2);
     cursor: not-allowed;
 }
+
+/* 관리자가 삭제한 게시글 */
+.cm-blocked {
+    margin: 10px 0 16px;
+    padding: 24px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--cm-mute);
+    background: var(--cm-3);
+    border: 1px dashed var(--cm-1);
+    border-radius: 12px;
+}
+
+/* 작성 취소 버튼 */
+.cm-cancel {
+    min-width: 64px;
+    height: 36px;
+    margin-right: 6px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--cm-sub);
+    background: #fff;
+    border: 1px solid var(--cm-2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.cm-cancel:hover:not(:disabled) {
+    color: var(--cm-ink);
+    background: var(--cm-3);
+}
+
+.cm-cancel:disabled {
+    color: var(--cm-mute);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   디자인 디테일 추가 (상단 요약 바 · 이미지 호버 · 하트 팝)
+========================================= */
+
+.cm-feed-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--cm-sub);
+}
+
+.cm-feed-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--cm-ink);
+}
+
+.cm-feed-tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cm-4);
+}
+
+.cm-feed-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--cm-mute);
+}
+
+.cm-tool-hint {
+    margin-left: 4px;
+    font-size: 11px;
+    color: var(--cm-mute);
+}
+
+/* 이미지 호버 시 은은한 확대 */
+.cm-images img {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cm-post:hover .cm-images img {
+    transform: scale(1.015);
+}
+
+.cm-images img:hover {
+    transform: scale(1.04);
+}
+
+/* 좋아요 누를 때 살짝 팝 */
+@keyframes cm-heart-pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.28); }
+    100% { transform: scale(1.08); }
+}
+
+.cm-action .like.on svg,
+.cm-action .like.on i {
+    animation: cm-heart-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 대댓글 표시 아이콘(ㄴ) 느낌의 여백 강조 */
+.cm-c-reply .cm-c-item {
+    position: relative;
+}
+
+.cm-c-reply .cm-c-item::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 14px;
+    width: 8px;
+    height: 1px;
+    background: var(--cm-1);
+}
+
 
 /* =========================================
    반응형
@@ -781,21 +1078,22 @@
 @media (max-width: 600px) {
 
     .cm-wrap {
-        padding: 28px 12px 60px;
+        padding: 24px 12px 56px;
     }
 
     .cm-box {
-        padding: 10px 10px 12px;
-        border-radius: 18px;
+        padding: 12px;
+        border-radius: 14px;
     }
 
     .cm-tab li a {
-        padding: 7px 14px;
+        padding: 6px 12px;
         font-size: 12px;
     }
 
     .cm-write {
-        padding: 12px 12px 10px;
+        padding: 12px;
+        border-radius: 12px;
     }
 
     .cm-preview {
@@ -811,12 +1109,29 @@
         display: none;
     }
 
+    .cm-post {
+        padding: 16px 14px 4px;
+        border-radius: 14px;
+    }
+
     .cm-comments.open .cm-comments-inner {
-        padding: 4px 10px 12px;
+        padding: 6px 12px 12px;
     }
 
     .cm-c-reply {
-        margin-left: 8px;
+        margin-left: 6px;
         padding-left: 10px;
+    }
+}
+
+
+/* 움직임을 줄이도록 설정한 사용자 */
+@media (prefers-reduced-motion: reduce) {
+
+    .cm-wrap *,
+    .cm-wrap *::before,
+    .cm-wrap *::after {
+        transition: none !important;
+        animation: none !important;
     }
 }

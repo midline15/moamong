@@ -21,16 +21,22 @@ import com.mori.moamong.community.service.CommunityService;
 public class CommunityController {
     private final CommunityService communityService;
 
-    // TODO: 로그인 기능 붙이면 false 로 바꾸기 (true 이면 DEV_MEMBER_ID 회원으로 로그인한 것으로 취급)
-    private static final boolean DEV_MODE = true;
-    private static final long DEV_MEMBER_ID = 1L; // ← MEMBER 테이블에 있는 회원 번호로 변경
+    // 개발용 가짜 로그인 (false 로 유지, 실제 로그인 세션을 사용)
+    private static final boolean DEV_MODE = false;
+    private static final long DEV_MEMBER_ID = 1L;
 
-    // 로그인한 회원 번호 (없으면 0) (TODO: 실제 로그인 세션 키로 교체)
+    // 로그인한 회원 번호 (로그아웃 상태면 0) - 로그인 시 세션에 "sessionId" 로 저장됨
     private long getMemberId(HttpSession session) {
         if (DEV_MODE)
             return DEV_MEMBER_ID;
-        Object id = session.getAttribute("memberId");
-        return id == null ? 0L : Long.parseLong(String.valueOf(id));
+        Object id = session.getAttribute("sessionId");
+        if (id == null)
+            return 0L;
+        try {
+            return Long.parseLong(String.valueOf(id));
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
     }
 
     // 관리자 여부 (회원의 role 이 ADMIN 인지 DB에서 확인)

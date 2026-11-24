@@ -78,7 +78,8 @@ pageEncoding="UTF-8"%>
                     role: "",
                     socialType: null,
                     memberId: ""
-                }
+                },
+					      cartCount: 0
             };
         },
         methods: {
@@ -95,6 +96,38 @@ pageEncoding="UTF-8"%>
                     }
                 });
             },
+//             fnGetCartCount: function () {
+// 					    let self = this;
+// 					    $.ajax({
+// 						    url: "/cart/list.dox",
+// 						    type: "POST",
+// 						    dataType: "json",
+// 						    success: function (data) {
+// 						    	if (data.result === "success" && data.list) {
+
+// 					    			self.cartCount = data.list.length;
+// 				    			}
+// 			    			}
+// 			    		});
+// 		    		},
+            fnGoCart: function () {
+					    location.href = "/cart/list.do";
+				    },
+            fnGoMain: function () {
+              location.href = "/";
+            },
+             fnGoWishlist() {
+              location.href = "/wishlist/list.do";
+            },
+            fnGoPoint(memberId) {
+              pageChange("/point/history.do", {memberId: memberId})
+            },
+            fnGoCoupon(memberId) {
+              pageChange("/coupon/mylist.do", {memberId: memberId})
+            },
+            fnGoReview(memberId) {
+              pageChange("/review/myReview.do", {memberId: memberId})
+            },
             fnGoEdit() { location.href = "/member/edit.do"; },
             fnGoOrderList() { location.href = "/order/list.do"; },
             fnGoCancelList() { location.href = "/order/cancel-list.do"; },
@@ -102,6 +135,7 @@ pageEncoding="UTF-8"%>
         },
         mounted() {
             this.fnGetMyInfo();
+// 				    this.fnGetCartCount();
         }
     });
     app.mount('#app');
