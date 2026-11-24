@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mori.moamong.common.mapper.FileMapper">
+
+    <!-- 이미지 주소가 연결된 곳이 있는지 (내가 쓰는 공지, 1:1문의, 커뮤니티만 확인) -->
+    <select id="selectImageUsedCnt" resultType="int">
+        SELECT
+            (SELECT COUNT(*) FROM NOTICE_IMAGE WHERE IMAGE_URL = #{url})
+          + (SELECT COUNT(*) FROM INQ_IMAGE WHERE IMAGE_URL = #{url})
+          + (SELECT COUNT(*) FROM COMMUNITY_IMAGE WHERE IMAGE_URL = #{url})
+    </select>
+
+</mapper>
