@@ -1,50 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.mori.moamong.coupon.mapper.CouponMapper">
 
-	<select id="selectCouponList" parameterType="hashmap" resultType="com.mori.moamong.dto.Coupon">
-    <!-- 회원이 발급받은 전체 쿠폰 조회 -->
-    SELECT
-	    MC.member_coupon_id,
-	    MC.member_id,
-	    MC.coupon_id,
-	    C.coupon_name,
-	    C.discount_type,
-	    C.discount_value,
-	    C.minimum_order_amount,
-	    C.maximum_discount_amount,
-	    MC.issued_at,
-	    C.valid_from,
-	    C.valid_until,
-	    MC.used_at,
-	    MC.coupon_status,
-	    OC.order_id,
-	    OC.discount_amount,
+	<select id="selectCouponList" parameterType="hashmap"
+		resultType="com.mori.moamong.dto.Coupon">
+		<!-- 회원이 발급받은 전체 쿠폰 조회 --> SELECT MC.member_coupon_id,
+		MC.member_id, MC.coupon_id, C.coupon_name, C.discount_type,
+		C.discount_value, C.minimum_order_amount, C.maximum_discount_amount,
+		MC.issued_at, C.valid_from, C.valid_until, MC.used_at, MC.coupon_status,
+		OC.order_id, OC.discount_amount, CASE WHEN MC.coupon_status = 'USED'
+		THEN 'USED' WHEN MC.coupon_status = 'EXPIRED' THEN 'EXPIRED' WHEN
+		C.valid_until &lt; NOW() THEN 'EXPIRED' ELSE 'AVAILABLE' END AS
+		display_status FROM MEMBER_COUPON MC INNER JOIN COUPON C ON MC.coupon_id
+		= C.coupon_id LEFT JOIN ORDER_COUPON OC ON MC.member_coupon_id =
+		OC.member_coupon_id WHERE MC.member_id = #{memberId} ORDER BY
+		MC.issued_at DESC </select>
 
-	    CASE
-	        WHEN MC.coupon_status = 'USED'
-	            THEN 'USED'
-	        WHEN MC.coupon_status = 'EXPIRED'
-	            THEN 'EXPIRED'
-	        WHEN C.valid_until &lt; NOW()
-	            THEN 'EXPIRED'
-	        ELSE 'AVAILABLE'
-	    END AS display_status
 
-		FROM MEMBER_COUPON MC
-		
-		INNER JOIN COUPON C
-		    ON MC.coupon_id = C.coupon_id
-		
-		LEFT JOIN ORDER_COUPON OC
-		    ON MC.member_coupon_id = OC.member_coupon_id
-		
-		WHERE MC.member_id = #{memberId}
-		
-		ORDER BY MC.issued_at DESC
-	</select>
-		
+	<!-- 관리자 - 전체 쿠폰 목록 조회 -->
+
+
+	<select id="selectAdminCouponList"
+		parameterType="hashmap"
+		resultType="com.mori.moamong.dto.Coupon">
+
+		<!-- COUPON 테이블에 등록된 전체 쿠폰 조회 --> SELECT coupon_id, coupon_name,
+		discount_type, discount_value, minimum_order_amount,
+		maximum_discount_amount, valid_from, valid_until FROM COUPON ORDER BY
+		coupon_id DESC </select>
+
+
+	<!-- 관리자 - 전체 쿠폰 개수 조회 -->
+
+
+	<select id="selectAdminCouponCount"
+		parameterType="hashmap"
+		resultType="int">
+
+		<!-- 등록된 전체 쿠폰 개수를 조회합니다. --> SELECT COUNT(*) FROM COUPON </select>
+
+
+	<!-- 관리자 - 쿠폰 상세 조회 -->
+
+
+	<select id="selectAdminCoupon"
+		parameterType="hashmap"
+		resultType="com.mori.moamong.dto.Coupon">
+
+		<!-- 쿠폰 번호를 기준으로 상세 정보 조회 --> SELECT coupon_id, coupon_name,
+		discount_type, discount_value, minimum_order_amount,
+		maximum_discount_amount, valid_from, valid_until FROM COUPON WHERE
+		coupon_id = #{couponId} </select>
+
+
+	<!-- 관리자 - 쿠폰 등록 -->
+
+
+	<insert id="insertCoupon"
+		parameterType="hashmap"
+		useGeneratedKeys="true"
+		keyColumn="coupon_id"
+		keyProperty="couponId">
+
+		<!-- 새로운 쿠폰을 등록합니다. --> INSERT INTO COUPON ( coupon_name, discount_type,
+		discount_value, minimum_order_amount, maximum_discount_amount,
+		valid_from, valid_until ) VALUES ( #{couponName}, #{discountType},
+		#{discountValue}, #{minimumOrderAmount}, #{maximumDiscountAmount},
+		#{validFrom}, #{validUntil} ) </insert>
+
+
+	<!-- 관리자 - 쿠폰 삭제 -->
+
+
+	<delete id="deleteCoupon"
+		parameterType="hashmap">
+
+		<!-- 쿠폰 번호를 기준으로 쿠폰 삭제 --> DELETE FROM COUPON WHERE coupon_id =
+		#{couponId} </delete>
+
+
+	<!-- 관리자 - 쿠폰 수정 -->
+
+
+	<update id="updateCoupon"
+		parameterType="hashmap">
+
+		<!-- 쿠폰 번호를 기준으로 쿠폰 삭제 --> UPDATE COUPON SET coupon_name = #{couponName},
+		discount_type = #{discountType}, discount_value = #{discountValue},
+		minimum_order_amount = #{minimumOrderAmount}, maximum_discount_amount =
+		#{maximumDiscountAmount}, valid_from = #{validFrom}, valid_until =
+		#{validUntil} WHERE coupon_id = #{couponId} </update>
+
+
 </mapper>
 
