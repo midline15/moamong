@@ -37,7 +37,10 @@ public class ProductController {
     @RequestMapping("/product/subList.do")
     public String subList(@RequestParam HashMap<String, Object> map, Model model) {
 
+        Category category = categoryService.getCategoryById(map);
+
         model.addAttribute("categoryId", map.get("categoryId"));
+        model.addAttribute("categoryName", category.getCategoryName());
 
         return "product/subList";
     }
@@ -70,14 +73,14 @@ public class ProductController {
     // 상품 추가, 관리자 권한 설정 추가 필요
     @RequestMapping("/product/add.do")
     public String add(Model model) {
-        return "product/add";
+        return "product/form";
     }
 
     // 상품 수정페이지로 이동
     @RequestMapping("/product/edit.do")
     public String edit(@RequestParam HashMap<String, Object> map, Model model) {
         model.addAttribute("productId", map.get("productId"));
-        return "product/edit";
+        return "product/form";
     }
 
     // 메인카테고리, 서브카테고리, 메인카테고리에 해당하는 상품리스트 조회
@@ -165,4 +168,20 @@ public class ProductController {
         return new Gson().toJson(resultMap);
     }
 
+    // // 상품 상태 수정(SELLING / SOLD_OUT / HIDDEN / DELETE)
+    // @RequestMapping(value = "/product/statusEdit.dox", method =
+    // RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    // @ResponseBody
+    // public String statusEdit(
+    // Model model,
+    // @RequestParam HashMap<String, Object> map) throws Exception {
+
+    // HashMap<String, Object> resultMap = new HashMap<String, Object>();
+
+    // int result = productService.editProductStatus(map);
+
+    // resultMap.put("result", result);
+
+    // return new Gson().toJson(resultMap);
+    // }
 }

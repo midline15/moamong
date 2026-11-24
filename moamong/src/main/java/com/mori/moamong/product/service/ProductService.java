@@ -2,9 +2,7 @@ package com.mori.moamong.product.service;
 
 import lombok.RequiredArgsConstructor;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -109,18 +107,62 @@ public class ProductService {
         List<HashMap<String, Object>> imageList = new ArrayList<>();
 
         try {
+            // 상품 상세 설명 임시 보관
+            String productDescription = (String) map.get("productDescription");
+
+            // 상세 이미지 미리보기 URL 목록 가져오기
+            String previewUrlJson = (String) map.get("previewUrlList");
+
+            String[] previewUrlList = new Gson().fromJson(
+                    previewUrlJson,
+                    String[].class);
+
+            // 상세 이미지 미리보기 URL 목록 개수 확인
+            if (productImageList != null && productImageList.length > 0) {
+                if (previewUrlList == null
+                        || previewUrlList.length != productImageList.length) {
+                    throw new RuntimeException("상세 이미지 파일 정보가 일치하지 않습니다.");
+                }
+            }
+
+            // 이미지 업로드
+            if (thumbnailImage != null || productImageList != null) {
+                imageList = uploadProductImage(
+                        thumbnailImage,
+                        productImageList != null ? productImageList : new MultipartFile[0]);
+            }
+
+            // 상세 이미지의 미리보기 URL을 실제 업로드 경로로 변경
+            if (productImageList != null && previewUrlList != null) {
+
+                // 썸네일 이미지가 있으면 첫 번째 이미지 정보는 건너뜀
+                int imageMapIndex = thumbnailImage != null && !thumbnailImage.isEmpty() ? 1 : 0;
+
+                for (int i = 0; i < productImageList.length; i++) {
+                    MultipartFile file = productImageList[i];
+
+                    if (file == null || file.isEmpty()) {
+                        continue;
+                    }
+
+                    // 업로드된 이미지 정보 가져오기
+                    HashMap<String, Object> imageMap = imageList.get(imageMapIndex++);
+
+                    // 미리보기 URL을 실제 업로드 경로로 변경
+                    productDescription = productDescription.replace(
+                            previewUrlList[i],
+                            imageMap.get("imageUrl").toString());
+                }
+            }
+
+            // 변경된 상품 상세 설명 설정
+            map.put("productDescription", productDescription);
+
             // 상품 등록
             result = productMapper.insertProduct(map);
 
             if (result > 0) {
                 long productId = Long.parseLong(map.get("productId").toString());
-
-                // 이미지 업로드
-                if (thumbnailImage != null || productImageList != null) {
-                    imageList = uploadProductImage(
-                            thumbnailImage,
-                            productImageList != null ? productImageList : new MultipartFile[0]);
-                }
 
                 // 이미지 정보 DB 등록
                 for (HashMap<String, Object> imageMap : imageList) {
@@ -128,6 +170,8 @@ public class ProductService {
 
                     productMapper.insertProductImage(imageMap);
                 }
+            } else {
+                throw new RuntimeException("상품 등록에 실패했습니다.");
             }
 
         } catch (Exception e) {
@@ -307,6 +351,9 @@ public class ProductService {
             // 기존 상품 이미지 조회
             List<ProductImage> oldImageList = productMapper.selectProductImageList(map);
 
+            // 상품 상세 설명 가져오기
+            String productDescription = (String) map.get("productDescription");
+
             HashMap<Long, ProductImage> oldImageMap = new HashMap<>();
 
             for (ProductImage image : oldImageList) {
@@ -334,6 +381,18 @@ public class ProductService {
                         newFileList.add(file);
                     }
                 }
+            }
+
+            // 상세 이미지 미리보기 주소 목록 파싱
+            String previewUrlJson = (String) map.get("previewUrlList");
+
+            List<String> previewUrlList = new Gson().fromJson(
+                    previewUrlJson,
+                    new TypeToken<List<String>>() {
+                    }.getType());
+
+            if (previewUrlList == null || previewUrlList.size() != newFileList.size()) {
+                throw new RuntimeException("상세 이미지 미리보기 목록이 일치하지 않습니다.");
             }
 
             // 새 이미지 개수 확인
@@ -413,12 +472,19 @@ public class ProductService {
                 if (Boolean.TRUE.equals(image.get("isNew"))) {
 
                     // 새 이미지 등록
-                    HashMap<String, Object> newImage = uploadedDetailList.get(newImageIndex++);
+                    HashMap<String, Object> newImage = uploadedDetailList.get(newImageIndex);
 
                     newImage.put("productId", map.get("productId"));
                     newImage.put("displayOrder", displayOrder);
 
+                    // 상세 설명의 미리보기 주소를 실제 업로드 주소로 변경
+                    productDescription = productDescription.replace(
+                            previewUrlList.get(newImageIndex),
+                            newImage.get("imageUrl").toString());
+
                     productMapper.insertProductImage(newImage);
+
+                    newImageIndex++;
 
                 } else {
 
@@ -445,6 +511,7 @@ public class ProductService {
                     productMapper.updateProductImageDisplayOrder(updateMap);
                 }
             }
+            map.put("productDescription", productDescription);
 
             // 최종 목록에서 제외된 기존 상세 이미지 삭제
             for (ProductImage image : oldImageList) {
@@ -465,8 +532,12 @@ public class ProductService {
                 }
             }
 
-            // 새 썸네일이 있다면 기존 썸네일 교체
-            if (thumbnailMap != null) {
+            // 대표 이미지 삭제 여부
+            boolean deleteThumbnail = Boolean.parseBoolean(
+                    String.valueOf(map.get("deleteThumbnail")));
+
+            // 새 썸네일이 있거나 삭제 요청이 있다면 기존 썸네일 삭제
+            if (thumbnailMap != null || deleteThumbnail) {
 
                 for (ProductImage image : oldImageList) {
 
@@ -485,13 +556,20 @@ public class ProductService {
                     }
                 }
 
-                thumbnailMap.put("productId", map.get("productId"));
+                // 새 썸네일이 있다면 등록
+                if (thumbnailMap != null) {
+                    thumbnailMap.put("productId", map.get("productId"));
 
-                productMapper.insertProductImage(thumbnailMap);
+                    productMapper.insertProductImage(thumbnailMap);
+                }
             }
 
             // 상품 정보 수정
             int result = productMapper.updateProduct(map);
+
+            if (result <= 0) {
+                throw new RuntimeException("상품 정보 수정에 실패했습니다.");
+            }
 
             return result;
 
@@ -501,7 +579,7 @@ public class ProductService {
         }
     }
 
-    // 상품 상태 수정
+    // 상품 상태 수정(판매, 매진, 숨김, 삭제)
     public int editProductStatus(HashMap<String, Object> map) {
         int result = 0;
 
