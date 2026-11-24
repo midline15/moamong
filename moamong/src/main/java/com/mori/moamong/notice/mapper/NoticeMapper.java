@@ -31,4 +31,13 @@ public interface NoticeMapper {
     // 공지사항 삭제
     int deleteNotice(HashMap<String, Object> map);
 
+    // 공지사항 이미지 목록
+    List<HashMap<String, Object>> selectNoticeImageList(HashMap<String, Object> map);
+
+    // 공지사항 이미지 등록
+    int insertNoticeImage(HashMap<String, Object> map);
+
+    // 공지사항 이미지 전체 삭제 (공지 기준)
+    int deleteNoticeImage(HashMap<String, Object> map);
+
 }

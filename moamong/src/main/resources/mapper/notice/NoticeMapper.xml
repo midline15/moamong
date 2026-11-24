@@ -42,7 +42,7 @@
     </update>
 
     <!-- 공지사항 등록 -->
-    <insert id="insertNotice" parameterType="hashmap">
+    <insert id="insertNotice" parameterType="hashmap" useGeneratedKeys="true" keyProperty="noticeId">
         INSERT INTO NOTICE (
             ADMIN_ID, NOTICE_TITLE, NOTICE_CONTENT, IS_PINNED,
             VIEW_COUNT, CREATED_AT, UPDATED_AT
@@ -65,6 +65,37 @@
     <!-- 공지사항 삭제 -->
     <delete id="deleteNotice" parameterType="hashmap">
         DELETE FROM NOTICE
+        WHERE NOTICE_ID = #{noticeId}
+    </delete>
+
+    <!-- 공지사항 이미지 목록 -->
+    <select id="selectNoticeImageList" parameterType="hashmap" resultType="hashmap">
+        SELECT IMAGE_ID AS imageId,
+               IMAGE_URL AS imageUrl,
+               IMAGE_ORIGIN_NAME AS imageOriginName,
+               IMAGE_NAME AS imageName,
+               IMAGE_SIZE AS imageSize,
+               IMAGE_TYPE AS imageType,
+               DISPLAY_ORDER AS displayOrder
+        FROM NOTICE_IMAGE
+        WHERE NOTICE_ID = #{noticeId}
+        ORDER BY DISPLAY_ORDER
+    </select>
+
+    <!-- 공지사항 이미지 등록 (본문 이미지라 타입은 DETAIL 고정) -->
+    <insert id="insertNoticeImage" parameterType="hashmap">
+        INSERT INTO NOTICE_IMAGE (
+            NOTICE_ID, IMAGE_URL, IMAGE_ORIGIN_NAME, IMAGE_NAME,
+            IMAGE_SIZE, IMAGE_TYPE, DISPLAY_ORDER
+        ) VALUES (
+            #{noticeId}, #{imageUrl}, #{imageOriginName}, #{imageName},
+            #{imageSize}, 'DETAIL', #{displayOrder}
+        )
+    </insert>
+
+    <!-- 공지사항 이미지 전체 삭제 (공지 기준) -->
+    <delete id="deleteNoticeImage" parameterType="hashmap">
+        DELETE FROM NOTICE_IMAGE
         WHERE NOTICE_ID = #{noticeId}
     </delete>
 

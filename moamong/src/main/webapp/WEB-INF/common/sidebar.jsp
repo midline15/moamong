@@ -31,7 +31,7 @@
         <ul class="main-menu">
 
             <li>
-                <a href="#" class="menu-link">이벤트</a>
+                <a href="/event/list.do" class="menu-link">이벤트</a>
             </li>
 
             <!-- 선물키트 (펼침 메뉴) -->
@@ -82,11 +82,11 @@
             </li>
 
             <li>
-                <a href="#" class="menu-link">소셜</a>
+                <a href="/community/list.do" class="menu-link">소셜</a>
             </li>
 
             <li>
-                <a href="#" class="menu-link">고객센터</a>
+                <a href="/notice/list.do" class="menu-link">고객센터</a>
             </li>
 
         </ul>

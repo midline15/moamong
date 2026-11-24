@@ -38,8 +38,8 @@
         WHERE INQ_ID = #{inqId}
     </select>
 
-    <!-- 1:1문의 등록 (처음엔 답변 대기: WAIT) -->
-    <insert id="insertInquiry" parameterType="hashmap">
+    <!-- 1:1문의 등록 (처음엔 답변 대기: WAIT, 생성된 INQ_ID를 map에 담음) -->
+    <insert id="insertInquiry" parameterType="hashmap" useGeneratedKeys="true" keyProperty="inqId">
         INSERT INTO INQ (
             MEMBER_ID, INQ_TITLE, INQ_CONTENT, INQ_STATUS, CREATED_AT
         ) VALUES (
@@ -69,6 +69,37 @@
     <!-- 1:1문의 삭제 -->
     <delete id="deleteInquiry" parameterType="hashmap">
         DELETE FROM INQ
+        WHERE INQ_ID = #{inqId}
+    </delete>
+
+    <!-- 1:1문의 이미지 목록 -->
+    <select id="selectInquiryImageList" parameterType="hashmap" resultType="hashmap">
+        SELECT IMAGE_ID AS imageId,
+               IMAGE_URL AS imageUrl,
+               IMAGE_ORIGIN_NAME AS imageOriginName,
+               IMAGE_NAME AS imageName,
+               IMAGE_SIZE AS imageSize,
+               IMAGE_TYPE AS imageType,
+               DISPLAY_ORDER AS displayOrder
+        FROM INQ_IMAGE
+        WHERE INQ_ID = #{inqId}
+        ORDER BY DISPLAY_ORDER
+    </select>
+
+    <!-- 1:1문의 이미지 등록 (본문 이미지라 타입은 DETAIL 고정) -->
+    <insert id="insertInquiryImage" parameterType="hashmap">
+        INSERT INTO INQ_IMAGE (
+            INQ_ID, IMAGE_URL, IMAGE_ORIGIN_NAME, IMAGE_NAME,
+            IMAGE_SIZE, IMAGE_TYPE, DISPLAY_ORDER
+        ) VALUES (
+            #{inqId}, #{imageUrl}, #{imageOriginName}, #{imageName},
+            #{imageSize}, 'DETAIL', #{displayOrder}
+        )
+    </insert>
+
+    <!-- 1:1문의 이미지 전체 삭제 (문의 기준) -->
+    <delete id="deleteInquiryImage" parameterType="hashmap">
+        DELETE FROM INQ_IMAGE
         WHERE INQ_ID = #{inqId}
     </delete>
 
