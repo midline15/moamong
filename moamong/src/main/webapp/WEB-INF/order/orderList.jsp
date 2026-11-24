@@ -114,8 +114,11 @@
                     배송비 {{ Number(order.shippingFee).toLocaleString() }}원 =
                     <strong style="font-size:16px; color:#222;">총 {{ Number(order.finalAmount).toLocaleString() }}원</strong>
                 </div>
-                <button v-if="order.orderStatus === 'PAID' || order.orderStatus === 'PAYMENT_PENDING'"
-                        class="btn btn-danger" @click="fnCancelOrder(order.orderId)">주문 취소</button>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn" @click="fnGoDetail(order.orderId)">주문 상세</button>
+                    <button v-if="order.orderStatus === 'PAID' || order.orderStatus === 'PAYMENT_PENDING'"
+                            class="btn btn-danger" @click="fnCancelOrder(order.orderId)">주문 취소</button>
+                </div>
             </div>
         </div>
         <div v-if="showCancelModal" class="modal-backdrop" @click.self="showCancelModal = false">
@@ -157,6 +160,7 @@
             fnGoMain() { location.href = "/"; },
             fnGoMypage() { location.href = "/member/mypage.do"; },
             fnGoCart() { location.href = "/cart/list.do"; },
+            fnGoDetail(orderId) { location.href = "/order/detail.do?orderId=" + orderId; },
 
             fnImgError(e) {
                 e.target.onerror = null;

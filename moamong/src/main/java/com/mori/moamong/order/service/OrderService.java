@@ -183,13 +183,14 @@ public class OrderService {
 			long testPayAmount = 1L;
 
 			if (!impUid.isEmpty()) {
-			// [테스트결제용] 원복 시 testPayAmount -> finalAmount 로 변경
+				// [테스트결제용] 원복 시 testPayAmount -> finalAmount 로 변경
 				paymentService.verifyAndSavePayment(orderId, impUid, payMethod, testPayAmount);
 			}
 
-			/*if (!impUid.isEmpty()) {
-				paymentService.verifyAndSavePayment(orderId, impUid, payMethod, finalAmount);
-			}*/
+			/*
+			 * if (!impUid.isEmpty()) { paymentService.verifyAndSavePayment(orderId, impUid,
+			 * payMethod, finalAmount); }
+			 */
 
 			for (HashMap<String, Object> item : items) {
 				String type = String.valueOf(item.get("itemType"));
@@ -295,6 +296,38 @@ public class OrderService {
 		}
 		res.put("result", "success");
 		res.put("list", orders);
+		return res;
+	}
+
+	// ==================== 3-1. 주문 상세 단건 조회 ====================
+	public HashMap<String, Object> getOrderDetail(Long memberId, Long orderId) {
+		HashMap<String, Object> res = new HashMap<>();
+		HashMap<String, Object> order = orderMapper.selectOrderOne(orderId, memberId);
+		if (order == null) {
+			res.put("result", "fail");
+			res.put("message", "존재하지 않거나 접근 권한이 없는 주문입니다.");
+			return res;
+		}
+
+		List<HashMap<String, Object>> items = orderMapper.selectOrderItems(orderId);
+		for (HashMap<String, Object> item : items) {
+			Long orderItemId = toLong(item.get("orderItemId"));
+			if ("PACKAGE".equals(item.get("itemType"))) {
+				item.put("packageItems", orderMapper.selectOrderPackageItems(orderItemId));
+				item.put("packageExtras", orderMapper.selectOrderPackageExtras(orderItemId));
+			} else {
+				item.put("packageItems", List.of());
+				item.put("packageExtras", List.of());
+			}
+		}
+
+		res.put("result", "success");
+		res.put("order", order);
+		res.put("items", items);
+		res.put("payment", orderMapper.selectOrderPayment(orderId));
+		if ("CANCELED".equals(order.get("orderStatus"))) {
+			res.put("cancelInfo", orderMapper.selectOrderCancel(orderId));
+		}
 		return res;
 	}
 

@@ -95,6 +95,31 @@ public class OrderController {
 		return orderService.getOrderList(memberId);
 	}
 
+	// 5-1. 주문 상세 페이지 이동 (/order/detail.do?orderId=1)
+	@RequestMapping(value = "/order/detail.do")
+	public String orderDetailPage(@RequestParam(value = "orderId", required = false) Long orderId, HttpSession session,
+			Model model) {
+		if (session.getAttribute("sessionId") == null) {
+			return "redirect:/member/login.do";
+		}
+		if (orderId == null) {
+			return "redirect:/order/list.do";
+		}
+		model.addAttribute("orderId", orderId);
+		return "order/orderDetail";
+	}
+
+	// 5-2. 주문 상세 단건 데이터 조회 (.dox)
+	@RequestMapping(value = "/order/detail.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> orderDetail(@RequestParam("orderId") Long orderId, HttpSession session) {
+		Long memberId = getMemberId(session);
+		if (memberId == null)
+			return noLoginMap();
+
+		return orderService.getOrderDetail(memberId, orderId);
+	}
+
 	// 6. 주문 취소 처리 (.dox)
 	@RequestMapping(value = "/order/cancel.dox", method = RequestMethod.POST)
 	@ResponseBody
