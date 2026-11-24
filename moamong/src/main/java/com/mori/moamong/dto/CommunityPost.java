@@ -18,4 +18,6 @@ public class CommunityPost {
     private int liked; // 내가 좋아요 눌렀는지 (1/0)
     private List<HashMap<String, Object>> imageList; // 게시글 이미지
     private List<String> tagList; // 해시태그
+    private String postStatus; // ACTIVE / HIDDEN (관리자 삭제)
+    private String role;
 }
