@@ -275,4 +275,20 @@
 		LIMIT 1
 	</select>
 
+	<!-- 19. 주문 결제 내역 단건 조회 -->
+	<select id="selectOrderPayment" parameterType="long" resultType="hashmap">
+		SELECT
+		payment_id AS paymentId,
+		payment_key AS paymentKey,
+		payment_method AS payMethod,
+		payment_amount AS paidAmount,
+		payment_status AS paymentStatus,
+		DATE_FORMAT(paid_at, '%Y-%m-%d %H:%i:%s') AS paidAt
+		FROM PAYMENT
+		WHERE order_id = #{orderId}
+		ORDER BY payment_id DESC
+		LIMIT 1
+	</select>
+
+
 </mapper>

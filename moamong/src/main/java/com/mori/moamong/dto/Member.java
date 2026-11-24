@@ -19,4 +19,7 @@ public class Member {
 	private String socialType;
 	private String socialUserId;
 	private LocalDateTime connectedAt;
+	
+	// 최종 로그인 일시 (휴면 처리용)
+	private LocalDateTime lastLoginAt;
 }

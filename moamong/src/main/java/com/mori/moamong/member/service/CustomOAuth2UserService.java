@@ -89,8 +89,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			if ("SUSPENDED".equals(member.getStatus())) {
 				throw new OAuth2AuthenticationException(new OAuth2Error("suspended_member"), "이용이 정지된 계정입니다.");
 			}
+			// [추가] 휴면(INACTIVE) 소셜 계정 분기: 정식 세션 대신 임시 ID만 저장 후 예외 발생
+			if ("INACTIVE".equals(member.getStatus())) {
+				session.setAttribute("dormantSocialMemberId", member.getMemberId());
+				throw new OAuth2AuthenticationException(new OAuth2Error("inactive_member"), "휴면 계정입니다.");
+			}
+			
 		}
-
+		
+		// [추가] 정상 로그인 시 최종 로그인 일시 갱신
+		memberMapper.updateLastLoginAt(member.getMemberId());
+		
 		// 3. 기존 일반 로그인과 100% 동일한 세션 저장
 		session.setAttribute("sessionId", member.getMemberId());
 		session.setAttribute("sessionName", member.getMemberName());

@@ -26,7 +26,10 @@
                 padding: 28px;
                 box-shadow: 0 2px 12px rgba(0,0,0,0.06);
             }
-            h2 { margin: 0 0 20px 0; font-size: 24px; }
+            h2 {
+                margin: 0 0 20px 0;
+                font-size: 24px; 
+            }
             .toolbar {
                 display: flex;
                 justify-content: space-between;
@@ -35,7 +38,10 @@
                 border-bottom: 2px solid #222;
                 margin-bottom: 12px;
             }
-            table { width: 100%; border-collapse: collapse; }
+            table {
+                width: 100%;
+                border-collapse: collapse; 
+            }
             th, td {
                 padding: 14px 10px;
                 border-bottom: 1px solid #eee;
@@ -53,33 +59,80 @@
                 word-break: keep-all;
             }
             .thumb {
-                width: 68px; height: 68px; border-radius: 8px;
-                object-fit: cover; background: #f1f3f5; border: 1px solid #e9ecef; flex-shrink: 0;
+                width: 68px; height: 68px;
+                border-radius: 8px;
+                object-fit: cover; 
+                background: #f1f3f5; 
+                border: 1px solid #e9ecef; 
+                flex-shrink: 0;
             }
             .badge {
-                display: inline-block; font-size: 11px; font-weight: 700;
-                padding: 2px 7px; border-radius: 4px; margin-bottom: 4px;
+                display: inline-block; 
+                font-size: 11px; 
+                font-weight: 700;
+                padding: 2px 7px; 
+                border-radius: 4px; 
+                margin-bottom: 4px;
             }
-            .badge-product { background: #e7f5ff; color: #1971c2; }
-            .badge-package { background: #fff3bf; color: #e67700; }
-            .badge-soldout { background: #ffe3e3; color: #c92a2a; margin-left: 4px; }
+            .badge-product { 
+                background: #e7f5ff; 
+                color: #1971c2; 
+            }
+            .badge-package { 
+                background: #fff3bf; 
+                color: #e67700; 
+            }
+            .badge-soldout { 
+                background: #ffe3e3; 
+                color: #c92a2a; 
+                margin-left: 4px; 
+            }
             .option-list {
-                margin-top: 6px; padding-left: 10px; border-left: 2px solid #dee2e6;
-                font-size: 12px; color: #666; line-height: 1.5;
+                margin-top: 6px; 
+                padding-left: 10px; 
+                border-left: 2px solid #dee2e6;
+                font-size: 12px; 
+                color: #666; 
+                line-height: 1.5;
             }
-            .qty-box { display: inline-flex; align-items: center; gap: 4px; }
-            .qty-box input { width: 52px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+            .qty-box { 
+                display: inline-flex; 
+                align-items: center; 
+                gap: 4px; 
+            }
+            .qty-box input { 
+                width: 52px; 
+                padding: 5px; 
+                text-align: center; 
+                border: 1px solid #ccc; 
+                border-radius: 4px; 
+            }
             .btn {
-                padding: 6px 12px; border: 1px solid #ccc; background: #fff;
-                border-radius: 6px; cursor: pointer; font-size: 13px;
+                padding: 6px 12px; 
+                border: 1px solid #ccc; 
+                background: #fff;
+                border-radius: 6px; 
+                cursor: pointer; 
+                font-size: 13px;
             }
-            .btn:hover { background: #f1f3f5; }
-            .btn-danger { border-color: #ffa8a8; color: #c92a2a; }
+            .btn:hover { 
+                background: #f1f3f5; 
+            }
+            .btn-danger {
+                border-color: #ffa8a8; 
+                color: #c92a2a; 
+            }
             .btn-primary {
-                background: #222; color: #fff; border-color: #222;
-                font-size: 16px; font-weight: 600; padding: 14px 32px;
+                background: #222; 
+                color: #fff; 
+                border-color: #222;
+                font-size: 16px; 
+                font-weight: 600; 
+                padding: 14px 32px;
             }
-            .btn-primary:hover { background: #444; }
+            .btn-primary:hover {
+                background: #444; 
+            }
             .summary-box {
                 margin-top: 24px; padding: 20px 24px; background: #f8f9fa;
                 border-radius: 10px; display: flex; justify-content: space-between; align-items: center;

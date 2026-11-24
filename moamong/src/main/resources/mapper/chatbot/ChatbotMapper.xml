@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mori.moamong.chatbot.mapper.ChatbotMapper">
+
+	<select id="selectActiveRoomBySessionKey" resultType="map">
+		SELECT chatbot_id, member_id, session_key, chatbot_status
+		FROM CHATBOT
+		WHERE session_key = #{sessionKey}
+		AND chatbot_status = 'ACTIVE'
+		LIMIT 1
+	</select>
+
+	<insert id="insertChatRoom" parameterType="map" useGeneratedKeys="true"
+		keyProperty="chatbot_id">
+		INSERT INTO CHATBOT (member_id, session_key, chatbot_status)
+		VALUES (#{memberId}, #{sessionKey}, 'ACTIVE')
+	</insert>
+
+	<update id="updateRoomMemberId">
+		UPDATE CHATBOT
+		SET member_id = #{memberId}
+		WHERE chatbot_id = #{chatbotId}
+		AND member_id IS NULL
+	</update>
+
+	<insert id="insertChatMessage" parameterType="map" useGeneratedKeys="true"
+		keyProperty="message_id">
+		INSERT INTO CHATBOT_MESSAGE (chatbot_id, sender_type, message_content)
+		VALUES (#{chatbotId}, #{senderType}, #{messageContent})
+	</insert>
+
+	<select id="selectMessagesByChatbotId" resultType="map">
+		SELECT message_id, sender_type, message_content,
+		DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
+		FROM CHATBOT_MESSAGE
+		WHERE chatbot_id = #{chatbotId}
+		ORDER BY message_id ASC
+	</select>
+
+	<update id="closeChatRoom">
+		UPDATE CHATBOT
+		SET chatbot_status = 'ENDED',
+		ended_at = NOW()
+		WHERE session_key = #{sessionKey}
+		AND chatbot_status = 'ACTIVE'
+	</update>
+</mapper>
