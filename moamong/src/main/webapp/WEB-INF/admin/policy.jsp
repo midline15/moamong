@@ -226,17 +226,21 @@
                             <textarea id="policyContent"
                                 placeholder="정책 내용을 입력하세요."></textarea>
 
-                            <label for="isRequired">필수 동의 여부</label>
-                            <select id="isRequired">
-                                <option value="Y">필수</option>
-                                <option value="N">선택</option>
-                            </select>
+                            <div id="policyOptions">
 
-                            <label for="isActive">사용 여부</label>
-                            <select id="isActive">
-                                <option value="Y">사용</option>
-                                <option value="N">미사용</option>
-                            </select>
+                                <label for="isRequired">필수 동의 여부</label>
+                                <select id="isRequired">
+                                    <option value="Y">필수</option>
+                                    <option value="N">선택</option>
+                                </select>
+
+                                <label for="isActive">사용 여부</label>
+                                <select id="isActive">
+                                    <option value="Y">사용</option>
+                                    <option value="N">미사용</option>
+                                </select>
+
+                            </div>
 
                         </div>
 
@@ -253,6 +257,8 @@
 
                     <!-- 고객센터 운영 시간 영역 -->
                     <div id="hoursPolicy" style="display:none;">
+
+                        <h4 class="hours-edit-title">운영 시간 수정</h4>
 
                         <div class="policy-form">
 
@@ -287,7 +293,7 @@
                         </div>
 
                         <p class="hours-guide">
-                            요일별 고객센터 운영 시간과 휴무 여부를 설정할 수 있습니다.
+                            요일을 선택한 후 운영 시간과 휴무 여부를 수정할 수 있습니다.
                         </p>
 
                     </div>
@@ -345,6 +351,17 @@
 
         // 고객센터 운영 시간 목록
         let serviceHoursList = [];
+
+        // 요일 이름
+        const dayNames = {
+            MON: '월요일',
+            TUE: '화요일',
+            WED: '수요일',
+            THU: '목요일',
+            FRI: '금요일',
+            SAT: '토요일',
+            SUN: '일요일'
+        };
 
 
         // =====================================
@@ -412,17 +429,21 @@
 
             if (type === 'HOURS') {
 
-                loadCustomerServiceHours();
-
                 document.getElementById('normalPolicy').style.display = 'none';
                 document.getElementById('hoursPolicy').style.display = 'block';
 
                 currentPolicy = null;
 
+                loadCustomerServiceHours();
+
             } else {
 
                 document.getElementById('normalPolicy').style.display = 'block';
                 document.getElementById('hoursPolicy').style.display = 'none';
+
+                // 배송 및 반품, 교환 및 환불에서는 두 설정 항목 숨김
+                document.getElementById('policyOptions').style.display =
+                    (type === 'DELIVERY' || type === 'REFUND') ? 'none' : 'block';
 
                 selectPolicy(type);
 
@@ -560,7 +581,7 @@
 
 
         // =====================================
-        // 고객센터 운영 시간 전체 조회
+        // 고객센터 운영 시간 조회
         // =====================================
 
         function loadCustomerServiceHours() {
@@ -575,6 +596,9 @@
 
                         serviceHoursList = data.list || [];
 
+                        console.log('운영 시간 조회 데이터:', serviceHoursList);
+
+                        // 선택한 요일의 운영 시간 표시
                         loadSelectedHours();
 
                     } else {
@@ -686,9 +710,9 @@
 
                     if (data.result === 'success') {
 
-                        alert('운영 시간이 저장되었습니다.');
+                        alert(dayNames[day] + ' 운영 시간이 저장되었습니다.');
 
-                        // 저장 후 DB 데이터 다시 조회
+                        // DB에 저장된 최신 목록 다시 조회
                         loadCustomerServiceHours();
 
                     } else {
