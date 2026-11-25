@@ -9,197 +9,74 @@ pageEncoding="UTF-8"%>
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <style>
-            .container {
-                width: 380px;
-                margin: 60px auto;
-                padding: 28px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-            }
-            
-            h2 {
-                text-align: center;
-                margin-bottom: 24px;
-            }
-            
-            .form-group {
-                margin-bottom: 14px;
-            }
-            
-            .form-group label {
-                display: block;
-                font-weight: bold;
-                margin-bottom: 5px;
-                font-size: 14px;
-            }
-            
-            input {
-                width: 100%;
-                padding: 10px;
-                box-sizing: border-box;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-            }
-            
-            button {
-                width: 100%;
-                padding: 11px;
-                cursor: pointer;
-                border-radius: 4px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            
-            .btn-login {
-                background: #222;
-                color: #fff;
-                border: none;
-                margin-top: 6px;
-            }
-            
-            .btn-join {
-                background: #fff;
-                color: #222;
-                border: 1px solid #ccc;
-                margin-top: 8px;
-            }
-            
-            .divider {
-                text-align: center;
-                margin: 20px 0 14px;
-                color: #888;
-                font-size: 12px;
-                border-top: 1px solid #eee;
-                padding-top: 14px;
-            }
-            
-            .social-group {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .btn-kakao {
-                background: #FEE500;
-                color: #191919;
-                border: none;
-            }
-            
-            .btn-naver {
-                background: #03C75A;
-                color: #fff;
-                border: none;
-            }
-            
-            .btn-google {
-                background: #fff;
-                color: #333;
-                border: 1px solid #ddd;
-            }
-            
-            .modal-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-            }
-            
-            .modal-box {
-                position: relative;
-                z-index: 10000;
-                width: 340px;
-                background: #fff;
-                padding: 24px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            }
-            
-            .modal-box h3 {
-                margin: 0 0 12px;
-                font-size: 18px;
-                text-align: center;
-            }
-            
-            .modal-desc {
-                font-size: 13px;
-                color: #555;
-                line-height: 1.5;
-                margin-bottom: 16px;
-                text-align: center;
-            }
-            
-            .modal-actions {
-                display: flex;
-                gap: 8px;
-                margin-top: 12px;
-            }
-            
-            .modal-actions button {
-                margin-top: 0;
-            }
-            
-        </style>
+        <!-- 공통 레이아웃 & 로그인/회원가입/아이디,비번찾기 전용 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member/auth.css">
     </head>
     <body>
-        <div id="app" class="container">
-            <h2>모아몽 로그인</h2>
+        <%@ include file="/WEB-INF/common/header.jsp"%>
 
-            <div class="form-group">
-                <label>아이디</label>
-                <input v-model="memberId" @keyup.enter="fnLogin" placeholder="아이디 입력">
+        <main id="app" class="auth-wrap">
+            <div class="auth-card">
+                <span class="auth-eyebrow">WELCOME TO MOAMONG</span>
+                <h2 class="auth-title">로그인</h2>
+
+                <div class="auth-group">
+                    <input class="auth-input" v-model="memberId" @keyup.enter="fnLogin" placeholder="아이디를 입력해주세요">
+                </div>
+
+                <div class="auth-group">
+                    <input class="auth-input" type="password" v-model="password" @keyup.enter="fnLogin" placeholder="비밀번호를 입력해주세요">
+                </div>
+
+                <button class="auth-btn auth-btn-gold" @click="fnLogin" style="margin-top:6px;">로그인</button>
+
+                <div class="auth-benefit-tip">
+                    첫 구매라면 <strong>누구나 10% 할인쿠폰</strong> 혜택을 드립니다!
+                </div>
+
+                <div class="auth-links">
+                    <a href="/member/join.do" style="font-weight:700; color:#765a36;">회원가입</a>
+                    <span>|</span>
+                    <a href="/member/find-account.do">아이디 / 비밀번호 찾기</a>
+                </div>
+
+                <div class="auth-divider">간편 소셜 로그인</div>
+                <div class="social-circle-group">
+                    <button type="button" class="social-circle-btn social-kakao" title="카카오 로그인" @click="fnSocialLogin('KAKAO')">K</button>
+                    <button type="button" class="social-circle-btn social-naver" title="네이버 로그인" @click="fnSocialLogin('NAVER')">N</button>
+                    <button type="button" class="social-circle-btn social-google" title="구글 로그인" @click="fnSocialLogin('GOOGLE')">G</button>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>비밀번호</label>
-                <input type="password" v-model="password" @keyup.enter="fnLogin" placeholder="비밀번호 입력">
-            </div>
-
-            <button class="btn-login" @click="fnLogin">로그인</button>
-            <button class="btn-join" @click="fnJoin">회원가입</button>
-
-            <div style="text-align: center; margin-top: 12px;">
-                <a href="/member/find-account.do" style="font-size: 13px; color: #666; text-decoration: none;">
-                    아이디 / 비밀번호 찾기
-                </a>
-            </div>
-
-            <div class="divider">간편 소셜 로그인</div>
-            <div class="social-group">
-                <button class="btn-kakao" @click="fnSocialLogin('KAKAO')">카카오로 시작하기</button>
-                <button class="btn-naver" @click="fnSocialLogin('NAVER')">네이버로 시작하기</button>
-                <button class="btn-google" @click="fnSocialLogin('GOOGLE')">구글로 시작하기</button>
-            </div>
-
-            <!-- 휴면 계정 해제 모달 (반드시 #app 내부에 위치) -->
-            <div v-if="showDormantModal" class="modal-overlay">
-                <div class="modal-box">
-                    <h3>휴면 계정 안내</h3>
-                    <p class="modal-desc" v-if="!isSocialDormant">
+            <!-- 휴면 계정 해제 모달 -->
+            <div v-if="showDormantModal" class="auth-modal-overlay">
+                <div class="auth-modal-box">
+                    <h3 style="margin-bottom:10px; font-size:18px; color:#765a36;">휴면 계정 안내</h3>
+                    <p style="font-size:13px; color:#5c5346; line-height:1.6; margin-bottom:16px;" v-if="!isSocialDormant">
                         30일 이상 미접속으로 휴면 전환된 계정입니다.<br>
                         비밀번호를 다시 입력해 휴면을 해제해주세요.
                     </p>
-                    <p class="modal-desc" v-else>
+                    <p style="font-size:13px; color:#5c5346; line-height:1.6; margin-bottom:16px;" v-else>
                         30일 이상 미접속으로 휴면 전환된 소셜 계정입니다.<br>
                         아래 버튼을 누르시면 휴면이 즉시 해제됩니다.
                     </p>
-                    <div class="form-group" v-if="!isSocialDormant">
-                        <label>비밀번호 확인</label>
-                        <input ref="dormantInput" type="password" v-model="dormantPwd" @keyup.enter="fnActivateDormant" placeholder="비밀번호 입력">
+                    <div class="auth-group" v-if="!isSocialDormant">
+                        <input class="auth-input" ref="dormantInput" type="password" v-model="dormantPwd"
+                        @keyup.enter="fnActivateDormant" placeholder="비밀번호 확인">
                     </div>
-                    <div class="modal-actions">
-                        <button class="btn-login" @click="fnActivateDormant">휴면 해제</button>
-                        <button class="btn-join" @click="showDormantModal = false; dormantPwd = '';">취소</button>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button class="auth-btn auth-btn-gold" @click="fnActivateDormant">휴면 해제</button>
+                        <button class="auth-btn" @click="showDormantModal = false; dormantPwd = '';">취소</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </body>
+        </main>
 
+        <%@ include file="/WEB-INF/common/footer.jsp"%>
+    </body>
 </html>
 <script>
     const app = Vue.createApp({

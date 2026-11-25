@@ -104,6 +104,14 @@ public class MemberService {
 		return resultMap;
 	}
 
+	// 회원가입용 활성 약관 목록 조회 (POLICY 테이블 연동)
+	public HashMap<String, Object> getJoinPolicies() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		resultMap.put("result", "success");
+		resultMap.put("list", memberMapper.selectJoinPolicies());
+		return resultMap;
+	}
+
 	// 아이디 중복 확인
 	public HashMap<String, Object> idDuplicateCheck(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
@@ -291,10 +299,22 @@ public class MemberService {
 	// 비밀번호 변경
 	public HashMap<String, Object> changePassword(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
+		String currentPwd = String.valueOf(map.getOrDefault("currentPwd", ""));
+		String newPwd = String.valueOf(map.getOrDefault("newPwd", ""));
+
+		if (newPwd.trim().isEmpty()) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "새 비밀번호를 입력해주세요.");
+			return resultMap;
+		}
+		if (currentPwd.equals(newPwd)) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "현재 비밀번호와 다른 새 비밀번호를 입력해주세요.");
+			return resultMap;
+		}
+		
 		try {
 			Long memberId = Long.valueOf(String.valueOf(map.get("memberId")));
-			String currentPwd = (String) map.get("currentPwd");
-			String newPwd = (String) map.get("newPwd");
 
 			Member current = memberMapper.selectMemberById(memberId);
 			if (current.getSocialType() != null || current.getPassword() == null) {

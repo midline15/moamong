@@ -221,5 +221,14 @@ public class MemberController {
 		HashMap<String, Object> resultMap = memberService.activateSocialDormant();
 		return new Gson().toJson(resultMap);
 	}
+	
+	// 회원가입용 활성 약관 목록 조회 (.dox)
+	@RequestMapping(value = "/member/policies.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> getJoinPolicies() {
+		return memberService.getJoinPolicies();
+	}
+
+
 
 }

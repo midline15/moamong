@@ -10,253 +10,126 @@
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <style>
-            body {
-                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-                background-color: #f8f9fa;
-                margin: 0;
-                padding: 30px 16px;
-                color: #222;
-            }
-            .cart-container {
-                max-width: 960px;
-                margin: 0 auto;
-                background: #fff;
-                border-radius: 12px;
-                padding: 28px;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            }
-            h2 {
-                margin: 0 0 20px 0;
-                font-size: 24px; 
-            }
-            .toolbar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 12px 0;
-                border-bottom: 2px solid #222;
-                margin-bottom: 12px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse; 
-            }
-            th, td {
-                padding: 14px 10px;
-                border-bottom: 1px solid #eee;
-                text-align: center;
-                vertical-align: middle;
-            }
-            th { background-color: #fafafa; font-weight: 600; font-size: 14px; color: #555; }
-            .item-info {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                gap: 14px;
-                text-align: left;
-                min-width: 240px;
-                word-break: keep-all;
-            }
-            .thumb {
-                width: 68px; height: 68px;
-                border-radius: 8px;
-                object-fit: cover; 
-                background: #f1f3f5; 
-                border: 1px solid #e9ecef; 
-                flex-shrink: 0;
-            }
-            .badge {
-                display: inline-block; 
-                font-size: 11px; 
-                font-weight: 700;
-                padding: 2px 7px; 
-                border-radius: 4px; 
-                margin-bottom: 4px;
-            }
-            .badge-product { 
-                background: #e7f5ff; 
-                color: #1971c2; 
-            }
-            .badge-package { 
-                background: #fff3bf; 
-                color: #e67700; 
-            }
-            .badge-soldout { 
-                background: #ffe3e3; 
-                color: #c92a2a; 
-                margin-left: 4px; 
-            }
-            .option-list {
-                margin-top: 6px; 
-                padding-left: 10px; 
-                border-left: 2px solid #dee2e6;
-                font-size: 12px; 
-                color: #666; 
-                line-height: 1.5;
-            }
-            .qty-box { 
-                display: inline-flex; 
-                align-items: center; 
-                gap: 4px; 
-            }
-            .qty-box input { 
-                width: 52px; 
-                padding: 5px; 
-                text-align: center; 
-                border: 1px solid #ccc; 
-                border-radius: 4px; 
-            }
-            .btn {
-                padding: 6px 12px; 
-                border: 1px solid #ccc; 
-                background: #fff;
-                border-radius: 6px; 
-                cursor: pointer; 
-                font-size: 13px;
-            }
-            .btn:hover { 
-                background: #f1f3f5; 
-            }
-            .btn-danger {
-                border-color: #ffa8a8; 
-                color: #c92a2a; 
-            }
-            .btn-primary {
-                background: #222; 
-                color: #fff; 
-                border-color: #222;
-                font-size: 16px; 
-                font-weight: 600; 
-                padding: 14px 32px;
-            }
-            .btn-primary:hover {
-                background: #444; 
-            }
-            .summary-box {
-                margin-top: 24px; padding: 20px 24px; background: #f8f9fa;
-                border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
-            }
-            .total-price { font-size: 24px; font-weight: 700; color: #d9480f; }
-            .empty-box { text-align: center; padding: 60px 0; color: #888; }
-            .soldout-row { opacity: 0.6; background-color: #fafafa; }
-            .test-bar {
-                margin-top: 30px; padding: 14px; background: #fff9db;
-                border: 1px dashed #fcc419; border-radius: 8px; font-size: 13px;
-            }
-        </style>
+        <!-- 공통 레이아웃 & 장바구니 & 찜목록 & 주문서 전용 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/order/shop.css">
     </head>
     <body>
-        <div id="app" class="cart-container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="margin:0;">🛒 장바구니</h2>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn" @click="fnGoMypage">마이페이지</button>
-                    <button class="btn" @click="fnGoMain">메인으로</button>
+    <%@ include file="/WEB-INF/common/header.jsp"%>
+
+    <main id="app" class="shop-wrap">
+        <div class="shop-head">
+            <h2>장바구니</h2>
+            <div class="shop-steps"><strong>01 장바구니</strong> &gt; 02 주문/결제 &gt; 03 주문완료</div>
+        </div>
+
+        <div class="shop-grid">
+            <!-- 좌측 영역: 선택 바 + 장바구니 카드 + 배송 유의사항 -->
+            <div>
+                <div class="shop-toolbar">
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px; font-weight:600;">
+                        <input type="checkbox" v-model="isAllChecked" @change="fnToggleAll">
+                        전체 선택 ({{ selectedIds.length }} / {{ availableCount }})
+                    </label>
+                    <div style="display:flex; gap:6px;">
+                        <button class="shop-btn" @click="fnRemoveSelected">선택 삭제</button>
+                        <button class="shop-btn shop-btn-danger" @click="fnDeleteAll">전체 비우기</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- 상단 선택 컨트롤 바 -->
-            <div class="toolbar">
-                <label style="cursor:pointer;">
-                    <input type="checkbox" v-model="isAllChecked" @change="fnToggleAll">
-                    전체 선택 ({{ selectedIds.length }} / {{ availableCount }})
-                </label>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn" @click="fnRemoveSelected">선택 삭제</button>
-                    <button class="btn btn-danger" @click="fnDeleteAll">전체 비우기</button>
+                <div v-if="cartList.length === 0" class="shop-card" style="text-align:center; padding:60px 0; color:#85817b;">
+                    장바구니에 담긴 상품이 없습니다.
                 </div>
-            </div>
 
-            <!-- 장바구니 목록 -->
-            <div v-if="cartList.length === 0" class="empty-box">
-                장바구니에 담긴 상품이 없습니다.
-            </div>
+                <div v-for="item in cartList" :key="item.cartItemId" class="shop-card" :class="{ soldout: !item.available }">
+                    <div style="display:flex; align-items:flex-start; gap:14px;">
+                        <input type="checkbox" :value="item.cartItemId" v-model="selectedIds" :disabled="!item.available" style="margin-top:4px;">
+                        <img class="shop-thumb" :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb" @error="fnImgError">
 
-            <table v-else>
-                <thead>
-                    <tr>
-                        <th style="width:40px;">선택</th>
-                        <th>상품 / 패키지 정보</th>
-                        <th style="width:120px;">개당 단가</th>
-                        <th style="width:150px;">수량</th>
-                        <th style="width:130px;">합계 금액</th>
-                        <th style="width:80px;">삭제</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in cartList" :key="item.cartItemId" :class="{ 'soldout-row': !item.available }">
-                        <td>
-                            <input type="checkbox"
-                            :value="item.cartItemId"
-                            v-model="selectedIds"
-                            :disabled="!item.available">
-                        </td>
-                        <td>
-                            <img class="thumb"
-                            :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb"
-                            @error="fnImgError">
-                            <div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
                                 <div>
-                                    <span v-if="item.itemType === 'PRODUCT'" class="badge badge-product">단품</span>
-                                    <span v-else class="badge badge-package">
-                                        패키지{{ item.packageGrade ? ' (' + item.packageGrade + ')' : '' }}
-                                    </span>
-                                    <span v-if="!item.available" class="badge badge-soldout">품절/구매불가</span>
+                                    <span class="shop-badge">{{ item.itemType === 'PRODUCT' ? '단품' : ('패키지' + (item.packageGrade ? ' · ' + item.packageGrade : '')) }}</span>
+                                    <span v-if="!item.available" class="shop-badge soldout">품절/구매불가</span>
+                                    <div style="font-size:15px; font-weight:700; margin-top:5px;">{{ item.productName || '판매 종료된 상품입니다' }}</div>
                                 </div>
-                                <strong style="font-size:15px;">{{ item.productName || '판매 종료된 상품입니다' }}</strong>
-                                <div v-if="!item.available && item.unavailableReason" style="color:#c92a2a; font-size:12px; margin-top:2px;">
-                                    {{ item.unavailableReason }}
-                                </div>
+                                <button type="button" style="color:#9a8f80; font-size:15px;" @click="fnRemove(item.cartItemId)" title="삭제">✕</button>
+                            </div>
 
-                                <!-- 패키지 상세 구성품 및 추가 옵션 표시 -->
-                                <div v-if="item.itemType === 'PACKAGE'" class="option-list">
-                                    <div>기본가: {{ Number(item.price).toLocaleString() }}원</div>
-                                    <div v-for="pi in item.packageItems" :key="pi.cartPackageItemId">
-                                        • [{{ pi.itemRole }}] {{ pi.selectedProductName }} (x{{ pi.itemQuantity }})
-                                        <span v-if="pi.additionalPrice > 0">(+{{ Number(pi.additionalPrice).toLocaleString() }}원)</span>
-                                    </div>
-                                    <div v-for="pe in item.packageExtras" :key="pe.cartPackageExtraId">
-                                        • [추가옵션] {{ pe.extraName }}: {{ pe.optionName }}
-                                        <span v-if="pe.additionalPrice > 0">(+{{ Number(pe.additionalPrice).toLocaleString() }}원)</span>
-                                    </div>
+                            <div v-if="!item.available && item.unavailableReason" style="color:#b84a4a; font-size:12px; margin-top:4px;">
+                                {{ item.unavailableReason }}
+                            </div>
+
+                            <!-- 패키지 상세 구성품 및 추가 옵션 -->
+                            <div v-if="item.itemType === 'PACKAGE'" class="shop-option-box">
+                                <div>기본가: {{ Number(item.price).toLocaleString() }}원</div>
+                                <div v-for="pi in item.packageItems" :key="pi.cartPackageItemId">
+                                    • [{{ pi.itemRole }}] {{ pi.selectedProductName }} (x{{ pi.itemQuantity }})
+                                    <span v-if="pi.additionalPrice > 0">(+{{ Number(pi.additionalPrice).toLocaleString() }}원)</span>
+                                </div>
+                                <div v-for="pe in item.packageExtras" :key="pe.cartPackageExtraId">
+                                    • [추가옵션] {{ pe.extraName }}: {{ pe.optionName }}
+                                    <span v-if="pe.additionalPrice > 0">(+{{ Number(pe.additionalPrice).toLocaleString() }}원)</span>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>{{ Number(item.unitTotalPrice).toLocaleString() }}원</td>
-                    <td>
-                        <div class="qty-box">
-                            <input type="number" v-model.number="item.quantity" min="1" :disabled="!item.available">
-                            <button class="btn" @click="fnUpdate(item.cartItemId, item.quantity)" :disabled="!item.available">변경</button>
-                        </div>
-                    </td>
-                    <td><strong>{{ Number(item.lineTotalPrice).toLocaleString() }}원</strong></td>
-                    <td>
-                        <button class="btn btn-danger" @click="fnRemove(item.cartItemId)">삭제</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
 
-        <!-- 하단 결제 예정 금액 및 주문 버튼 -->
-        <div class="summary-box" v-if="cartList.length > 0">
-            <div>
-                <div style="font-size:14px; color:#666;">선택 상품 총 {{ selectedIds.length }}건</div>
-                <div class="total-price">총 결제 예정 금액: {{ selectedTotal.toLocaleString() }}원</div>
+                            <!-- 하단 수량 조절 & 합계 금액 -->
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:12px; border-top:1px solid #efe7da;">
+                                <div class="qty-control">
+                                    <button type="button" :disabled="!item.available || item.quantity <= 1"
+                                            @click="fnUpdate(item.cartItemId, item.quantity - 1)">−</button>
+                                    <span>{{ item.quantity }}</span>
+                                    <button type="button" :disabled="!item.available"
+                                            @click="fnUpdate(item.cartItemId, item.quantity + 1)">+</button>
+                                </div>
+                                <strong style="font-size:16px; color:#29251f;">{{ Number(item.lineTotalPrice).toLocaleString() }}원</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 배송 유의사항 (피그마 시안 반영) -->
+                <div class="notice-box">
+                    <strong style="display:block; color:#5c5346; margin-bottom:4px;">배송 유의사항</strong>
+                    • 가격, 옵션 등 정보가 변경된 경우 주문이 불가할 수 있습니다.<br>
+                    • 30,000원 이상 주문 시 기본 배송비(3,000원)가 무료로 적용됩니다.<br>
+                    • 커스텀 패키지의 경우 구성품 및 메시지 카드 옵션에 따라 출고 일정이 상이할 수 있습니다.
+                </div>
             </div>
-            <button class="btn btn-primary" @click="fnOrderSelected">선택 상품 주문하기</button>
-        </div>
 
-        <!-- 단독 테스트용 임시 담기 패널 -->
-        <div class="test-bar">
-            <strong>🔧 개발 테스트용 빠른 담기 (DB PRODUCT 1~3번):</strong>
-            <button class="btn" style="margin-left:8px;" @click="fnTestAddProduct(1)">+ 여리여리 스카프(1번)</button>
-            <button class="btn" style="margin-left:4px;" @click="fnTestAddProduct(2)">+ 실크 터치 스카프(2번)</button>
-            <button class="btn" style="margin-left:4px;" @click="fnTestAddProduct(3)">+ 감성 패턴 양말(3번)</button>
+            <!-- 우측 영역: 결제 예정 금액 패널 -->
+            <aside class="summary-panel">
+                <h3>결제 예정 금액</h3>
+                <div class="summary-row">
+                    <span>선택 상품 수</span>
+                    <span>{{ selectedIds.length }}건</span>
+                </div>
+                <div class="summary-row">
+                    <span>총 상품금액</span>
+                    <span>{{ selectedTotal.toLocaleString() }}원</span>
+                </div>
+                <div class="summary-row">
+                    <span>총 배송비 (3만원 이상 무료)</span>
+                    <span>{{ selectedTotal === 0 ? '0원' : (selectedTotal >= 30000 ? '0원 (무료)' : '+ 3,000원') }}</span>
+                </div>
+                <div class="summary-total">
+                    <span>총 결제 예정 금액</span>
+                    <span class="amount">{{ (selectedTotal === 0 ? 0 : (selectedTotal >= 30000 ? selectedTotal : selectedTotal + 3000)).toLocaleString() }}원</span>
+                </div>
+                <button class="shop-btn shop-btn-gold" style="width:100%; padding:14px; font-size:15px; margin-top:18px;"
+                        @click="fnOrderSelected">
+                    총 {{ selectedIds.length }}건 주문하기
+                </button>
+            </aside>
         </div>
-    </div>
-    <script>
+    </main>
+
+    <%@ include file="/WEB-INF/common/footer.jsp"%>
+    </body>
+</html>
+<script>
         const app = Vue.createApp({
             data() {
                 return {
@@ -429,4 +302,4 @@
         });
         
         app.mount('#app');
-    </script>
+</script>

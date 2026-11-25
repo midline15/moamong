@@ -118,15 +118,19 @@ public class AddressService {
             return res;
         }
 
-        int wasDefault = Integer.parseInt(String.valueOf(origin.get("isDefault")));
+        Object defObj = origin.get("isDefault") != null ? origin.get("isDefault") : origin.get("is_default");
+        String defStr = String.valueOf(defObj);
+        boolean wasDefault = "1".equals(defStr) || "true".equalsIgnoreCase(defStr);
+
         addressMapper.deleteAddress(paramMap);
 
-        if (wasDefault == 1) {
+        if (wasDefault) {
             HashMap<String, Object> nextDefault = addressMapper.selectDefaultAddress(memberId);
             if (nextDefault != null) {
+                Object nextId = nextDefault.get("addressId") != null ? nextDefault.get("addressId") : nextDefault.get("address_id");
                 HashMap<String, Object> updateMap = new HashMap<>();
                 updateMap.put("memberId", memberId);
-                updateMap.put("addressId", nextDefault.get("addressId"));
+                updateMap.put("addressId", nextId);
                 addressMapper.updateDefaultAddress(updateMap);
             }
         }
@@ -135,5 +139,7 @@ public class AddressService {
         res.put("message", "배송지가 삭제되었습니다.");
         return res;
     }
+
+
 }
 

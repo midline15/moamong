@@ -233,5 +233,19 @@
 		WHERE member_id = #{memberId}
 		  AND status = 'INACTIVE'
 	</update>
+	
+	<!-- 18. 회원가입용 활성 약관 목록 조회 (TERMS, PRIVACY, MARKETING) -->
+	<select id="selectJoinPolicies" resultType="hashmap">
+		SELECT
+			policy_id AS policyId,
+			policy_type AS policyType,
+			title AS title,
+			content AS content,
+			is_required AS isRequired
+		FROM POLICY
+		WHERE is_active = 'Y'
+		  AND policy_type IN ('TERMS', 'PRIVACY', 'MARKETING')
+		ORDER BY FIELD(policy_type, 'TERMS', 'PRIVACY', 'MARKETING')
+	</select>
 
 </mapper>
