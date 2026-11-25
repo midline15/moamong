@@ -239,6 +239,13 @@
             fnSubmitOrder() {
                 if (!this.delivery.recipientName.trim()) { alert("수령인 이름을 입력해주세요."); return; }
                 if (!this.delivery.recipientPhone.trim()) { alert("수령인 연락처를 입력해주세요."); return; }
+
+                const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+                if (!phoneRegex.test(this.delivery.recipientPhone.trim())) {
+                    alert("올바른 휴대폰 번호 형식(예: 010-1234-5678)을 입력해주세요.");
+                    return;
+                }
+                
                 if (!this.delivery.postalCode || !this.delivery.addressDefault) { alert("배송지 주소를 입력해주세요."); return; }
 
                 let self = this;

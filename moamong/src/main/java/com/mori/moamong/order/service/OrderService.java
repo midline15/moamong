@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mori.moamong.member.mapper.AddressMapper;
+import com.mori.moamong.notification.service.NotificationService;
 import com.mori.moamong.order.mapper.OrderMapper;
 import com.mori.moamong.payment.service.PaymentService;
 
@@ -24,6 +25,7 @@ public class OrderService {
 	private final OrderMapper orderMapper;
 	private final AddressMapper addressMapper;
 	private final PaymentService paymentService;
+	private final NotificationService notificationService;
 
 	private static final int FREE_SHIPPING_MIN = 30000;
 	private static final int BASIC_SHIPPING_FEE = 3000;
@@ -252,6 +254,15 @@ public class OrderService {
 			res.put("orderId", orderId);
 			res.put("orderNumber", orderNumber);
 			res.put("message", "결제 및 주문이 정상적으로 완료되었습니다.");
+			
+			notificationService.sendNotification(
+					memberId, 
+					"ORDER", 
+					"주문이 정상 완료되었습니다.", 
+					"주문번호 [" + orderNumber + "] 결제가 완료되었습니다.", 
+					orderId
+				);
+			
 			return res;
 		} catch (Exception e) {
 			if (!impUid.isEmpty()) {
@@ -327,6 +338,15 @@ public class OrderService {
 
 		res.put("result", "success");
 		res.put("message", "결제 및 주문이 취소되었으며 재고가 복구되었습니다.");
+		
+		notificationService.sendNotification(
+				memberId,
+				"RETURN",
+				"주문 취소가 완료되었습니다.",
+				"주문번호 [" + order.get("orderNumber") + "] 취소가 정상 처리되었습니다.",
+				orderId
+			);
+
 		return res;
 	}
 
@@ -400,6 +420,15 @@ public class OrderService {
 
 		res.put("result", "success");
 		res.put("message", "반품 및 환불 처리가 완료되었습니다.");
+		
+		notificationService.sendNotification(
+				memberId, 
+				"RETURN", 
+				"반품 처리가 완료되었습니다.", 
+				"신청하신 상품의 반품 및 환불 처리가 완료되었습니다.", 
+				returnId
+			);
+		
 		return res;
 	}
 
