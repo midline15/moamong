@@ -9,7 +9,9 @@
         <li class="<%= "order".equals(activeMenu) ? "active" : "" %>"><a href="/order/list.do">주문 목록</a></li>
         <li class="<%= "cancel".equals(activeMenu) ? "active" : "" %>"><a href="/order/cancel-list.do">반품 목록</a></li>
         <li class="<%= "address".equals(activeMenu) ? "active" : "" %>"><a href="/address/list.do">배송지 관리</a></li>
-        <li class="<%= "review".equals(activeMenu) ? "active" : "" %>"><a href="/review/mylist.do">리뷰 관리</a></li>
+        <li class="<%= "review".equals(activeMenu) ? "active" : "" %>">
+            <a href="javascript:;" onclick="pageChange('/review/myReview.do', {memberId: '<%= sessId %>'})">리뷰 관리</a>
+        </li>
         <li class="<%= "coupon".equals(activeMenu) ? "active" : "" %>">
             <a href="javascript:;" onclick="pageChange('/coupon/mylist.do', {memberId: '<%= sessId %>'})">내 쿠폰</a>
         </li>

@@ -20,117 +20,81 @@ import com.mori.moamong.review.service.ReviewService;
 @Controller
 public class ReviewController {
 
-    @Autowired
-    private ReviewService reviewService;
+	@Autowired
+	private ReviewService reviewService;
 
-    // 1. 나의 리뷰 페이지 이동
+	// 세션에서 memberId 자동 보완용 헬퍼 메서드
+	private void fillMemberId(HashMap<String, Object> map, jakarta.servlet.http.HttpSession session) {
+		Object val = map.get("memberId");
+		if ((val == null || String.valueOf(val).trim().isEmpty() || "null".equals(String.valueOf(val)))
+				&& session.getAttribute("sessionId") != null) {
+			map.put("memberId", session.getAttribute("sessionId"));
+		}
+	}
 
-    @RequestMapping("/review/myReview.do")
-    public String myReview(@RequestParam HashMap<String, Object> map, Model model) {
+	// 1. 나의 리뷰 페이지 이동
+	@RequestMapping("/review/myReview.do")
+	public String myReview(@RequestParam HashMap<String, Object> map, jakarta.servlet.http.HttpSession session,
+			Model model) {
+		fillMemberId(map, session);
+		model.addAttribute("memberId", map.get("memberId"));
+		return "review/list";
+	}
 
-        model.addAttribute("memberId", map.get("memberId"));
+	// 2. 나의 리뷰 목록 조회
+	@RequestMapping(value = "/review/my-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String myReviewList(@RequestParam HashMap<String, Object> map, jakarta.servlet.http.HttpSession session) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			fillMemberId(map, session);
+			resultMap = reviewService.getMyReviewList(map);
+		} catch (Exception e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 목록 조회에 실패했습니다.");
+			e.printStackTrace();
+		}
+		return new Gson().toJson(resultMap);
+	}
 
-        return "review/list";
-    }
+	// 3. 리뷰 수정
+	@RequestMapping(value = "/review/edit.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String editReview(@RequestParam HashMap<String, Object> map,
+			@RequestParam(value = "files", required = false) MultipartFile[] files,
+			jakarta.servlet.http.HttpSession session) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			fillMemberId(map, session);
+			resultMap = reviewService.editReview(map, files);
+		} catch (IllegalArgumentException e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", e.getMessage());
+		} catch (Exception e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 수정 중 오류가 발생했습니다.");
+			e.printStackTrace();
+		}
+		return new Gson().toJson(resultMap);
+	}
 
-    // 2. 나의 리뷰 목록 조회
+	// 4. 리뷰 삭제
+	@RequestMapping(value = "/review/remove.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeReview(@RequestParam HashMap<String, Object> map, jakarta.servlet.http.HttpSession session) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			fillMemberId(map, session);
+			resultMap = reviewService.removeReview(map);
+		} catch (IllegalArgumentException e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", e.getMessage());
+		} catch (Exception e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 삭제 중 오류가 발생했습니다.");
+			e.printStackTrace();
+		}
+		return new Gson().toJson(resultMap);
+	}
 
-    @RequestMapping(value = "/review/my-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String myReviewList(@RequestParam HashMap<String, Object> map) {
-
-        HashMap<String, Object> resultMap = new HashMap<>();
-
-        try {
-
-            resultMap = reviewService.getMyReviewList(map);
-
-        } catch (Exception e) {
-
-            resultMap.put("result", "fail");
-            resultMap.put("message", "리뷰 목록 조회에 실패했습니다.");
-
-            e.printStackTrace();
-        }
-
-        return new Gson().toJson(resultMap);
-    }
-
-    // 3. 리뷰 수정
-
-    @RequestMapping(value = "/review/edit.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String editReview(@RequestParam HashMap<String, Object> map,
-            @RequestParam(value = "files", required = false) MultipartFile[] files) {
-
-        HashMap<String, Object> resultMap = new HashMap<>();
-
-        try {
-
-            // 서비스에 리뷰 수정 요청
-            resultMap = reviewService.editReview(map, files);
-
-        } catch (IllegalArgumentException e) {
-
-            resultMap.put("result", "fail");
-            resultMap.put("message", e.getMessage());
-
-        } catch (Exception e) {
-
-            resultMap.put("result", "fail");
-            resultMap.put("message", "리뷰 수정 중 오류가 발생했습니다.");
-
-            e.printStackTrace();
-        }
-
-        return new Gson().toJson(resultMap);
-    }
-
-    // 4. 리뷰 삭제
-
-    @RequestMapping(value = "/review/remove.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String removeReview(@RequestParam HashMap<String, Object> map) {
-
-        HashMap<String, Object> resultMap = new HashMap<>();
-
-        try {
-
-            // 서비스에 리뷰 삭제 요청
-            resultMap = reviewService.removeReview(map);
-
-        } catch (IllegalArgumentException e) {
-
-            resultMap.put("result", "fail");
-            resultMap.put("message", e.getMessage());
-
-        } catch (Exception e) {
-
-            resultMap.put("result", "fail");
-            resultMap.put("message", "리뷰 삭제 중 오류가 발생했습니다.");
-
-            e.printStackTrace();
-        }
-
-        return new Gson().toJson(resultMap);
-    }
-
-    ////////////////////////////////////////////////////////////
-    // 리뷰 목록 조회
-    @RequestMapping(value = "/review/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String list(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-        HashMap<String, Object> resultMap = new HashMap<String, Object>();
-
-        // 리뷰 목록 조회
-        List<Review> reviewList = reviewService.getReviewList(map);
-
-        // 리뷰 전체 개수 조회
-        int totalCount = reviewService.getReviewCount(map);
-
-        resultMap.put("reviewList", reviewList);
-        resultMap.put("totalCount", totalCount);
-
-        return new Gson().toJson(resultMap);
-    }
 }

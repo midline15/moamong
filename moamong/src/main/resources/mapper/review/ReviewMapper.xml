@@ -59,10 +59,10 @@
 	</select>
 
 
-	<!-- 리뷰 이미지 목록 조회 -->
+		<!-- 리뷰 이미지 목록 조회 (단건 reviewId 및 다건 reviewIds 모두 지원) -->
     <select id="selectReviewImageList"
         parameterType="hashmap"
-        resultType="ReviewImage">
+        resultType="com.mori.moamong.dto.ReviewImage">
 
         SELECT
             IMAGE_ID AS imageId,
@@ -74,13 +74,26 @@
             IMAGE_TYPE AS imageType,
             DISPLAY_ORDER AS displayOrder
         FROM REVIEW_IMAGE
-        WHERE REVIEW_ID IN
-        <foreach collection="reviewIds" item="reviewId" open="(" separator="," close=")">
-            #{reviewId}
-        </foreach>
+        <where>
+            <choose>
+                <when test="reviewIds != null and reviewIds.size() > 0">
+                    AND REVIEW_ID IN
+                    <foreach collection="reviewIds" item="itemReviewId" open="(" separator="," close=")">
+                        #{itemReviewId}
+                    </foreach>
+                </when>
+                <when test="reviewId != null">
+                    AND REVIEW_ID = #{reviewId}
+                </when>
+                <otherwise>
+                    AND 1 = 0
+                </otherwise>
+            </choose>
+        </where>
         ORDER BY REVIEW_ID, DISPLAY_ORDER ASC
 
     </select>
+
 
 
 	<!-- 리뷰 내용 및 별점 수정 -->
