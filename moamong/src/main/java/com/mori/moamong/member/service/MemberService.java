@@ -104,6 +104,14 @@ public class MemberService {
 		return resultMap;
 	}
 
+	// 회원가입용 활성 약관 목록 조회 (POLICY 테이블 연동)
+	public HashMap<String, Object> getJoinPolicies() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		resultMap.put("result", "success");
+		resultMap.put("list", memberMapper.selectJoinPolicies());
+		return resultMap;
+	}
+
 	// 아이디 중복 확인
 	public HashMap<String, Object> idDuplicateCheck(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();

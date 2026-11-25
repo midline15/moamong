@@ -60,4 +60,8 @@ public interface MemberMapper {
 
 		// 휴면 계정 해제 (INACTIVE -> ACTIVE + last_login_at 갱신)
 		int activateDormantMember(Long memberId);
+		
+		// 회원가입용 활성 약관 목록 조회
+		List<HashMap<String, Object>> selectJoinPolicies();
+
 }
