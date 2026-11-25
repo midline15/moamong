@@ -7,7 +7,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>소셜</title>
+        <title>STORY</title>
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.js"
@@ -42,8 +42,11 @@
                 <div id="app">
                     <div class="cm-wrap">
 
-                        <!-- 타이틀 -->
-                        <h2 class="cm-title"><span>소셜</span></h2>
+                        <!-- 소셜 배너 (Story 글자와 문구는 이미지 안에 들어 있음) -->
+                        <section class="cm-banner">
+                            <img src="${pageContext.request.contextPath}/assets/banner/SocialBanner.png"
+                                alt="Story - 마음을 나누는, 우리의 일상" draggable="false">
+                        </section>
 
                         <!-- 상단 박스 (태그 탭 + 글쓰기) -->
                         <div class="cm-box">
@@ -92,7 +95,8 @@
                                                 <path d="M3 17l5-4.5 4 3.5 3-2.5 6 5"></path>
                                             </svg>
                                         </button>
-                                        <span class="cm-tool-hint" v-if="isLogin && imageList.length > 0">{{ imageList.length }}/4</span>
+                                        <span class="cm-tool-hint" v-if="isLogin && imageList.length > 0">{{
+                                            imageList.length }}/4</span>
 
                                         <!-- 해시태그 -->
                                         <button type="button" class="cm-icon-btn" title="해시태그" :disabled="!isLogin"
@@ -497,6 +501,7 @@
                                 self.tag = "";      // 전체 탭으로 돌아가서 새 글이 바로 보이게
                                 self.$nextTick(self.fnResize);
                                 self.fnReset();
+                                window.scrollTo({ top: 0, behavior: "smooth" });
                             } else {
                                 alert(data.msg || "등록에 실패했습니다.");
                             }
