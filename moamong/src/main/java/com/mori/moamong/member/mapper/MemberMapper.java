@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.mori.moamong.dto.Member;
 
@@ -63,5 +64,13 @@ public interface MemberMapper {
 		
 		// 회원가입용 활성 약관 목록 조회
 		List<HashMap<String, Object>> selectJoinPolicies();
+		
+		// 회원가입 시 전화번호 인증
+		int updateMemberPhone(@Param("memberId") Long memberId, @Param("phone") String phone);
+
+		List<HashMap<String, Object>> selectMyCommunityPosts(Long memberId);
+		int deleteMyCommunityPost(@Param("memberId") Long memberId, @Param("postId") Long postId);
+		List<HashMap<String, Object>> selectMyCommunityComments(Long memberId);
+		int deleteMyCommunityComment(@Param("memberId") Long memberId, @Param("commentId") Long commentId);
 
 }

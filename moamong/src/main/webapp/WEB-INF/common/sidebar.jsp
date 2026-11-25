@@ -52,11 +52,11 @@
                         <div class="sub-group">
                             <p class="sub-title">마음을 전할 사람</p>
                             <ul class="chip-list">
-                                <li><a href="#">가족</a></li>
-                                <li><a href="#">연인</a></li>
-                                <li><a href="#">친구</a></li>
-                                <li><a href="#">동료</a></li>
-                                <li><a href="#">나에게</a></li>
+                                <li><a href="/package/list.do?target=가족">가족</a></li>
+                                <li><a href="/package/list.do?target=연인">연인</a></li>
+                                <li><a href="/package/list.do?target=친구">친구</a></li>
+                                <li><a href="/package/list.do?target=동료">동료</a></li>
+                                <li><a href="/package/list.do?target=나에게">나에게</a></li>
                             </ul>
                         </div>
 
@@ -64,11 +64,10 @@
                         <div class="sub-group">
                             <p class="sub-title">특별한 순간</p>
                             <ul class="chip-list">
-                                <li><a href="#">생일ㆍ기념일</a></li>
-                                <li><a href="#">감사ㆍ답례</a></li>
-                                <li><a href="#">축하ㆍ응원</a></li>
-                                <li><a href="#">위로ㆍ격려</a></li>
-                                <li><a href="#">마음전달</a></li>
+                                <li><a href="/package/list.do?purpose=생일ㆍ기념일">생일ㆍ기념일</a></li>
+                                <li><a href="/package/list.do?purpose=감사ㆍ답례">감사ㆍ답례</a></li>
+                                <li><a href="/package/list.do?purpose=축하ㆍ응원">축하ㆍ응원</a></li>
+                                <li><a href="/package/list.do?purpose=위로ㆍ격려">위로ㆍ격려</a></li>
                             </ul>
                         </div>
 
@@ -102,7 +101,7 @@
                 <a href="/member/join.do" class="auth-signup">회원가입</a>
             <% } else { %>
                 <a href="/member/mypage.do" class="auth-login">마이페이지</a>
-                <a href="/member/logout.do" class="auth-signup">로그아웃</a>
+                <a href="/member/logout.do" class="auth-signup" onclick="return confirm('로그아웃 하시겠습니까?');">로그아웃</a>
             <% } %>
         </div>
 

@@ -1,0 +1,402 @@
+/* 마이페이지 하위(리뷰/쿠폰/포인트/작성글/댓글) 공통 확장 스타일 */
+
+/* 내역이 0건이어도 우측 본문 영역이 쪼그라들지 않도록 너비 고정 */
+.mp-main {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+}
+.mp-sub-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 28px 0 18px;
+    border-bottom: 1px solid #e3d6c1;
+    margin-bottom: 18px;
+}
+
+.mp-sub-top h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #29251f;
+}
+
+.mp-breadcrumb {
+    font-size: 12px;
+    color: #85817b;
+}
+
+/* 상단 2분할 탭 (피그마 리뷰 관리 도안 반영) */
+.mp-sub-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #e3d6c1;
+    margin-bottom: 18px;
+}
+
+.mp-sub-tab {
+    text-align: center;
+    padding: 13px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #85817b;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mp-sub-tab.active {
+    color: #765a36;
+    font-weight: 700;
+    border-bottom-color: #94764b;
+}
+
+/* 리뷰/게시글 카드 행 (좌측 썸네일 + 중앙 정보 + 우측 버튼) */
+.mp-item-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    background: #faf7f1;
+    border: 1px solid #e9dfd1;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+}
+
+.mp-item-card:hover {
+    border-color: #d5c4aa;
+}
+
+.mp-item-thumb {
+    width: 78px;
+    height: 78px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #e3d6c1;
+    background: #fffdf9;
+    flex-shrink: 0;
+}
+
+.mp-item-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.mp-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #29251f;
+    margin-bottom: 4px;
+}
+
+.mp-item-stars {
+    color: #b88b68;
+    font-size: 15px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+.mp-item-text {
+    font-size: 13px;
+    color: #5c5346;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.mp-item-meta {
+    font-size: 11px;
+    color: #85817b;
+    margin-top: 8px;
+}
+
+.mp-item-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* 리뷰 수정 폼 요소 */
+.rv-star-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #dfd1bd;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.rv-star-btn.active {
+    color: #b88b68;
+}
+
+.rv-edit-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #765a36;
+    margin: 14px 0 6px;
+}
+
+.rv-textarea {
+    width: 100%;
+    min-height: 96px;
+    padding: 12px;
+    border: 1px solid #d5c4aa;
+    border-radius: 8px;
+    background: #fffdf9;
+    font-family: inherit;
+    font-size: 13px;
+    color: #29251f;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.rv-img-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.rv-img-box {
+    position: relative;
+    width: 74px;
+    height: 74px;
+}
+
+.rv-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e3d6c1;
+}
+
+.rv-img-del {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #d94848;
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* 쿠폰 티켓 카드 그리드 */
+.cp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.cp-ticket {
+    background: #faf7f1;
+    border: 1px solid #dfd1bd;
+    border-left: 5px solid #94764b;
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cp-ticket.used {
+    opacity: 0.6;
+    border-left-color: #b8b0a4;
+}
+
+.cp-discount {
+    font-size: 22px;
+    font-weight: 800;
+    color: #765a36;
+    margin-bottom: 4px;
+}
+
+/* 포인트 요약 배너 & 내역 테이블 */
+.pt-summary-box {
+    background: #efe7da;
+    border: 1px solid #dfd1bd;
+    border-radius: 12px;
+    padding: 22px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.pt-amount-plus {
+    color: #2b8a3e;
+    font-weight: 700;
+}
+
+.pt-amount-minus {
+    color: #d94848;
+    font-weight: 700;
+}
+
+/* 하단 페이징 (피그마 도안 반영) */
+.mp-paging {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 24px;
+}
+
+.mp-page-btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid #dfd1bd;
+    background: #fffdf9;
+    color: #5c5346;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mp-page-btn.active {
+    background: #94764b;
+    border-color: #94764b;
+    color: #fff;
+}
+
+.mp-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 내 쿠폰 요약 4단 & 상태 뱃지 */
+.cp-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.cp-summary-card {
+    background: #faf7f1;
+    border: 1px solid #dfd1bd;
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+}
+
+.cp-summary-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: #765a36;
+    margin-bottom: 4px;
+}
+
+.cp-summary-label {
+    font-size: 12px;
+    color: #5c5346;
+}
+
+.cp-tabs-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid #e3d6c1;
+    margin-bottom: 18px;
+}
+
+.cp-status-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.cp-status-tag.available {
+    background: #efe7da;
+    color: #765a36;
+}
+
+.cp-status-tag.used {
+    background: #e9e4dc;
+    color: #85817b;
+}
+
+.cp-status-tag.expired {
+    background: #fae3e3;
+    color: #d94848;
+}
+
+.cp-extra-box {
+    border-left: 1px dashed #d5c4aa;
+    padding-left: 18px;
+    min-width: 120px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* 포인트 내역 전용 테이블 & 유형 뱃지 */
+.pt-table-wrap {
+    background: #faf7f1;
+    border: 1px solid #dfd1bd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.pt-table thead th {
+    background: #efe7da;
+    color: #765a36;
+    font-weight: 700;
+    padding: 13px 10px;
+    border-bottom: 1px solid #dfd1bd;
+    text-align: center;
+}
+
+.pt-table tbody td {
+    padding: 14px 10px;
+    border-bottom: 1px solid #e9dfd1;
+    color: #29251f;
+    text-align: center;
+    background: #fffdf9;
+}
+
+.pt-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.pt-type-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #efe7da;
+    color: #765a36;
+}
+
+.pt-type-badge.use,
+.pt-type-badge.expire {
+    background: #fae3e3;
+    color: #d94848;
+}
+
+.pt-type-badge.earn,
+.pt-type-badge.cancel {
+    background: #e6f4ea;
+    color: #2b8a3e;
+}
