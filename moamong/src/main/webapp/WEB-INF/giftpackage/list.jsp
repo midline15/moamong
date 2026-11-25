@@ -183,9 +183,36 @@
                         },
 
                         mounted() {
-                            let self = this;
-                            self.fnList();
+                            const params = new URLSearchParams(window.location.search);
+                            const qTarget = (params.get("target") || "").trim();
+                            const qPurpose = (params.get("purpose") || "").trim();
+
+                            // 한글명·가운뎃점(ㆍ vs ·)·영문코드 모두 매칭
+                            const normalize = (s) => s.replace(/[ㆍ·\s]/g, "");
+
+                            if (qTarget) {
+                                const found = this.targetCategoryList.find(
+                                    item => item.code === qTarget || normalize(item.name) === normalize(qTarget)
+                                );
+                                if (found) {
+                                    this.selectedCategory = found.code;
+                                    this.targetType = found.code;
+                                    this.purposeType = "";
+                                }
+                            } else if (qPurpose) {
+                                const found = this.purposeCategoryList.find(
+                                    item => item.code === qPurpose || normalize(item.name) === normalize(qPurpose)
+                                );
+                                if (found) {
+                                    this.selectedCategory = found.code;
+                                    this.targetType = "";
+                                    this.purposeType = found.code;
+                                }
+                            }
+
+                            this.fnList();
                         }
+
                     });
 
                     app.mount('#app');

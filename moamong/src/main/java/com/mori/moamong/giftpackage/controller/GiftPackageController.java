@@ -29,6 +29,8 @@ public class GiftPackageController {
     // 패키지 카테고리별 목록으로 이동
     @RequestMapping("/package/list.do")
     public String list(@RequestParam HashMap<String, Object> map, Model model) {
+        model.addAttribute("target", map.getOrDefault("target", ""));
+        model.addAttribute("purpose", map.getOrDefault("purpose", ""));
         return "giftpackage/list";
     }
 
@@ -112,4 +114,5 @@ public class GiftPackageController {
 
         return new Gson().toJson(resultMap);
     }
+
 }
