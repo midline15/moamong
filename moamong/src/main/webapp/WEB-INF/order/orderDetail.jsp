@@ -11,150 +11,106 @@
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
         <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-        <style>
-            body { font-family: 'Pretendard', sans-serif; background: #f8f9fa; margin: 0; padding: 30px 16px; color: #222; }
-            .container { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-            .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; padding-bottom: 14px; margin-bottom: 20px; }
-            .top-nav h2 { margin: 0; font-size: 22px; }
-            .btn { padding: 7px 14px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #222; }
-            .btn:hover { background: #f1f3f5; }
-            .btn-danger { border-color: #ffa8a8; color: #c92a2a; }
-            .section-card { border: 1px solid #dee2e6; border-radius: 10px; margin-bottom: 18px; overflow: hidden; }
-            .section-head { background: #f8f9fa; padding: 12px 18px; border-bottom: 1px solid #e9ecef; font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-            .section-body { padding: 16px 18px; }
-            .status-badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-weight: 700; font-size: 12px; }
-            .status-paid { background: #e7f5ff; color: #1971c2; }
-            .status-pending { background: #fff3bf; color: #e67700; }
-            .status-canceled { background: #ffe3e3; color: #c92a2a; }
-            .item-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f3f5; }
-            .item-row:last-child { border-bottom: none; }
-            .thumb { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; background: #f1f3f5; border: 1px solid #e9ecef; }
-            .snapshot-box { margin-top: 6px; padding-left: 10px; border-left: 2px solid #dee2e6; font-size: 12px; color: #666; line-height: 1.5; }
-            .info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-            .info-table th { width: 130px; text-align: left; padding: 8px 4px; color: #666; font-weight: 600; vertical-align: top; }
-            .info-table td { padding: 8px 4px; color: #222; }
-            .price-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: #555; }
-            .price-total { display: flex; justify-content: space-between; padding-top: 12px; margin-top: 8px; border-top: 1px solid #dee2e6; font-size: 17px; font-weight: 700; color: #222; }
-            .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 999; }
-            .modal-box { background: #fff; width: 92%; max-width: 420px; border-radius: 12px; padding: 22px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-            .reason-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; cursor: pointer; font-size: 14px; }
-        </style>
+        <!-- 공통 레이아웃 CSS (헤더 · 사이드바 · 푸터 · 마이페이지) -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage/mypage.css">
     </head>
-    <body>
-        <div id="app" class="container">
-            <div class="top-nav">
-                <h2>🧾 주문 상세 내역</h2>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn" @click="fnGoList">주문 목록</button>
-                    <button class="btn" @click="fnGoMypage">마이페이지</button>
-                    <button class="btn" @click="fnGoMain">메인으로</button>
-                </div>
+<body>
+    <%@ include file="/WEB-INF/common/header.jsp"%>
+
+    <div id="app" class="mp-wrap">
+        <% request.setAttribute("activeMenu", "order"); %>
+        <%@ include file="/WEB-INF/common/mypageSidebar.jsp"%>
+
+        <main class="mp-content">
+            <div class="mp-head">
+                <h2>주문 상세</h2>
+                <span class="mp-breadcrumb">마이페이지 &gt; 주문 목록 &gt; 주문 상세</span>
             </div>
 
             <div v-if="order">
-                <!-- 1. 주문 기본 요약 -->
-                <div class="section-card">
-                    <div class="section-head">
-                        <span>주문번호: {{ order.orderNumber }}</span>
-                        <span class="status-badge" :class="statusClass(order.orderStatus)">{{ statusText(order.orderStatus) }}</span>
+                <!-- 1. 주문 상태 및 상품 목록 -->
+                <div class="mp-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:13px;">
+                        <strong style="color:#765a36;">{{ statusText(order.orderStatus) }} ({{ order.orderNumber }})</strong>
+                        <span style="color:#9a8f80;">주문일시: {{ order.orderedAt }}</span>
                     </div>
-                    <div class="section-body" style="font-size:13px; color:#555;">
-                        주문일시: <strong>{{ order.orderedAt }}</strong>
-                    </div>
-                </div>
 
-                <!-- 2. 주문 상품 및 패키지 구성 스냅샷 -->
-                <div class="section-card">
-                    <div class="section-head"><span>주문 상품 정보 ({{ items.length }}건)</span></div>
-                    <div class="section-body">
-                        <div v-for="item in items" :key="item.orderItemId" class="item-row">
-                            <img class="thumb" :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb" @error="fnImgError">
-                            <div style="flex:1;">
-                                <div>
-                                    <span style="font-size:11px; color:#666;">{{ item.itemType === 'PRODUCT' ? '[단품]' : '[패키지]' }}</span>
-                                    <strong style="font-size:14px; margin-left:4px;">{{ item.itemNameSnapshot }}</strong>
-                                </div>
-                                <div style="font-size:13px; color:#555; margin-top:4px;">
-                                    {{ Number(item.unitPrice).toLocaleString() }}원 × {{ item.quantity }}개 =
-                                    <strong>{{ Number(item.lineAmount).toLocaleString() }}원</strong>
-                                </div>
-                                <div v-if="item.itemType === 'PACKAGE'" class="snapshot-box">
-                                    <div v-for="pi in item.packageItems" :key="pi.orderPackageItemId">
-                                        • [{{ pi.itemRole }}] {{ pi.productNameSnapshot }} (x{{ pi.quantity }})
-                                        <span v-if="pi.additionalPrice > 0">(+{{ Number(pi.additionalPrice).toLocaleString() }}원)</span>
-                                    </div>
-                                    <div v-for="pe in item.packageExtras" :key="pe.orderPackageExtraId">
-                                        • [추가옵션] {{ pe.optionNameSnapshot }}
-                                        <span v-if="pe.additionalPrice > 0">(+{{ Number(pe.additionalPrice).toLocaleString() }}원)</span>
-                                        <span v-if="pe.optionValue" style="color:#d9480f;"> | 메시지: "{{ pe.optionValue }}"</span>
-                                    </div>
-                                </div>
+                    <div v-for="item in items" :key="item.orderItemId" style="display:flex; align-items:flex-start; gap:14px; padding:10px 0; border-top:1px solid #efe7da;">
+                        <img :src="(item.thumbnailUrl && item.thumbnailUrl.trim()) ? item.thumbnailUrl : defaultThumb" @error="fnImgError"
+                             style="width:64px; height:64px; border-radius:6px; object-fit:cover; background:#efe7da;">
+                        <div style="flex:1; font-size:13px;">
+                            <strong>{{ item.itemNameSnapshot }}</strong>
+                            <div style="color:#85817b; margin-top:4px;">
+                                {{ Number(item.unitPrice).toLocaleString() }}원 × {{ item.quantity }}개 =
+                                <strong style="color:#29251f;">{{ Number(item.lineAmount).toLocaleString() }}원</strong>
+                            </div>
+                            <div v-if="item.itemType === 'PACKAGE'" style="margin-top:6px; padding-left:10px; border-left:2px solid #d5c4aa; font-size:12px; color:#5c5346;">
+                                <div v-for="pi in item.packageItems" :key="pi.orderPackageItemId">• [{{ pi.itemRole }}] {{ pi.productNameSnapshot }} (x{{ pi.quantity }})</div>
+                                <div v-for="pe in item.packageExtras" :key="pe.orderPackageExtraId">• [추가옵션] {{ pe.optionNameSnapshot }} <span v-if="pe.optionValue">| "{{ pe.optionValue }}"</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. 배송지 정보 -->
-                <div class="section-card">
-                    <div class="section-head"><span>배송지 정보</span></div>
-                    <div class="section-body">
-                        <table class="info-table">
-                            <tr><th>수령인</th><td>{{ order.recipientName }}</td></tr>
-                            <tr><th>연락처</th><td>{{ order.recipientPhone }}</td></tr>
-                            <tr><th>배송 주소</th><td>({{ order.postalCode }}) {{ order.addressDefault }} {{ order.addressDetail }}</td></tr>
-                        </table>
+                <!-- 2. 배송정보 상세 -->
+                <div class="mp-card">
+                    <h3 style="font-size:15px; margin-bottom:12px; color:#765a36;">배송정보</h3>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <tr><th style="width:120px; text-align:left; padding:7px 0; color:#85817b;">수령인</th><td>{{ order.recipientName }}</td></tr>
+                        <tr><th style="text-align:left; padding:7px 0; color:#85817b;">연락처</th><td>{{ order.recipientPhone }}</td></tr>
+                        <tr><th style="text-align:left; padding:7px 0; color:#85817b;">배송 주소</th><td>({{ order.postalCode }}) {{ order.addressDefault }} {{ order.addressDetail }}</td></tr>
+                    </table>
+                </div>
+
+                <!-- 3. 결제정보 상세 -->
+                <div class="mp-card">
+                    <h3 style="font-size:15px; margin-bottom:12px; color:#765a36;">결제정보</h3>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <tr><th style="width:120px; text-align:left; padding:7px 0; color:#85817b;">상품/옵션 금액</th><td>{{ Number(order.totalProductAmount + order.totalAdditionalAmount).toLocaleString() }}원</td></tr>
+                        <tr><th style="text-align:left; padding:7px 0; color:#85817b;">배송비</th><td>{{ Number(order.shippingFee).toLocaleString() }}원</td></tr>
+                        <tr><th style="text-align:left; padding:7px 0; color:#85817b;">최종 결제금액</th><td><strong style="font-size:15px;">{{ Number(order.finalAmount).toLocaleString() }}원</strong> ({{ payment ? payment.payMethod : 'CARD' }})</td></tr>
+                        <tr v-if="order.orderStatus === 'CANCELED' && cancelInfo">
+                            <th style="text-align:left; padding:7px 0; color:#b88b68;">취소/환불 내역</th>
+                            <td style="color:#b88b68;">{{ cancelInfo.cancelReason }} ({{ cancelInfo.createdAt }})</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button class="mp-btn mp-btn-gold" @click="fnGoList">목록으로</button>
+                    <button v-if="order.orderStatus === 'PAID' || order.orderStatus === 'PAYMENT_PENDING'"
+                            class="mp-btn mp-btn-danger" @click="fnOpenCancelModal">주문 취소</button>
+                </div>
+            </div>
+
+            <!-- 주문 취소 사유 모달 -->
+            <div v-if="showCancelModal" class="mp-modal-backdrop" @click.self="showCancelModal = false">
+                <div class="mp-modal-box">
+                    <h3 style="margin:0 0 14px 0; font-size:17px; color:#765a36;">주문 취소 사유 선택</h3>
+                    <label v-for="r in cancelReasons" :key="r"
+                           style="display:flex; align-items:center; gap:8px; padding:9px 10px; border:1px solid #efe7da; border-radius:6px; margin-bottom:8px; cursor:pointer; font-size:13px; background:#fff;">
+                        <input type="radio" :value="r" v-model="selectedReason"><span>{{ r }}</span>
+                    </label>
+                    <div v-if="selectedReason === '기타 (직접 입력)'" style="margin-top:8px;">
+                        <textarea v-model="customReason" rows="3" maxlength="200"
+                                  style="width:100%; padding:8px; border:1px solid #e3d6c1; border-radius:6px; font-size:13px;"
+                                  placeholder="취소 사유를 입력해주세요"></textarea>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                        <button class="mp-btn" @click="showCancelModal = false">닫기</button>
+                        <button class="mp-btn mp-btn-danger" @click="fnConfirmCancel">취소 확정</button>
                     </div>
                 </div>
-
-                <!-- 4. 결제 및 환불 정보 -->
-                <div class="section-card">
-                    <div class="section-head"><span>결제 금액 상세</span></div>
-                    <div class="section-body">
-                        <div class="price-row"><span>기본 상품 금액</span><span>{{ Number(order.totalProductAmount).toLocaleString() }}원</span></div>
-                        <div class="price-row"><span>옵션 추가 금액</span><span>+ {{ Number(order.totalAdditionalAmount).toLocaleString() }}원</span></div>
-                        <div class="price-row"><span>배송비</span><span>+ {{ Number(order.shippingFee).toLocaleString() }}원</span></div>
-                        <div class="price-total"><span>최종 결제 금액</span><span>{{ Number(order.finalAmount).toLocaleString() }}원</span></div>
-
-                        <div v-if="payment" style="margin-top:12px; padding-top:10px; border-top:1px dashed #eee; font-size:13px; color:#555;">
-                            결제수단: <strong>{{ payment.payMethod }}</strong> ·
-                            결제상태: <strong>{{ payment.paymentStatus }}</strong> ·
-                            결제일시: {{ payment.paidAt }}
-                        </div>
-                        <div v-if="order.orderStatus === 'CANCELED' && cancelInfo"
-                        style="margin-top:10px; padding:10px 12px; background:#fff5f5; border-radius:6px; font-size:13px; color:#c92a2a;">
-                        <strong>취소 완료 ({{ cancelInfo.createdAt }}):</strong> {{ cancelInfo.cancelReason }}
-                        (환불금액: {{ Number(cancelInfo.cancelAmount).toLocaleString() }}원)
-                    </div>
-                </div>
             </div>
-
-            <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                <button class="btn" @click="fnGoList">← 목록으로 돌아가기</button>
-                <button v-if="order.orderStatus === 'PAID' || order.orderStatus === 'PAYMENT_PENDING'"
-                class="btn btn-danger" @click="fnOpenCancelModal">주문 취소</button>
-            </div>
-        </div>
-
-        <!-- 주문 취소 사유 모달 -->
-        <div v-if="showCancelModal" class="modal-backdrop" @click.self="showCancelModal = false">
-            <div class="modal-box">
-                <h3 style="margin:0 0 14px 0; font-size:18px;">주문 취소 사유 선택</h3>
-                <label v-for="r in cancelReasons" :key="r" class="reason-item">
-                    <input type="radio" :value="r" v-model="selectedReason"><span>{{ r }}</span>
-                </label>
-                <div v-if="selectedReason === '기타 (직접 입력)'" style="margin-top:8px;">
-                    <textarea v-model="customReason" rows="3" maxlength="200"
-                    style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:13px;"
-                    placeholder="취소 사유를 직접 입력해주세요 (최대 200자)"></textarea>
-                </div>
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-                    <button class="btn" @click="showCancelModal = false">닫기</button>
-                    <button class="btn btn-danger" @click="fnConfirmCancel">취소 확정</button>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
+
+    <%@ include file="/WEB-INF/common/footer.jsp"%>
 </body>
+
 </html>
 <script>
     const app = Vue.createApp({
