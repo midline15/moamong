@@ -9,6 +9,7 @@ pageEncoding="UTF-8"%>
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
+        <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
         <!-- 공통 레이아웃 & 로그인/회원가입/아이디,비번찾기 전용 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
@@ -76,8 +77,14 @@ pageEncoding="UTF-8"%>
             </div>
 
             <div class="auth-group">
-                <label class="auth-label">휴대폰 번호 <span style="font-weight:400; color:#9a8f80;">(선택)</span></label>
-                <input class="auth-input" v-model="phone" placeholder="010-0000-0000">
+                <label class="auth-label">휴대폰 번호 *</label>
+                <div class="auth-input-row">
+                    <input class="auth-input" v-model="phone" placeholder="본인인증을 진행해주세요" readonly style="background:#f0e8da;">
+                    <button type="button" class="auth-btn auth-btn-gold auth-btn-sm" @click="fnCertPhone">
+                        {{ isPhoneVerified ? '재인증' : '본인인증' }}
+                    </button>
+                </div>
+                <div v-if="isPhoneVerified" style="font-size:12px; color:#2b8a3e; margin-top:5px;">✓ 휴대폰 본인인증이 완료되었습니다.</div>
             </div>
 
             <button class="auth-btn auth-btn-gold" @click="fnJoin" style="margin-top:10px;">가입 완료하기</button>
@@ -123,6 +130,7 @@ pageEncoding="UTF-8"%>
                 memberName: "",
                 email: "",
                 phone: "",
+                isPhoneVerified: false,
                 isIdChecked: false
             };
         },
@@ -171,6 +179,33 @@ pageEncoding="UTF-8"%>
                     }
                 });
             },
+
+            fnCertPhone() {
+                let self = this;
+                const IMP = window.IMP;
+                IMP.init("${impCode}");
+
+                IMP.certification({
+                    pg: "inicis_unified.MIIiasTest",
+                    merchant_uid: "CERT_" + new Date().getTime(),
+                    popup: true
+                }, function (rsp) {
+                    if (rsp.success) {
+                        // 테스트 통합인증 환경에서는 rsp.phone이 반환되며, 테스트 시 수동 확인이 필요하면 fallback 처리
+                        const verifiedPhone = rsp.phone || prompt("본인인증이 완료되었습니다. 등록할 휴대폰 번호(010-0000-0000)를 확인해주세요:", "010-");
+                        if (!verifiedPhone || !/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(verifiedPhone.trim())) {
+                            alert("올바른 휴대폰 번호 형식이 아닙니다.");
+                            return;
+                        }
+                        self.phone = verifiedPhone.trim();
+                        self.isPhoneVerified = true;
+                        alert("휴대폰 본인인증이 완료되었습니다.");
+                    } else {
+                        alert("본인인증이 취소되었거나 실패했습니다.\n(" + (rsp.error_msg || "") + ")");
+                    }
+                });
+            },
+
             fnJoin() {
                 let self = this;
                 const missingRequired = self.policies.filter(p => p.isRequired === "Y" && !self.agreedTypes.includes(p.policyType));

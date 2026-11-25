@@ -35,18 +35,17 @@
                     <h2>패키지</h2>
                 </div>
 
-                <!-- 대상 카테고리 -->
-                <div class="main-category" v-if="targetType">
+                <!-- 대상/ 목적 카테고리 -->
+                <div class="main-category">
+                    <!-- 대상 카테고리 -->
                     <button v-for="item in targetCategoryList" :key="item.code"
-                        :class="{ active: targetType == item.code }" @click="targetType = item.code; fnList()">
+                        :class="{ active: selectedCategory == item.code }" @click="fnCategorySelect(item.code)">
                         {{ item.name }}
                     </button>
-                </div>
 
-                <!-- 목적 카테고리 -->
-                <div class="main-category" v-if="purposeType">
+                    <!-- 목적 카테고리 -->
                     <button v-for="item in purposeCategoryList" :key="item.code"
-                        :class="{ active: purposeType == item.code }" @click="purposeType = item.code; fnList()">
+                        :class="{ active: selectedCategory == item.code }" @click="fnCategorySelect(item.code)">
                         {{ item.name }}
                     </button>
                 </div>
@@ -94,6 +93,7 @@
                     const app = Vue.createApp({
                         data() {
                             return {
+                                selectedCategory: "FAMILY",
                                 targetType: "FAMILY",
                                 purposeType: "",
 
@@ -124,6 +124,24 @@
                         },
 
                         methods: {
+                            // 대상 / 목적 카테고리 선택
+                            fnCategorySelect: function (code) {
+                                if (this.selectedCategory === code) {
+                                    return;
+                                }
+
+                                this.selectedCategory = code;
+
+                                if (this.targetCategoryList.some(item => item.code === code)) {
+                                    this.targetType = code;
+                                    this.purposeType = "";
+                                } else {
+                                    this.targetType = "";
+                                    this.purposeType = code;
+                                }
+
+                                this.fnList();
+                            },
 
                             // 패키지 목록 조회
                             fnList: function () {
@@ -165,9 +183,36 @@
                         },
 
                         mounted() {
-                            let self = this;
-                            self.fnList();
+                            const params = new URLSearchParams(window.location.search);
+                            const qTarget = (params.get("target") || "").trim();
+                            const qPurpose = (params.get("purpose") || "").trim();
+
+                            // 한글명·가운뎃점(ㆍ vs ·)·영문코드 모두 매칭
+                            const normalize = (s) => s.replace(/[ㆍ·\s]/g, "");
+
+                            if (qTarget) {
+                                const found = this.targetCategoryList.find(
+                                    item => item.code === qTarget || normalize(item.name) === normalize(qTarget)
+                                );
+                                if (found) {
+                                    this.selectedCategory = found.code;
+                                    this.targetType = found.code;
+                                    this.purposeType = "";
+                                }
+                            } else if (qPurpose) {
+                                const found = this.purposeCategoryList.find(
+                                    item => item.code === qPurpose || normalize(item.name) === normalize(qPurpose)
+                                );
+                                if (found) {
+                                    this.selectedCategory = found.code;
+                                    this.targetType = "";
+                                    this.purposeType = found.code;
+                                }
+                            }
+
+                            this.fnList();
                         }
+
                     });
 
                     app.mount('#app');

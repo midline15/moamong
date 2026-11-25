@@ -13,12 +13,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
 import com.mori.moamong.member.service.MemberService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+
 
 @RequiredArgsConstructor
 @Controller
 public class MemberController {
-
+	@org.springframework.beans.factory.annotation.Value("${portone.imp.code}")
+	private String impCode;
+	
 	private final MemberService memberService;
 
 	// 로그인 페이지 이동
@@ -59,8 +63,9 @@ public class MemberController {
 
 	// 회원가입 페이지 이동
 	@RequestMapping("/member/join.do")
-	public String joinPage() {
-		return "member/join";
+	public String joinForm(Model model) {
+		model.addAttribute("impCode", impCode);
+		return "/member/join";
 	}
 
 	// 아이디 중복 확인
@@ -228,6 +233,75 @@ public class MemberController {
 	public HashMap<String, Object> getJoinPolicies() {
 		return memberService.getJoinPolicies();
 	}
+	
+	// 소셜 로그인 회원 전화번호 필수 인증 페이지
+	@RequestMapping("/member/social-phone.do")
+	public String socialPhoneForm(HttpSession session, Model model) {
+		if (session.getAttribute("sessionId") == null) {
+			return "redirect:/member/login.do";
+		}
+		model.addAttribute("impCode", impCode);
+		return "/member/socialPhone";
+	}
+
+	// 소셜 로그인 회원 인증된 전화번호 저장 (.dox)
+	@RequestMapping(value = "/member/save-social-phone.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> saveSocialPhone(@RequestParam String phone, HttpSession session) {
+		HashMap<String, Object> res = new HashMap<>();
+		Object sid = session.getAttribute("sessionId");
+		if (sid == null) {
+			res.put("result", "fail");
+			res.put("message", "로그인이 필요합니다.");
+			return res;
+		}
+		return memberService.updateSocialPhone(Long.parseLong(String.valueOf(sid)), phone);
+	}
+	
+	// 마이페이지 - 작성글 관리 페이지
+	@RequestMapping("/member/mypost.do")
+	public String myPostPage(HttpSession session, Model model) {
+		if (session.getAttribute("sessionId") == null) return "redirect:/member/login.do";
+		model.addAttribute("activeMenu", "post");
+		return "/member/myPostList";
+	}
+
+	@RequestMapping(value = "/member/mypost-list.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> myPostList(HttpSession session) {
+		Long memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+		return memberService.getMyPosts(memberId);
+	}
+
+	@RequestMapping(value = "/member/mypost-remove.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> myPostRemove(@RequestParam Long postId, HttpSession session) {
+		Long memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+		return memberService.removeMyPost(memberId, postId);
+	}
+
+	// 마이페이지 - 댓글 관리 페이지
+	@RequestMapping("/member/mycomment.do")
+	public String myCommentPage(HttpSession session, Model model) {
+		if (session.getAttribute("sessionId") == null) return "redirect:/member/login.do";
+		model.addAttribute("activeMenu", "comment");
+		return "/member/myCommentList";
+	}
+
+	@RequestMapping(value = "/member/mycomment-list.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> myCommentList(HttpSession session) {
+		Long memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+		return memberService.getMyComments(memberId);
+	}
+
+	@RequestMapping(value = "/member/mycomment-remove.dox", method = RequestMethod.POST)
+	@ResponseBody
+	public HashMap<String, Object> myCommentRemove(@RequestParam Long commentId, HttpSession session) {
+		Long memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+		return memberService.removeMyComment(memberId, commentId);
+	}
+
 
 
 

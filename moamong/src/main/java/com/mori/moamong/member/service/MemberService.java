@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mori.moamong.dto.Member;
 import com.mori.moamong.member.mapper.MemberMapper;
@@ -23,6 +24,8 @@ public class MemberService {
 	public List<Map<String, Object>> findAll() {
 		return memberMapper.findAll();
 	}
+	
+	
 
 	// 멤버 조회
 	public HashMap<String, Object> login(HashMap<String, Object> map) {
@@ -148,7 +151,13 @@ public class MemberService {
 			String password = (String) map.get("password");
 			String memberName = (String) map.get("memberName");
 			String email = (String) map.get("email");
-			String phone = (String) map.get("phone");
+			String phone = String.valueOf(map.getOrDefault("phone", "")).trim();
+			
+			if (phone.isEmpty()) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "휴대폰 본인인증을 완료해주세요.");
+				return resultMap;
+			}
 
 			// 1. 필수 값 검증 (NOT NULL 컬럼)
 			if (loginId == null || loginId.trim().isEmpty()) {
@@ -214,6 +223,7 @@ public class MemberService {
 			resultMap.put("message", "회원가입 처리 중 오류가 발생했습니다.");
 			System.out.println(e.getMessage());
 		}
+
 		return resultMap;
 	}
 
@@ -590,5 +600,54 @@ public class MemberService {
 		}
 		return resultMap;
 	}
+	
+	// 소셜 회원 본인인증 전화번호 저장
+		public HashMap<String, Object> updateSocialPhone(Long memberId, String phone) {
+			HashMap<String, Object> res = new HashMap<>();
+			if (phone == null || phone.trim().isEmpty()) {
+				res.put("result", "fail");
+				res.put("message", "휴대폰 본인인증을 완료해주세요.");
+				return res;
+			}
+			memberMapper.updateMemberPhone(memberId, phone.trim());
+			res.put("result", "success");
+			res.put("message", "휴대폰 번호 인증이 완료되었습니다.");
+			return res;
+		}
+		// 마이페이지 - 내 작성글 목록 조회
+		public HashMap<String, Object> getMyPosts(Long memberId) {
+			HashMap<String, Object> res = new HashMap<>();
+			res.put("result", "success");
+			res.put("list", memberMapper.selectMyCommunityPosts(memberId));
+			return res;
+		}
+
+		// 마이페이지 - 내 작성글 삭제
+		@Transactional
+		public HashMap<String, Object> removeMyPost(Long memberId, Long postId) {
+			HashMap<String, Object> res = new HashMap<>();
+			int cnt = memberMapper.deleteMyCommunityPost(memberId, postId);
+			res.put("result", cnt > 0 ? "success" : "fail");
+			res.put("message", cnt > 0 ? "작성글이 삭제되었습니다." : "삭제할 수 없는 게시글입니다.");
+			return res;
+		}
+
+		// 마이페이지 - 내 댓글 목록 조회
+		public HashMap<String, Object> getMyComments(Long memberId) {
+			HashMap<String, Object> res = new HashMap<>();
+			res.put("result", "success");
+			res.put("list", memberMapper.selectMyCommunityComments(memberId));
+			return res;
+		}
+
+		// 마이페이지 - 내 댓글 삭제
+		@Transactional
+		public HashMap<String, Object> removeMyComment(Long memberId, Long commentId) {
+			HashMap<String, Object> res = new HashMap<>();
+			int cnt = memberMapper.deleteMyCommunityComment(memberId, commentId);
+			res.put("result", cnt > 0 ? "success" : "fail");
+			res.put("message", cnt > 0 ? "댓글이 삭제되었습니다." : "삭제할 수 없는 댓글입니다.");
+			return res;
+		}
 
 }

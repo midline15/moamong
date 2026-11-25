@@ -382,18 +382,16 @@ public class ReviewService {
     }
 
 
-    // 회원 번호 가져오기
+    // 회원 번호 가져오기 (공백 및 null 문자열 방어)
     private Long getMemberId(HashMap<String, Object> map) {
-
-        Object memberId = map.get("memberId");
-
-        if (memberId == null) {
-            throw new IllegalArgumentException(
-                    "회원 번호가 전달되지 않았습니다."
-            );
+        if (map == null || map.get("memberId") == null) {
+            return null;
         }
-
-        return Long.parseLong(memberId.toString());
+        String str = String.valueOf(map.get("memberId")).trim();
+        if (str.isEmpty() || "null".equalsIgnoreCase(str)) {
+            return null;
+        }
+        return Long.parseLong(str);
     }
   
    ///////////////////////////////////////////////////////////////////////////////////

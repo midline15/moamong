@@ -120,7 +120,7 @@
                 <% } else { %>
                     <a href="/member/mypage.do" class="login-link">마이페이지</a>
                     <span class="user-divider"></span>
-                    <a href="/member/logout.do" class="login-link">로그아웃</a>
+                    <a href="/member/logout.do" class="login-link" onclick="return confirm('로그아웃 하시겠습니까?');">로그아웃</a>
                 <% } %>
             </div>
 

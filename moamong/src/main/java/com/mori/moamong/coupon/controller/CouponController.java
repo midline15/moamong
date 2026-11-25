@@ -21,7 +21,14 @@ public class CouponController {
 
 	// 마이페이지 - 내 쿠폰 조회
 	@RequestMapping("/coupon/mylist.do")
-	public String myCouponList(@RequestParam("memberId") Long memberId, Model model) {
+	public String myCouponList(
+			@RequestParam(value = "memberId", required = false) Long memberId,
+			jakarta.servlet.http.HttpSession session,
+			Model model) {
+		if (memberId == null && session.getAttribute("sessionId") != null) {
+			memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+		}
+		if (memberId == null) return "redirect:/member/login.do";
 		model.addAttribute("memberId", memberId);
 		return "coupon/MyCouponList";
 	}

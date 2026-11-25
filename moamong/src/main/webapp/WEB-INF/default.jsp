@@ -56,7 +56,7 @@ pageEncoding="UTF-8"%>
         data() {
             return {
                 targetList: ["가족", "연인", "친구", "동료", "나에게"],
-                purposeList: ["생일ㆍ기념일", "감사ㆍ답례", "축하ㆍ응원", "위로ㆍ격려", "마음전달"]
+                purposeList: ["생일ㆍ기념일", "감사ㆍ답례", "축하ㆍ응원", "위로ㆍ격려"]
             };
         },
         methods: {
