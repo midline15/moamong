@@ -384,7 +384,7 @@
                                     <span>{{ inquiryTotalCount }}</span>
                                 </div>
 
-                                <button type="button" class="inquiry-write-btn" @click="showInqWrite = true">
+                                <button type="button" class="inquiry-write-btn" @click="fnInqWrite">
                                     문의 작성
                                 </button>
                             </div>
@@ -443,7 +443,107 @@
                                                 {{ inquiry.productName }}
                                             </span>
 
-                                            <strong>{{ inquiry.inqContent }}</strong>
+                                            <div class="inquiry-text">
+                                                <span class="inquiry-secret" v-if="inquiry.isSecret === 'Y'">
+                                                    비밀 문의
+                                                </span>
+
+                                                <strong>{{ inquiry.inqContent }}</strong>
+                                            </div>
+                                        </div>
+
+                                        <!-- 문의 수정 및 삭제 버튼 -->
+                                        <div class="inquiry-manage-btn"
+                                            v-if="!isAdmin && inquiry.memberId == '${sessionScope.sessionId}'">
+
+                                            <!-- 미답변 문의만 수정 가능 -->
+                                            <button type="button" v-if="inquiry.inqStatus === 'WAITING'"
+                                                @click="fnInqEdit(inquiry)">
+                                                수정
+                                            </button>
+
+                                            <!-- 답변 상태와 관계없이 본인 문의 삭제 가능 -->
+                                            <button type="button" @click="fnInqDelete(inquiry.inqId)">
+                                                삭제
+                                            </button>
+                                        </div>
+
+                                        <!-- 관리자 답변 작성 버튼 -->
+                                        <button type="button" class="inquiry-answer-write-btn"
+                                            v-if="isAdmin && inquiry.inqStatus === 'WAITING'"
+                                            @click="fnInqAnswerWrite(inquiry)">
+                                            답변 작성
+                                        </button>
+
+                                        <!-- 답변 펼쳐보기 -->
+                                        <!-- 관리자 답변 -->
+                                        <div class="inquiry-answer"
+                                            v-if="inquiry.inqStatus === 'ANSWERED' && inquiry.answerContent">
+
+                                            <button type="button" @click="inquiry.showAnswer = !inquiry.showAnswer">
+                                                {{ inquiry.showAnswer ? '답변 접기' : '답변 펼쳐보기' }}
+                                            </button>
+
+                                            <div class="inquiry-answer-content" v-if="inquiry.showAnswer">
+                                                <strong>관리자 답변</strong>
+                                                <p>{{ inquiry.answerContent }}</p>
+
+                                                <!-- 관리자 답변 수정 및 삭제 -->
+                                                <div class="inquiry-manage-btn" v-if="isAdmin">
+                                                    <button type="button" @click="fnInqAnswerEdit(inquiry)">
+                                                        수정
+                                                    </button>
+                                                    <button type="button" @click="fnInqAnswerDelete(inquiry.inqId)">
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 관리자 답변 작성 모달 -->
+                                        <div class="inquiry-write-modal" v-if="showInqAnswer">
+                                            <div class="inquiry-write-content">
+                                                <h3>상품 문의 답변 작성</h3>
+
+                                                <button type="button" class="inquiry-close-btn"
+                                                    @click="showInqAnswer = false">
+                                                    닫기
+                                                </button>
+
+                                                <div class="inquiry-form">
+                                                    <label for="answerContent">답변 내용</label>
+
+                                                    <textarea id="answerContent" v-model="answerContent"
+                                                        placeholder="문의에 대한 답변을 입력해 주세요." rows="5"></textarea>
+
+                                                    <button type="button" class="inquiry-submit-btn"
+                                                        @click="fnInqAnswerAdd">
+                                                        답변 등록
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 관리자 답변 수정 모달 -->
+                                        <div class="inquiry-write-modal" v-if="showInqAnswerEdit">
+                                            <div class="inquiry-write-content">
+                                                <button type="button" class="inquiry-close-btn"
+                                                    @click="showInqAnswerEdit = false">
+                                                    ×
+                                                </button>
+
+                                                <h3>답변 수정</h3>
+
+                                                <div class="inquiry-form">
+                                                    <textarea v-model="editAnswerContent" placeholder="답변 내용을 입력해 주세요.">
+                                                    </textarea>
+                                                </div>
+
+                                                <button type="button" class="inquiry-submit-btn"
+                                                    @click="fnInqAnswerEditSave">
+                                                    수정하기
+                                                </button>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -478,12 +578,58 @@
 
                                     <h3>상품 문의 작성</h3>
 
-                                    <button type="button" class="inquiry-close-btn" @click="showInqWrite = false">
+                                    <button type="button" class="inquiry-close-btn" @click="fnInqWriteClose">
                                         닫기
                                     </button>
 
-                                    <!-- 작성 폼은 다음 단계에서 추가 -->
+                                    <!-- 문의 내용 -->
+                                    <div class="inquiry-form">
+                                        <label for="inqContent">문의 내용</label>
 
+                                        <textarea id="inqContent" v-model="inqContent"
+                                            placeholder="상품에 대한 문의 내용을 입력해 주세요." rows="5">
+                                        </textarea>
+
+                                        <!-- 비밀 문의 -->
+                                        <label class="inquiry-secret-check">
+                                            <input type="checkbox" :checked="isSecret === 'Y'"
+                                                @change="isSecret = $event.target.checked ? 'Y' : 'N'">
+                                            비밀 문의로 작성
+                                        </label>
+
+                                        <!-- 등록 버튼 -->
+                                        <button type="button" class="inquiry-submit-btn" @click="fnInqAdd">
+                                            문의 등록
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 문의 수정 모달 -->
+                            <div class="inquiry-write-modal" v-if="showInqEdit">
+                                <div class="inquiry-write-content">
+                                    <h3>상품 문의 수정</h3>
+
+                                    <button type="button" class="inquiry-close-btn" @click="showInqEdit = false">
+                                        닫기
+                                    </button>
+
+                                    <div class="inquiry-form">
+                                        <label for="editInqContent">문의 내용</label>
+
+                                        <textarea id="editInqContent" v-model="editInqContent"
+                                            placeholder="문의 내용을 입력해 주세요." rows="5"></textarea>
+
+                                        <label class="inquiry-secret-check">
+                                            <input type="checkbox" :checked="editIsSecret === 'Y'"
+                                                @change="editIsSecret = $event.target.checked ? 'Y' : 'N'">
+                                            비밀 문의로 작성
+                                        </label>
+
+                                        <button type="button" class="inquiry-submit-btn" @click="fnInqEditSave">
+                                            수정 완료
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -517,6 +663,9 @@
 
             data() {
                 return {
+                    isAdmin: "${sessionScope.sessionRole}" === "ADMIN",
+                    isLogin: "${sessionScope.sessionId != null}",
+
                     productId: "${productId}",
 
                     info: {},
@@ -569,6 +718,26 @@
 
                     // 문의 작성 창 표시 여부
                     showInqWrite: false,
+
+                    // 문의 작성
+                    inqContent: "",
+                    isSecret: "N",
+
+                    // 문의 답변 작성
+                    showInqAnswer: false,
+                    answerInqId: "",
+                    answerContent: "",
+
+                    // 문의 수정
+                    showInqEdit: false,
+                    editInqId: "",
+                    editInqContent: "",
+                    editIsSecret: "N",
+
+                    // 문의 답변 수정
+                    showInqAnswerEdit: false,
+                    editAnswerInqId: "",
+                    editAnswerContent: "",
                 };
             },
 
@@ -871,7 +1040,7 @@
                     let param = {
                         productId: self.productId,
                         page: page,
-                        inqStatus: self.selectedInqStatus
+                        inqStatus: self.selectedInqStatus,
                     };
 
                     $.ajax({
@@ -888,7 +1057,7 @@
 
                             self.inquiryPage = page;
                             self.inquiryMaxPage = Math.ceil(
-                                self.inquiryTotalCount / self.inquiryLimit
+                                (data.filteredCount || 0) / self.inquiryLimit
                             );
 
                         },
@@ -915,6 +1084,260 @@
                     }
 
                     this.fnInqList(page);
+                },
+
+                // 상품 문의 등록
+                fnInqAdd: function () {
+                    let self = this;
+
+                    if (!self.inqContent.trim()) {
+                        alert("문의 내용을 입력해 주세요.");
+                        return;
+                    }
+
+                    let param = {
+                        productId: self.productId,
+                        inqContent: self.inqContent,
+                        isSecret: self.isSecret
+                    };
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/add.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: param,
+                        success: function (data) {
+
+                            if (data.result === "success") {
+                                alert("문의가 등록되었습니다.");
+
+                                self.inqContent = "";
+                                self.isSecret = "N";
+                                self.showInqWrite = false;
+
+                                self.selectedInqStatus = "ALL";
+                                self.fnInqList(1);
+
+                            } else {
+                                alert("문의 등록에 실패했습니다.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("문의 등록 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
+                // 문의 작성 창 열기
+                fnInqWrite: function () {
+
+                    if (this.isLogin !== "true") {
+                        alert("로그인 후 문의를 작성할 수 있습니다.");
+                        return;
+                    }
+
+                    this.showInqWrite = true;
+                },
+                // 문의 작성 창 닫기
+                fnInqWriteClose: function () {
+                    this.showInqWrite = false;
+                    this.inqContent = "";
+                    this.isSecret = "N";
+                },
+
+                // 문의 답변 작성창 열기
+                fnInqAnswerWrite: function (inquiry) {
+                    this.answerInqId = inquiry.inqId;
+                    this.answerContent = "";
+                    this.showInqAnswer = true;
+                },
+
+                // 상품 문의 답변 등록
+                fnInqAnswerAdd: function () {
+                    let self = this;
+
+                    if (!self.answerContent.trim()) {
+                        alert("답변 내용을 입력해 주세요.");
+                        return;
+                    }
+
+                    let param = {
+                        inqId: self.answerInqId,
+                        answerContent: self.answerContent
+                    };
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/answer.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: param,
+                        success: function (data) {
+                            if (data.result === "success") {
+                                alert("답변이 등록되었습니다.");
+                                self.showInqAnswer = false;
+                                self.answerContent = "";
+                                self.answerInqId = "";
+                                self.fnInqList(self.inquiryPage);
+                            } else {
+                                alert(data.message || "답변 등록에 실패했습니다.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("답변 등록 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
+
+                // 문의 수정창 열기
+                fnInqEdit: function (inquiry) {
+                    this.editInqId = inquiry.inqId;
+                    this.editInqContent = inquiry.inqContent;
+                    this.editIsSecret = inquiry.isSecret;
+                    this.showInqEdit = true;
+                },
+
+                // 상품 문의 수정
+                fnInqEditSave: function () {
+                    let self = this;
+
+                    if (!self.editInqContent.trim()) {
+                        alert("문의 내용을 입력해 주세요.");
+                        return;
+                    }
+
+                    let param = {
+                        inqId: self.editInqId,
+                        inqContent: self.editInqContent,
+                        isSecret: self.editIsSecret
+                    };
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/edit.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: param,
+                        success: function (data) {
+                            if (data.result === "success") {
+                                alert("문의가 수정되었습니다.");
+                                self.showInqEdit = false;
+                                self.editInqId = "";
+                                self.editInqContent = "";
+                                self.editIsSecret = "N";
+                                self.fnInqList(self.inquiryPage);
+                            } else {
+                                alert(data.message || "문의 수정에 실패했습니다.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("문의 수정 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
+
+                // 상품 문의 삭제
+                fnInqDelete: function (inqId) {
+                    let self = this;
+
+                    if (!confirm("문의를 삭제하시겠습니까?")) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/remove.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: {
+                            inqId: inqId
+                        },
+                        success: function (data) {
+                            if (data.result === "success") {
+                                alert("문의가 삭제되었습니다.");
+                                self.fnInqList(self.inquiryPage);
+                            } else {
+                                alert(data.message || "문의 삭제에 실패했습니다.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("문의 삭제 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
+
+                // 관리자 답변 수정창 열기
+                fnInqAnswerEdit: function (inquiry) {
+                    this.editAnswerInqId = inquiry.inqId;
+                    this.editAnswerContent = inquiry.answerContent;
+                    this.showInqAnswerEdit = true;
+                },
+
+                // 상품 문의 답변 수정
+                fnInqAnswerEditSave: function () {
+                    let self = this;
+
+                    if (!self.editAnswerContent.trim()) {
+                        alert("답변 내용을 입력해 주세요.");
+                        return;
+                    }
+
+                    let param = {
+                        inqId: self.editAnswerInqId,
+                        answerContent: self.editAnswerContent
+                    };
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/answerEdit.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: param,
+                        success: function (data) {
+                            if (data.result === "success") {
+                                alert("답변이 수정되었습니다.");
+                                self.showInqAnswerEdit = false;
+                                self.editAnswerInqId = "";
+                                self.editAnswerContent = "";
+                                self.fnInqList(self.inquiryPage);
+                            } else {
+                                alert(data.message || "답변 수정에 실패했습니다.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("답변 수정 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
+
+                // 관리자 답변 삭제
+                fnInqAnswerDelete: function (inqId) {
+                    let self = this;
+
+                    if (!confirm("관리자 답변을 삭제하시겠습니까?")) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/answerRemove.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: {
+                            inqId: inqId
+                        },
+                        success: function (data) {
+                            if (data.result === "success") {
+                                alert("답변이 삭제되었습니다.");
+                                self.fnInqList(self.inquiryPage);
+                            } else {
+                                alert(data.message || "답변 삭제에 실패했습니다.");
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("답변 삭제 중 오류가 발생했습니다.");
+                        }
+                    });
                 },
 
             },
