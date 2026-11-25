@@ -1,10 +1,14 @@
 package com.mori.moamong.coupon.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mori.moamong.coupon.mapper.CouponMapper;
 import com.mori.moamong.dto.Coupon;
@@ -15,242 +19,298 @@ public class CouponService {
 	@Autowired
 	CouponMapper couponMapper;
 
-
-	// 마이페이지 - 회원별 쿠폰 내역 조회
-	
-
+	// 마이페이지 쿠폰 조회 - 수정하지 않음
 	public HashMap<String, Object> geCouponList(HashMap<String, Object> map) {
 
-		// 화면에 전달할 데이터를 담을 공간입니다.
-		HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> result = new HashMap<>();
 
-		try {
+		List<Coupon> list = couponMapper.selectCouponList(map);
 
-			// 회원 번호를 기준으로 해당 회원이 발급받은 쿠폰 목록을 조회합니다.
-			List<Coupon> list = couponMapper.selectCouponList(map);
+		result.put("list", list);
+		result.put("result", "success");
 
-			// 조회한 쿠폰 목록을 화면에 전달합니다.
-			resultMap.put("list", list);
-
-			// 조회 성공 상태를 전달합니다.
-			resultMap.put("result", "success");
-
-		} catch (Exception e) {
-
-			// 조회 중 오류가 발생하면 실패 상태를 전달합니다.
-			resultMap.put("result", "fail");
-
-			// 화면에서 확인할 오류 메시지를 전달합니다.
-			resultMap.put("message", "내 쿠폰 목록 조회에 실패했습니다.");
-
-			// 개발자가 오류 원인을 확인할 수 있도록 출력합니다.
-			e.printStackTrace();
-
-		}
-
-		return resultMap;
+		return result;
 	}
 
-	
-	// 관리자 - 전체 쿠폰 목록 조회
-
-
+	// 관리자 쿠폰 목록
 	public HashMap<String, Object> getCouponList(HashMap<String, Object> map) {
 
-		// 화면에 전달할 데이터를 담을 공간입니다.
-		HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> result = new HashMap<>();
 
-		try {
+		List<Coupon> list = couponMapper.selectAdminCouponList(map);
+		int count = couponMapper.selectAdminCouponCount(map);
 
-			// COUPON 테이블에 등록된 전체 쿠폰을 조회합니다.
-			List<Coupon> list = couponMapper.selectAdminCouponList(map);
+		result.put("list", list);
+		result.put("count", count);
+		result.put("result", "success");
 
-			// 조회한 쿠폰 목록을 화면에 전달합니다.
-			resultMap.put("list", list);
-
-			// 전체 쿠폰 개수를 조회합니다.
-			int count = couponMapper.selectAdminCouponCount(map);
-
-			// 전체 쿠폰 개수를 전달합니다.
-			resultMap.put("count", count);
-
-			// 조회 성공 상태를 전달합니다.
-			resultMap.put("result", "success");
-
-		} catch (Exception e) {
-
-			resultMap.put("result", "fail");
-
-			resultMap.put("message", "쿠폰 목록 조회에 실패했습니다.");
-
-			e.printStackTrace();
-
-		}
-
-		return resultMap;
+		return result;
 	}
 
-
-	// 관리자 - 쿠폰 상세 조회
-
-
+	// 관리자 쿠폰 상세
 	public HashMap<String, Object> getCoupon(HashMap<String, Object> map) {
 
-		HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> result = new HashMap<>();
 
-		try {
+		Coupon coupon = couponMapper.selectAdminCoupon(map);
 
-			// 전달받은 쿠폰 번호를 기준으로 쿠폰 정보를 조회합니다.
-			Coupon info = couponMapper.selectAdminCoupon(map);
-
-			// 조회한 쿠폰 정보를 화면에 전달합니다.
-			resultMap.put("info", info);
-			resultMap.put("result", "success");
-
-		} catch (Exception e) {
-
-			resultMap.put("result", "fail");
-
-			resultMap.put("message", "쿠폰 상세 조회에 실패했습니다.");
-
-			e.printStackTrace();
-
+		if (coupon == null) {
+			result.put("result", "fail");
+			result.put("message", "쿠폰 정보를 찾을 수 없습니다.");
+			return result;
 		}
 
-		return resultMap;
+		result.put("coupon", coupon);
+		result.put("result", "success");
+
+		return result;
 	}
 
-	
-	// 관리자 - 쿠폰 등록
-	
-
+	// 쿠폰 등록
 	public HashMap<String, Object> addCoupon(HashMap<String, Object> map) {
 
-		HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> result = new HashMap<>();
 
-		try {
-			
-			// 최대 할인 금액을 입력하지 않았다면 빈 문자열이 전달됩니다.
-			// MySQL에는 빈 문자열을 숫자로 저장할 수 없으므로 null로 변경합니다.
-			if (map.get("maximumDiscountAmount") == null
-					|| map.get("maximumDiscountAmount").toString().trim().isEmpty()) {
-
-				map.put("maximumDiscountAmount", null);
-
-			}
-			int cnt = couponMapper.insertCoupon(map);
-
-			// 실제로 등록된 데이터가 있는지 확인합니다.
-			if (cnt > 0) {
-
-				// DB에서 자동 생성된 쿠폰 번호를 화면에 전달합니다.
-				resultMap.put("couponId", map.get("couponId"));
-
-				resultMap.put("message", "쿠폰이 등록되었습니다.");
-
-				resultMap.put("result", "success");
-
-			} else {
-
-				resultMap.put("message", "쿠폰 등록에 실패했습니다.");
-
-				resultMap.put("result", "fail");
-
-			}
-
-		} catch (Exception e) {
-
-			resultMap.put("result", "fail");
-
-			resultMap.put("message", "쿠폰 등록 중 오류가 발생했습니다.");
-
-			e.printStackTrace();
-
+		if ("FIXED".equals(map.get("discountType"))) {
+			map.put("maximumDiscountAmount", null);
 		}
 
-		return resultMap;
+		map.put("issueType", "MANUAL");
+		map.put("issueStatus", "ACTIVE");
+
+		int count = couponMapper.insertCoupon(map);
+
+		result.put("result", count > 0 ? "success" : "fail");
+		result.put("message", count > 0 ? "쿠폰이 등록되었습니다." : "쿠폰 등록에 실패했습니다.");
+
+		return result;
 	}
 
-	
-	// 관리자 - 쿠폰 삭제
-	
+	// 쿠폰 삭제 - 발급 이력이 없어야 삭제 가능
+	@Transactional(rollbackFor = Exception.class)
 	public HashMap<String, Object> removeCoupon(HashMap<String, Object> map) {
 
-		HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> result = new HashMap<>();
 
-		try {
+		int issuedCount = couponMapper.selectIssuedMemberCount(map);
 
-			// 전달받은 쿠폰 번호에 해당하는 데이터를 삭제합니다.
-			int cnt = couponMapper.deleteCoupon(map);
-
-			// 실제 삭제된 데이터가 있는지 확인합니다.
-			if (cnt > 0) {
-
-				resultMap.put("message", "쿠폰이 삭제되었습니다.");
-
-				resultMap.put("result", "success");
-
-			} else {
-
-				resultMap.put("message", "삭제할 쿠폰이 존재하지 않습니다.");
-
-				resultMap.put("result", "fail");
-
-			}
-
-		} catch (Exception e) {
-
-			resultMap.put("result", "fail");
-
-			resultMap.put("message", "쿠폰 삭제 중 오류가 발생했습니다.");
-
-			e.printStackTrace();
-
+		if (issuedCount > 0) {
+			result.put("result", "fail");
+			result.put("message", "발급 이력이 있는 쿠폰은 삭제할 수 없습니다. 회수 관리 화면을 이용하세요.");
+			return result;
 		}
 
-		return resultMap;
+		int count = couponMapper.deleteCoupon(map);
+
+		result.put("result", count > 0 ? "success" : "fail");
+		result.put("message", count > 0 ? "쿠폰이 삭제되었습니다." : "쿠폰 삭제에 실패했습니다.");
+
+		return result;
 	}
 
+	// 쿠폰 수정 - 발급 이력이 없어야 수정 가능
+	@Transactional(rollbackFor = Exception.class)
 	public HashMap<String, Object> editCoupon(HashMap<String, Object> map) {
 
-		// Controller에 전달할 결과 데이터를 담을 공간입니다.
-		HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> result = new HashMap<>();
 
-		try {
+		int issuedCount = couponMapper.selectIssuedMemberCount(map);
 
-			
-			if (map.get("maximumDiscountAmount") == null
-					|| map.get("maximumDiscountAmount").toString().trim().isEmpty()) {
-
-				map.put("maximumDiscountAmount", null);
-			}
-
-			
-	
-
-			// 쿠폰 수정 SQL 실행
-			int cnt = couponMapper.updateCoupon(map);
-
-			
-			resultMap.put("couponId", map.get("couponId"));
-			resultMap.put("message", "쿠폰이 수정되었습니다.");
-			resultMap.put("result", "success");
-			
-
-			// 실제 변경된 데이터가 몇 건인지 화면에 전달합니다.
-			resultMap.put("cnt", cnt);
-
-		} catch (Exception e) {
-
-			
-			resultMap.put("result", "fail");
-
-			resultMap.put("message", "쿠폰 수정 중 오류가 발생했습니다.");
-
-			e.printStackTrace();
+		if (issuedCount > 0) {
+			result.put("result", "fail");
+			result.put("message", "발급 이력이 있는 쿠폰은 수정할 수 없습니다.");
+			return result;
 		}
 
-	
-		return resultMap;
+		if ("FIXED".equals(map.get("discountType"))) {
+			map.put("maximumDiscountAmount", null);
+		}
+
+		int count = couponMapper.updateCoupon(map);
+
+		result.put("result", count > 0 ? "success" : "fail");
+		result.put("message", count > 0 ? "쿠폰이 수정되었습니다." : "쿠폰 수정에 실패했습니다.");
+
+		return result;
+	}
+
+	// 회원 검색
+	public HashMap<String, Object> searchMember(HashMap<String, Object> map) {
+
+		HashMap<String, Object> result = new HashMap<>();
+
+		List<HashMap<String, Object>> list = couponMapper.selectMemberList(map);
+
+		result.put("list", list);
+		result.put("result", "success");
+
+		return result;
+	}
+
+	// 쿠폰 발급
+
+	// 쿠폰 발급
+	@Transactional(rollbackFor = Exception.class)
+	public HashMap<String, Object> issueCoupon(HashMap<String, Object> map) {
+
+		HashMap<String, Object> result = new HashMap<>();
+
+		if (map.get("couponId") == null || map.get("couponId").toString().isBlank()) {
+			result.put("result", "fail");
+			result.put("message", "쿠폰을 선택하세요.");
+			return result;
+		}
+
+		Coupon coupon = couponMapper.selectAdminCoupon(map);
+
+		if (coupon == null || !"ACTIVE".equals(coupon.getIssueStatus())) {
+			result.put("result", "fail");
+			result.put("message", "발급할 수 없는 쿠폰입니다.");
+			return result;
+		}
+
+		if (coupon.getValidUntil() == null || coupon.getValidUntil().isBefore(LocalDateTime.now())) {
+			result.put("result", "fail");
+			result.put("message", "사용 기간이 만료된 쿠폰입니다.");
+			return result;
+		}
+
+		int targetCount = 0;
+		int issuedCount = 0;
+
+		if ("ALL".equals(map.get("issueType"))) {
+
+			// 전체 회원 발급
+			targetCount = couponMapper.selectMemberCount();
+
+			if (targetCount == 0) {
+				result.put("result", "fail");
+				result.put("message", "발급 대상 회원이 없습니다.");
+				return result;
+			}
+
+			issuedCount = couponMapper.insertCouponAllMember(map);
+
+		} else if ("SELECT".equals(map.get("issueType"))) {
+
+			// 선택 회원 발급
+			List<Long> memberIds = new ArrayList<>();
+
+			Object memberIdsObj = map.get("memberIds");
+
+			if (memberIdsObj instanceof List<?>) {
+				for (Object id : (List<?>) memberIdsObj) {
+					if (id != null) {
+						memberIds.add(Long.parseLong(id.toString()));
+					}
+				}
+			} else if (memberIdsObj != null) {
+				String[] ids = memberIdsObj.toString().split(",");
+
+				for (String id : ids) {
+					if (!id.trim().isEmpty()) {
+						memberIds.add(Long.parseLong(id.trim()));
+					}
+				}
+			}
+
+			memberIds = memberIds.stream().distinct().collect(Collectors.toList());
+
+			if (memberIds.isEmpty()) {
+				result.put("result", "fail");
+				result.put("message", "발급할 회원을 선택하세요.");
+				return result;
+			}
+
+			map.put("memberIds", memberIds);
+
+			targetCount = couponMapper.selectSelectedMemberCount(map);
+
+			if (targetCount == 0) {
+				result.put("result", "fail");
+				result.put("message", "발급 대상 회원이 없습니다.");
+				return result;
+			}
+
+			issuedCount = couponMapper.insertCouponSelectedMember(map);
+
+		} else {
+			result.put("result", "fail");
+			result.put("message", "발급 대상을 확인하세요.");
+			return result;
+		}
+
+		// 발급되지 않은 회원 수
+		int duplicateCount = Math.max(0, targetCount - issuedCount);
+
+		result.put("issuedCount", issuedCount);
+		result.put("duplicateCount", duplicateCount);
+
+		// 신규 발급 건수가 없는 경우
+		if (issuedCount == 0) {
+			result.put("result", "fail");
+			result.put("message", "발급 가능한 회원이 없습니다. 이미 발급했거나 회수한 쿠폰은 재발급할 수 없습니다.");
+			return result;
+		}
+
+		result.put("result", "success");
+
+		if (duplicateCount > 0) {
+			result.put("message", issuedCount + "건 발급 완료, " + duplicateCount + "건은 기존 발급 이력으로 제외되었습니다.");
+		} else {
+			result.put("message", issuedCount + "건의 쿠폰 발급이 완료되었습니다.");
+		}
+
+		return result;
+	}
+
+	// 쿠폰 발급 회원 목록
+	public HashMap<String, Object> getIssuedMemberList(HashMap<String, Object> map) {
+
+		HashMap<String, Object> result = new HashMap<>();
+
+		List<Coupon> list = couponMapper.selectIssuedMemberList(map);
+		Coupon coupon = couponMapper.selectAdminCoupon(map);
+
+		if (coupon == null) {
+			result.put("result", "fail");
+			result.put("message", "쿠폰 정보를 찾을 수 없습니다.");
+			return result;
+		}
+
+		result.put("coupon", coupon);
+		result.put("list", list);
+		result.put("result", "success");
+
+		return result;
+	}
+
+	// 회원 쿠폰 개별 회수
+	@Transactional(rollbackFor = Exception.class)
+	public HashMap<String, Object> revokeMemberCoupon(HashMap<String, Object> map) {
+
+		HashMap<String, Object> result = new HashMap<>();
+
+		int count = couponMapper.revokeMemberCoupon(map);
+
+		result.put("result", count > 0 ? "success" : "fail");
+		result.put("message", count > 0 ? "쿠폰이 회수되었습니다." : "회수할 수 없는 쿠폰입니다.");
+
+		return result;
+	}
+
+	// 사용 가능한 쿠폰 일괄 회수
+	@Transactional(rollbackFor = Exception.class)
+	public HashMap<String, Object> revokeAllMemberCoupon(HashMap<String, Object> map) {
+
+		HashMap<String, Object> result = new HashMap<>();
+
+		int count = couponMapper.revokeAllMemberCoupon(map);
+
+		result.put("result", "success");
+		result.put("revokedCount", count);
+		result.put("message", count + "건의 쿠폰이 회수되었습니다.");
+
+		return result;
 	}
 }
