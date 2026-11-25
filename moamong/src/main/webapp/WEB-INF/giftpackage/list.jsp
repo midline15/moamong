@@ -35,18 +35,17 @@
                     <h2>패키지</h2>
                 </div>
 
-                <!-- 대상 카테고리 -->
-                <div class="main-category" v-if="targetType">
+                <!-- 대상/ 목적 카테고리 -->
+                <div class="main-category">
+                    <!-- 대상 카테고리 -->
                     <button v-for="item in targetCategoryList" :key="item.code"
-                        :class="{ active: targetType == item.code }" @click="targetType = item.code; fnList()">
+                        :class="{ active: selectedCategory == item.code }" @click="fnCategorySelect(item.code)">
                         {{ item.name }}
                     </button>
-                </div>
 
-                <!-- 목적 카테고리 -->
-                <div class="main-category" v-if="purposeType">
+                    <!-- 목적 카테고리 -->
                     <button v-for="item in purposeCategoryList" :key="item.code"
-                        :class="{ active: purposeType == item.code }" @click="purposeType = item.code; fnList()">
+                        :class="{ active: selectedCategory == item.code }" @click="fnCategorySelect(item.code)">
                         {{ item.name }}
                     </button>
                 </div>
@@ -94,6 +93,7 @@
                     const app = Vue.createApp({
                         data() {
                             return {
+                                selectedCategory: "FAMILY",
                                 targetType: "FAMILY",
                                 purposeType: "",
 
@@ -124,6 +124,24 @@
                         },
 
                         methods: {
+                            // 대상 / 목적 카테고리 선택
+                            fnCategorySelect: function (code) {
+                                if (this.selectedCategory === code) {
+                                    return;
+                                }
+
+                                this.selectedCategory = code;
+
+                                if (this.targetCategoryList.some(item => item.code === code)) {
+                                    this.targetType = code;
+                                    this.purposeType = "";
+                                } else {
+                                    this.targetType = "";
+                                    this.purposeType = code;
+                                }
+
+                                this.fnList();
+                            },
 
                             // 패키지 목록 조회
                             fnList: function () {
