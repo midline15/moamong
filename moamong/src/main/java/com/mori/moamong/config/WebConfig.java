@@ -3,6 +3,7 @@ package com.mori.moamong.config;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -10,6 +11,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${file.upload-dir:C:/moamong/upload}")
+    private String uploadDir;
+
+    // /upload/** 요청을 실제 업로드 폴더와 연결
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 업로드 폴더(webapp/resources/upload)를 /resources/upload/** 주소로 연결
