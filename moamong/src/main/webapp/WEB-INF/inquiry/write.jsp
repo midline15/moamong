@@ -69,6 +69,13 @@
 
                                         <div class="cs-form-row">
                                             <label>제목</label>
+                                            <div class="cs-form-row">
+                                                <label>비밀글</label>
+                                                <label class="check">
+                                                    <input type="checkbox" v-model="isSecret"> 비밀글로 등록 (작성자와 관리자만 볼 수
+                                                    있어요)
+                                                </label>
+                                            </div>
                                             <input type="text" v-model="inqTitle" placeholder="제목을 입력하세요"
                                                 maxlength="100">
                                         </div>
@@ -111,8 +118,8 @@
             data() {
                 return {
                     inqId: "${inqId}",          // 있으면 수정, 없으면 등록
-                    memberId: 1,                // TODO: 로그인 세션의 회원 번호로 교체
                     inqTitle: "",               // 제목
+                    isSecret: false,            // 비밀글 여부
                     imageList: []               // 업로드한 이미지 정보 (INQ_IMAGE 저장용)
                 };
             },
@@ -237,6 +244,7 @@
                                 }
                                 self.inqTitle = data.info.inqTitle;
                                 // 기존에 올린 이미지 정보 (수정 시 유지하기 위해)
+                                self.isSecret = data.info.isSecret ? true : false;
                                 self.imageList = data.imageList || [];
                                 // 에디터에 기존 내용 채우기
                                 editor.summernote("code", data.info.inqContent || "");
@@ -270,8 +278,8 @@
 
                     let param = {
                         inqId: self.inqId,
-                        memberId: self.memberId,
                         inqTitle: self.inqTitle,
+                        isSecret: self.isSecret ? 1 : 0,
                         inqContent: html,                       // HTML로 저장 (색상/정렬/크기 포함)
                         images: JSON.stringify(images)          // INQ_IMAGE 저장용
                     };
@@ -301,7 +309,8 @@
                                     location.href = "/inquiry/list.do";
                                 }
                             } else {
-                                alert(data.msg || "저장에 실패했습니다.");
+                                alert(data.msg || "문의를 저장하지 못했어요. 잠시 후 다시 시도해주세요.");
+                                if (data.msg == "로그인 후 이용해주세요.") location.href = "/member/login.do";
                             }
                         }
                     });

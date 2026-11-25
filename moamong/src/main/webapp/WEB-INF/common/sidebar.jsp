@@ -82,7 +82,7 @@
             </li>
 
             <li>
-                <a href="/community/list.do" class="menu-link">소셜</a>
+                <a href="/community/list.do" class="menu-link">STORY</a>
             </li>
 
             <li>
