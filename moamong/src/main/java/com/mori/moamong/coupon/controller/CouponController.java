@@ -21,10 +21,18 @@ public class CouponController {
 
 	// 마이페이지 - 내 쿠폰
 	@RequestMapping("/coupon/mylist.do")
-	public String myCouponList(@RequestParam("memberId") Long memberId, Model model) {
+	public String myCouponList(
+			@RequestParam(value = "memberId", required = false) Long memberId,
+			jakarta.servlet.http.HttpSession session,
+			Model model) {
+		if (memberId == null && session.getAttribute("sessionId") != null) {
+			memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+		}
+		if (memberId == null) return "redirect:/member/login.do";
 		model.addAttribute("memberId", memberId);
 		return "coupon/MyCouponList";
 	}
+
 
 	// 관리자 쿠폰 목록
 	@RequestMapping("/coupon/list.do")
@@ -58,15 +66,18 @@ public class CouponController {
 		return "coupon/view";
 	}
 
-	// 마이페이지 쿠폰 조회 - 기존 기능 유지
-	@RequestMapping("/coupon/mylist.dox")
-	@ResponseBody
-	public Map<String, Object> getMyCouponList(@RequestParam("memberId") Long memberId) {
-
-		HashMap<String, Object> map = new HashMap<>();
-		map.put("memberId", memberId);
-
-		return couponService.geCouponList(map);
+	// 마이페이지 쿠폰 조회
+		@RequestMapping("/coupon/mylist.dox")
+		@ResponseBody
+		public Map<String, Object> getMyCouponList(
+				@RequestParam(value = "memberId", required = false) Long memberId,
+				jakarta.servlet.http.HttpSession session) {
+			if (memberId == null && session.getAttribute("sessionId") != null) {
+				memberId = Long.parseLong(String.valueOf(session.getAttribute("sessionId")));
+			}
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("memberId", memberId);
+			return couponService.geCouponList(map);
 	}
 
 	// 관리자 쿠폰 목록 조회

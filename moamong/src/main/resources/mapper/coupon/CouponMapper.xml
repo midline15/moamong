@@ -11,7 +11,7 @@
 		MC.issued_at, C.valid_from, C.valid_until, MC.used_at, MC.coupon_status,
 		OC.order_id, OC.discount_amount, CASE WHEN MC.coupon_status = 'USED'
 		THEN 'USED' WHEN MC.coupon_status = 'EXPIRED' THEN 'EXPIRED' WHEN
-		C.valid_until &lt; NOW () THEN 'EXPIRED'
+		C.valid_until &lt; NOW() THEN 'EXPIRED'
 			ELSE 'AVAILABLE'
 			END AS display_status
 			FROM MEMBER_COUPON MC
