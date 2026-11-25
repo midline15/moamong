@@ -15,5 +15,15 @@
         <li class="<%= "post".equals(activeMenu) ? "active" : "" %>"><a href="/member/mypost.do">작성글 관리</a></li>
         <li class="<%= "comment".equals(activeMenu) ? "active" : "" %>"><a href="/member/mycomment.do">댓글 관리</a></li>
         <li class="<%= "edit".equals(activeMenu) ? "active" : "" %>"><a href="/member/edit.do">내 정보 관리</a></li>
+        
+        <!--         <li class="<%= "coupon".equals(activeMenu) ? "active" : "" %>">
+            <a href="javascript:;" onclick="pageChange('/coupon/mylist.do', {memberId: '<%= sessId %>'})">내 쿠폰</a>
+        </li>
+        <li class="<%= "point".equals(activeMenu) ? "active" : "" %>">
+            <a href="javascript:;" onclick="pageChange('/point/history.do', {memberId: '<%= sessId %>'})">포인트 내역</a>
+        </li>
+        <li class="<%= "post".equals(activeMenu) ? "active" : "" %>"><a href="/community/mypost.do">작성글 관리</a></li>
+        <li class="<%= "comment".equals(activeMenu) ? "active" : "" %>"><a href="/community/mycomment.do">댓글 관리</a></li>
+        <li class="<%= "info".equals(activeMenu) ? "active" : "" %>"><a href="/member/edit.do">내 정보 관리</a></li> -->
     </ul>
 </aside>

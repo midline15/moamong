@@ -1,0 +1,56 @@
+.event-wrap {
+	padding: 25px;
+}
+
+.event-form {
+	max-width: 1000px;
+}
+
+.form-row {
+	margin-bottom: 20px;
+}
+
+.form-row label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: bold;
+}
+
+.form-row input,
+.form-row select {
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.form-row input[type=file] {
+	border: 1px solid #ddd;
+}
+
+.thumbnail-preview {
+	max-width: 250px;
+	display: block;
+	margin-top: 10px;
+}
+
+.event-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 25px;
+}
+
+.event-buttons button {
+	padding: 10px 20px;
+	border: 0;
+	cursor: pointer;
+}
+
+.btn-dark {
+	background: #333;
+	color: white;
+}
+
+.btn-gray {
+	background: #ddd;
+}

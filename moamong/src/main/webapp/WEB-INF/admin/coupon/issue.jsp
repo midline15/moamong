@@ -10,7 +10,7 @@
 		<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-		<link rel="stylesheet" href="/css/coupon/issue.css">
+		<link rel="stylesheet" href="/css/admin/coupon/issue.css">
 	</head>
 
 	<body>
@@ -251,7 +251,7 @@
 
 					// 목록 이동
 					fnList() {
-						location.href = "/coupon/list.do";
+						location.href = "/admin/coupon/list.do";
 					}
 				},
 
