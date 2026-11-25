@@ -93,4 +93,124 @@
         WHERE PACKAGE_GRADE = #{packageGrade}
         AND PACKAGE_STATUS = 'SELLING'
     </select>
+
+    <!-- 패키지 상세 정보 조회 -->
+    <select id="selectPackageInfo" resultType="com.mori.moamong.dto.GiftPackage">
+        SELECT
+            P.PACKAGE_ID AS packageId,
+            P.PACKAGE_NAME AS packageName,
+            P.PACKAGE_DESCRIPTION AS packageDescription,
+            P.PACKAGE_GRADE AS packageGrade,
+            P.PACKAGE_PRICE AS packagePrice,
+            P.PACKAGE_STATUS AS packageStatus,
+            P.VIEW_COUNT AS viewCount,
+            P.CREATED_AT AS createdAt,
+            P.UPDATED_AT AS updatedAt,
+            (
+                SELECT PI.IMAGE_URL
+                FROM PACKAGE_IMAGE PI
+                WHERE PI.PACKAGE_ID = P.PACKAGE_ID
+                AND PI.IMAGE_TYPE = 'THUMBNAIL'
+            ) AS thumbnailUrl
+        FROM PACKAGE P
+        WHERE P.PACKAGE_ID = #{packageId}
+    </select>
+
+    <!-- 패키지 조회수 증가 -->
+    <update id="updatePackageViewCount">
+        UPDATE PACKAGE
+        SET VIEW_COUNT = VIEW_COUNT + 1
+        WHERE PACKAGE_ID = #{packageId}
+    </update>
+
+    <!-- 패키지 구성 상품 조회 -->
+    <select id="selectPackageItemList"
+        parameterType="hashmap"
+        resultType="com.mori.moamong.dto.GiftPackageItem">
+        SELECT
+            PI.PACKAGE_ITEM_ID AS packageItemId,
+            PI.PACKAGE_ID AS packageId,
+            PI.PRODUCT_ID AS productId,
+            PI.ITEM_ROLE AS itemRole,
+            PI.ITEM_ORDER AS itemOrder,
+            PI.QUANTITY AS quantity,
+            P.PRODUCT_NAME AS productName,
+            P.PRICE AS productPrice,
+            (
+                SELECT IMAGE_URL
+                FROM PRODUCT_IMAGE
+                WHERE PRODUCT_ID = P.PRODUCT_ID
+                ORDER BY DISPLAY_ORDER ASC, IMAGE_ID ASC
+                LIMIT 1
+            ) AS thumbnailUrl
+        FROM PACKAGE_ITEM PI
+        JOIN PRODUCT P
+            ON PI.PRODUCT_ID = P.PRODUCT_ID
+        WHERE PI.PACKAGE_ID = #{packageId}
+        ORDER BY PI.ITEM_ORDER ASC
+    </select>
+
+    <!-- 패키지 구성 상품 교체 옵션 조회 -->
+    <select id="selectPackageItemOptionList"
+        parameterType="hashmap"
+        resultType="com.mori.moamong.dto.GiftPackageItemOption">
+        SELECT
+            PIO.PACKAGE_ITEM_OPTION_ID AS packageItemOptionId,
+            PIO.PACKAGE_ITEM_ID AS packageItemId,
+            PIO.OPTION_PRODUCT_ID AS optionProductId,
+            PIO.ADDITIONAL_PRICE AS additionalPrice,
+            P.PRODUCT_NAME AS productName,
+            P.PRICE AS productPrice,
+            (
+                SELECT IMAGE_URL
+                FROM PRODUCT_IMAGE
+                WHERE PRODUCT_ID = P.PRODUCT_ID
+                ORDER BY DISPLAY_ORDER ASC, IMAGE_ID ASC
+                LIMIT 1
+            ) AS thumbnailUrl
+        FROM PACKAGE_ITEM_OPTION PIO
+        JOIN PACKAGE_ITEM PI
+            ON PIO.PACKAGE_ITEM_ID = PI.PACKAGE_ITEM_ID
+        JOIN PRODUCT P
+            ON PIO.OPTION_PRODUCT_ID = P.PRODUCT_ID
+        WHERE PI.PACKAGE_ID = #{packageId}
+        ORDER BY PI.ITEM_ORDER ASC, PIO.PACKAGE_ITEM_OPTION_ID ASC
+    </select>
+
+    <!-- 패키지 추가 구성 유형 조회 -->
+    <select id="selectPackageExtraList"
+        parameterType="hashmap"
+        resultType="com.mori.moamong.dto.GiftPackageExtra">
+
+        SELECT
+            PACKAGE_EXTRA_ID AS packageExtraId,
+            PACKAGE_ID AS packageId,
+            EXTRA_TYPE AS extraType,
+            EXTRA_NAME AS extraName,
+            IS_REQUIRED AS isRequired,
+            DISPLAY_ORDER AS displayOrder
+        FROM PACKAGE_EXTRA
+        WHERE PACKAGE_ID = #{packageId}
+        ORDER BY DISPLAY_ORDER ASC
+
+    </select>
+
+    <!-- 패키지 추가 구성 옵션 조회 -->
+    <select id="selectPackageExtraOptionList"
+        parameterType="hashmap"
+        resultType="com.mori.moamong.dto.GiftPackageExtraOption">
+
+        SELECT
+            PEO.PACKAGE_EXTRA_OPTION_ID AS packageExtraOptionId,
+            PEO.PACKAGE_EXTRA_ID AS packageExtraId,
+            PEO.OPTION_NAME AS optionName,
+            PEO.ADDITIONAL_PRICE AS additionalPrice,
+            PEO.DISPLAY_ORDER AS displayOrder
+        FROM PACKAGE_EXTRA_OPTION PEO
+        JOIN PACKAGE_EXTRA PE
+            ON PEO.PACKAGE_EXTRA_ID = PE.PACKAGE_EXTRA_ID
+        WHERE PE.PACKAGE_ID = #{packageId}
+        ORDER BY PE.DISPLAY_ORDER ASC, PEO.DISPLAY_ORDER ASC
+
+    </select>
 </mapper>

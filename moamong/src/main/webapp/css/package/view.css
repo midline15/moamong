@@ -692,3 +692,157 @@ select {
     }
 
 }
+
+/* 리뷰 영역 */
+.review-section {
+    padding: 20px 0;
+}
+
+.review-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.review-heading strong {
+    font-size: 20px;
+}
+
+.review-heading span {
+    margin-left: 10px;
+    color: #777;
+}
+
+.review-write-btn {
+    padding: 9px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #666;
+    color: white;
+    cursor: pointer;
+}
+
+.review-guide {
+    margin: 8px 0 20px;
+    font-size: 12px;
+    color: #888;
+}
+
+/* 별점 필터 */
+.review-filter {
+    display: flex;
+    gap: 10px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.review-filter button {
+    padding: 7px 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #555;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.review-filter button:hover {
+    border-color: #666;
+}
+
+.review-filter button.active {
+    background: #666;
+    border-color: #666;
+    color: white;
+}
+
+.review-list {
+    width: 100%;
+}
+
+.review-item {
+    display: flex;
+    gap: 30px;
+    padding: 20px 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.review-rating {
+    width: 100px;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.review-rating span {
+    color: #ccc;
+}
+
+.review-rating span.active {
+    color: #333;
+}
+
+.review-member,
+.review-date {
+    margin-top: 7px;
+    font-size: 11px;
+    color: #888;
+}
+
+.review-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-content-rating {
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #888;
+}
+
+.review-content p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.review-image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.review-image-list img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.review-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 30px 0;
+}
+
+.review-pagination button {
+    min-width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+}
+
+.review-pagination button.active {
+    background: #666;
+    color: white;
+    border-color: #666;
+}
+
+.review-pagination button:disabled {
+    color: #bbb;
+    cursor: default;
+}
