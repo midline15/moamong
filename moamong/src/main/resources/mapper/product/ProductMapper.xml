@@ -2,24 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.product.mapper.ProductMapper">
     
-    <select id="selectProductListByMainCategory"
-            resultType="Product">
+    <select id="selectProductListByMainCategory" resultType="Product">
         SELECT
-            p.product_id,
-            p.product_name,
-            p.category_id,
-            c.category_name,
-            (
-                SELECT pi.image_url
-                FROM PRODUCT_IMAGE pi
-                WHERE pi.product_id = p.product_id
-                AND pi.display_order = 1
-            ) AS thumbnailUrl
-        FROM PRODUCT p
-        JOIN CATEGORY c
-            ON p.category_id = c.category_id
-        WHERE c.parent_category_id = #{categoryId}
-        AND c.category_depth = 2
+            product_id,
+            product_name,
+            category_id,
+            category_name,
+            thumbnailUrl
+        FROM (
+            SELECT
+                p.product_id,
+                p.product_name,
+                p.category_id,
+                c.category_name,
+                (
+                    SELECT pi.image_url
+                    FROM PRODUCT_IMAGE pi
+                    WHERE pi.product_id = p.product_id
+                    AND pi.display_order = 0
+                ) AS thumbnailUrl,
+                ROW_NUMBER() OVER (
+                    PARTITION BY p.category_id
+                    ORDER BY p.created_at DESC
+                ) AS rowNum
+            FROM PRODUCT p
+            JOIN CATEGORY c
+                ON p.category_id = c.category_id
+            WHERE c.parent_category_id = #{categoryId}
+            AND c.category_depth = 2
+        ) AS productList
+        WHERE rowNum &lt;= 5
+        ORDER BY category_id, rowNum
     </select>
 
     <select id="selectProductListBySubCategory" resultType="Product">
@@ -33,6 +46,21 @@
             ) AS thumbnailUrl
         FROM PRODUCT P
         WHERE P.category_id = #{categoryId}
+        <choose>
+            <when test="sortType == 'price'">
+                ORDER BY price
+                <choose>
+                    <when test="priceSortOrder == 'DESC'">DESC</when>
+                    <otherwise>ASC</otherwise>
+                </choose>
+            </when>
+            <when test="sortType == 'popular'">
+                ORDER BY view_count DESC
+            </when>
+            <otherwise>
+                ORDER BY created_at DESC
+            </otherwise>
+        </choose>
         LIMIT #{limit} OFFSET #{offset}
     </select>
 

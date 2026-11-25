@@ -58,7 +58,7 @@
     font-size: 14px;
     font-weight: 600;
     color: #514636;
-}
+} 
 
 .cs-answer-head span {
     font-size: 11px;
@@ -122,6 +122,40 @@
 
 .cs-answer-form .cs-btn-area {
     margin-top: 12px;
+}
+
+/* =========================================
+   비밀글 (자물쇠 / 뱃지)
+========================================= */
+
+.cs-lock {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    margin-right: 5px;
+    vertical-align: -2px;
+    color: #B8B2A8;
+}
+
+/* 상세 제목 옆 비밀글 뱃지 */
+.cs-secret {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #8D877C;
+    background: #fff;
+    border: 1px solid #DDD6C9;
+    border-radius: 2px;
+    vertical-align: middle;
+}
+
+.cs-secret .cs-lock {
+    width: 11px;
+    height: 11px;
+    margin-right: 4px;
+    vertical-align: -1px;
 }
 
 

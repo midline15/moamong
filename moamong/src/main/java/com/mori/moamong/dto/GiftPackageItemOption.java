@@ -8,4 +8,8 @@ public class GiftPackageItemOption {
     private Long packageItemId;
     private Long optionProductId;
     private Integer additionalPrice;
+
+    private String productName;
+    private int productPrice;
+    private String thumbnailUrl;
 }

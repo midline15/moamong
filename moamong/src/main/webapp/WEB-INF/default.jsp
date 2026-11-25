@@ -9,195 +9,62 @@ pageEncoding="UTF-8"%>
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-
-        <style>
-            body {
-                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-                background-color: #f8f9fa;
-                margin: 0;
-                padding: 30px 16px;
-                color: #222;
-            }
-            .container {
-                max-width: 760px; /* 기존 640px -> 760px로 변경 */
-                margin: 20px auto;
-                padding: 28px;
-                background: #fff;
-                border: 1px solid #e9ecef;
-                border-radius: 12px;
-                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            }
-            
-            .top-nav {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 2px solid #222;
-                padding-bottom: 14px;
-                margin-bottom: 20px;
-            }
-            .top-nav h2 {
-                margin: 0;
-                font-size: 22px;
-            }
-            .info-box {
-                background: #f8f9fa;
-                padding: 18px 20px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-                line-height: 1.7;
-                font-size: 14px;
-            }
-            .btn-group {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-            .btn {
-                padding: 9px 16px;
-                cursor: pointer;
-                border-radius: 6px;
-                border: 1px solid #ccc;
-                background: #fff;
-                font-size: 14px;
-                font-weight: 600;
-                color: #222;
-            }
-            .btn:hover {
-                background: #f1f3f5;
-            }
-            .btn-primary {
-                background: #222;
-                color: #fff;
-                border-color: #222;
-            }
-            .btn-primary:hover {
-                background: #444;
-            }
-            .btn-danger {
-                border-color: #ffa8a8;
-                color: #c92a2a;
-            }
-        </style>
+        <jsp:include page="/chatbot/chatWidget.jsp" />
+        <!-- 공통 레이아웃 & 메인 전용 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main/main.css">
     </head>
-    <body>
-        <div id="app" class="container">
-            <div class="top-nav">
-                <h2>🎁 모아몽 (MOAMONG)</h2>
-                <span style="font-size: 13px; color: #666;">메인 테스트 허브</span>
-            </div>
+<body>
+    <%@ include file="/WEB-INF/common/header.jsp"%>
 
-            <% if (session.getAttribute("sessionId") != null) {
-                String createdAtStr = String.valueOf(session.getAttribute("sessionCreatedAt")).replace("T", " ");
-            %>
-            <div class="info-box">
-                <div style="font-size: 17px; margin-bottom: 6px;">
-                    <strong><%= session.getAttribute("sessionName") %></strong>님 환영합니다!
-                </div>
-                <div>• 회원번호: <%= session.getAttribute("sessionId") %></div>
-                <div>• 권한: <%= session.getAttribute("sessionRole") %></div>
-                <div>• 계정 상태: <strong><%= session.getAttribute("sessionStatus") %></strong></div>
-                <div>• 가입일시: <%= createdAtStr %></div>
+    <main id="app" class="main-wrap">
+        <!-- 섹션 1: 선물하고 싶은 대상은? -->
+        <section class="gift-section">
+            <span class="gift-eyebrow">FOR WHOM</span>
+            <h2>선물하고 싶은 대상은?</h2>
+            <p>소중한 사람을 떠올리며 맞춤 선물키트를 골라보세요</p>
+            <div class="tag-grid">
+                <button type="button" class="tag-card" v-for="t in targetList" :key="t"
+                        @click="goGiftKit('target', t)">
+                    # {{ t }}
+                </button>
             </div>
+        </section>
 
-            <div class="btn-group">
-                <button class="btn btn-primary" @click="fnGoMypage">마이페이지</button>
-                <button class="btn" @click="fnGoCart">🛒 장바구니 ({{ cartCount }})</button>
-                <button class="btn" @click="fnGoWishlist">❤️ 찜 목록</button>
-                <button class="btn" @click="fnGoOrderList">📦 주문 내역</button>
-                <button class="btn" @click="fnGoAddress">📍 배송지 관리</button>
-                <button class="btn btn-danger" @click="fnLogout">로그아웃</button>
+        <!-- 섹션 2: 선물하려는 목적은? -->
+        <section class="gift-section alt">
+            <span class="gift-eyebrow">OCCASION</span>
+            <h2>선물하려는 목적은?</h2>
+            <p>특별한 순간에 어울리는 마음을 전해드립니다</p>
+            <div class="tag-grid">
+                <button type="button" class="tag-card" v-for="p in purposeList" :key="p"
+                        @click="goGiftKit('purpose', p)">
+                    # {{ p }}
+                </button>
             </div>
-            <% } else { %>
-            <div class="info-box" style="text-align: center; padding: 32px 16px; color: #555;">
-                현재 비로그인 상태입니다.<br>
-                로그인 후 마이페이지 및 장바구니 기능을 이용하실 수 있습니다.
-            </div>
+        </section>
+    </main>
 
-            <div class="btn-group" style="justify-content: center;">
-                <button class="btn btn-primary" @click="fnGoLogin">로그인</button>
-                <button class="btn" @click="fnGoJoin">회원가입</button>
-            </div>
-            <% } %>
-        </div>
-    </body>
+    <%@ include file="/WEB-INF/common/footer.jsp"%>
+</body>
 </html>
 
 <script>
     const app = Vue.createApp({
         data() {
             return {
-                wishCount: 0,
-                isLoggedIn: <%= session.getAttribute("sessionId") != null %>,
-                cartCount: 0
+                targetList: ["가족", "연인", "친구", "동료", "나에게"],
+                purposeList: ["생일ㆍ기념일", "감사ㆍ답례", "축하ㆍ응원", "위로ㆍ격려", "마음전달"]
             };
         },
         methods: {
-            fnGetCartCount() {
-                if (!this.isLoggedIn) return;
-                let self = this;
-                $.ajax({
-                    url: "/cart/list.dox",
-                    type: "POST",
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.result === "success" && data.list) {
-                            self.cartCount = data.list.length;
-                        }
-                    }
-                });
-            },
-            fnGoMypage() {
-                location.href = "/member/mypage.do";
-            },
-            fnGoCart() {
-                location.href = "/cart/list.do";
-            },
-            fnGoLogin() {
-                location.href = "/member/login.do";
-            },
-            fnGoJoin() {
-                location.href = "/member/join.do";
-            },
-            fnLogout() {
-                $.ajax({
-                    url: "/member/logout.dox",
-                    type: "POST",
-                    dataType: "json",
-                    success: function (data) {
-                        alert(data.message);
-                        location.href = "/member/login.do";
-                    }
-                });
-            },
-            fnGoWishlist() {
-                location.href = "/wishlist/list.do";
-            },
-            fnGetWishCount() {
-                if (!this.isLoggedIn) return;
-                let self = this;
-                $.ajax({
-                    url: "/wishlist/list.dox",
-                    type: "POST",
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.result === "success" && data.list) {
-                            self.wishCount = data.list.length;
-                        }
-                    }
-                });
-            },
-            fnGoOrderList() {
-                location.href = "/order/list.do";
-            },
-            fnGoAddress() {
-                location.href = "/address/list.do";
+            // 추후 선물키트 목록 페이지 URL 확정 시 아래 경로만 연결하면 됩니다.
+            goGiftKit(type, value) {
+                location.href = "/package/list.do?" + type + "=" + encodeURIComponent(value);
             }
-        },
-        mounted() {
-            this.fnGetCartCount();
         }
     });
-    
     app.mount('#app');
 </script>

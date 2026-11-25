@@ -64,6 +64,19 @@ public class MemberService {
 
 				boolean login = passwordEncoder.matches((String) map.get("pwd"), member.getPassword());
 				if (login) {
+					// 휴면 계정(INACTIVE)인 경우 세션 보류 후 휴면 해제 안내 플래그 반환
+					if ("INACTIVE".equals(member.getStatus())) {
+						resultMap.put("loginFlg", false);
+						resultMap.put("isInactive", true);
+						resultMap.put("loginId", member.getLoginId());
+						resultMap.put("message", "30일 이상 미접속으로 휴면 전환된 계정입니다. 비밀번호 인증 후 해제해주세요.");
+						resultMap.put("result", "success");
+						return resultMap;
+					}
+
+					// [추가] 정상 로그인 시 최종 로그인 일시 갱신
+					memberMapper.updateLastLoginAt(member.getMemberId());
+
 					session.setAttribute("sessionId", member.getMemberId());
 					session.setAttribute("sessionName", member.getMemberName());
 					session.setAttribute("sessionRole", member.getRole());
@@ -88,6 +101,14 @@ public class MemberService {
 			System.out.println(e.getMessage());
 		}
 
+		return resultMap;
+	}
+
+	// 회원가입용 활성 약관 목록 조회 (POLICY 테이블 연동)
+	public HashMap<String, Object> getJoinPolicies() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		resultMap.put("result", "success");
+		resultMap.put("list", memberMapper.selectJoinPolicies());
 		return resultMap;
 	}
 
@@ -278,10 +299,22 @@ public class MemberService {
 	// 비밀번호 변경
 	public HashMap<String, Object> changePassword(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
+		String currentPwd = String.valueOf(map.getOrDefault("currentPwd", ""));
+		String newPwd = String.valueOf(map.getOrDefault("newPwd", ""));
+
+		if (newPwd.trim().isEmpty()) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "새 비밀번호를 입력해주세요.");
+			return resultMap;
+		}
+		if (currentPwd.equals(newPwd)) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "현재 비밀번호와 다른 새 비밀번호를 입력해주세요.");
+			return resultMap;
+		}
+		
 		try {
 			Long memberId = Long.valueOf(String.valueOf(map.get("memberId")));
-			String currentPwd = (String) map.get("currentPwd");
-			String newPwd = (String) map.get("newPwd");
 
 			Member current = memberMapper.selectMemberById(memberId);
 			if (current.getSocialType() != null || current.getPassword() == null) {
@@ -478,6 +511,82 @@ public class MemberService {
 			resultMap.put("result", "fail");
 			resultMap.put("message", "비밀번호 재설정 중 오류가 발생했습니다.");
 			System.out.println(e.getMessage());
+		}
+		return resultMap;
+	}
+
+	// [추가] 휴면 계정 해제 (비밀번호 재인증 후 ACTIVE 전환 + 자동 로그인)
+	public HashMap<String, Object> activateDormant(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			String loginId = (String) map.get("memberId");
+			String pwd = (String) map.get("pwd");
+
+			Member member = memberMapper.selectMember(map);
+			if (member == null || !"INACTIVE".equals(member.getStatus())) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "휴면 상태의 계정이 아닙니다.");
+				return resultMap;
+			}
+			if (pwd == null || !passwordEncoder.matches(pwd, member.getPassword())) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "비밀번호가 일치하지 않습니다.");
+				return resultMap;
+			}
+
+			if (memberMapper.activateDormantMember(member.getMemberId()) > 0) {
+				session.setAttribute("sessionId", member.getMemberId());
+				session.setAttribute("sessionName", member.getMemberName());
+				session.setAttribute("sessionRole", member.getRole());
+				session.setAttribute("sessionStatus", "ACTIVE");
+				session.setAttribute("sessionCreatedAt", member.getCreatedAt());
+
+				resultMap.put("result", "success");
+				resultMap.put("message", "휴면 계정이 해제되었습니다. " + member.getMemberName() + "님 환영합니다!");
+			} else {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "휴면 해제 처리에 실패했습니다.");
+			}
+		} catch (Exception e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "휴면 해제 중 오류가 발생했습니다.");
+		}
+		return resultMap;
+	}
+
+	// [수정] 소셜 휴면 계정 해제 (OAuth 인증 완료 상태이므로 버튼 클릭 시 즉시 해제)
+	public HashMap<String, Object> activateSocialDormant() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			Object dormantIdObj = session.getAttribute("dormantSocialMemberId");
+			if (dormantIdObj == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "휴면 인증 세션이 만료되었습니다. 소셜 로그인을 다시 시도해주세요.");
+				return resultMap;
+			}
+			Long memberId = Long.valueOf(String.valueOf(dormantIdObj));
+			Member member = memberMapper.selectMemberById(memberId);
+
+			if (member == null || !"INACTIVE".equals(member.getStatus())) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "휴면 상태의 계정이 아닙니다.");
+				return resultMap;
+			}
+
+			if (memberMapper.activateDormantMember(memberId) > 0) {
+				session.removeAttribute("dormantSocialMemberId");
+				session.setAttribute("sessionId", member.getMemberId());
+				session.setAttribute("sessionName", member.getMemberName());
+				session.setAttribute("sessionRole", member.getRole());
+				session.setAttribute("sessionStatus", "ACTIVE");
+				session.setAttribute("sessionCreatedAt", member.getCreatedAt());
+
+				resultMap.put("result", "success");
+				resultMap.put("message", "휴면 계정이 해제되었습니다. " + member.getMemberName() + "님 환영합니다!");
+			}
+		} catch (Exception e) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "휴면 해제 처리 중 오류가 발생했습니다.");
 		}
 		return resultMap;
 	}

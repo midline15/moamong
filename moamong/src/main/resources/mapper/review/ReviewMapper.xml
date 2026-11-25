@@ -60,24 +60,27 @@
 
 
 	<!-- 리뷰 이미지 목록 조회 -->
-	<select id="selectReviewImageList"
-		parameterType="hashmap"
-		resultType="com.mori.moamong.dto.Review">
+    <select id="selectReviewImageList"
+        parameterType="hashmap"
+        resultType="ReviewImage">
 
-		SELECT
-		IMAGE_ID,
-		REVIEW_ID,
-		IMAGE_URL,
-		IMAGE_ORIGIN_NAME,
-		IMAGE_NAME,
-		IMAGE_SIZE,
-		IMAGE_TYPE,
-		DISPLAY_ORDER
-		FROM REVIEW_IMAGE
-		WHERE REVIEW_ID = #{reviewId}
-		ORDER BY DISPLAY_ORDER ASC
+        SELECT
+            IMAGE_ID AS imageId,
+            REVIEW_ID AS reviewId,
+            IMAGE_URL AS imageUrl,
+            IMAGE_ORIGIN_NAME AS imageOriginName,
+            IMAGE_NAME AS imageName,
+            IMAGE_SIZE AS imageSize,
+            IMAGE_TYPE AS imageType,
+            DISPLAY_ORDER AS displayOrder
+        FROM REVIEW_IMAGE
+        WHERE REVIEW_ID IN
+        <foreach collection="reviewIds" item="reviewId" open="(" separator="," close=")">
+            #{reviewId}
+        </foreach>
+        ORDER BY REVIEW_ID, DISPLAY_ORDER ASC
 
-	</select>
+    </select>
 
 
 	<!-- 리뷰 내용 및 별점 수정 -->
@@ -159,5 +162,58 @@
 
 	</delete>
 
-</mapper>
+    <!-- 상품 또는 패키지 리뷰 목록 조회 -->
+    <select id="selectReviewList"
+        parameterType="hashmap"
+        resultType="com.mori.moamong.dto.Review">
 
+        SELECT
+            REVIEW_ID AS reviewId,
+            MEMBER_ID AS memberId,
+            PACKAGE_ID AS packageId,
+            PRODUCT_ID AS productId,
+            ORDER_ITEM_ID AS orderItemId,
+            RATING AS rating,
+            REVIEW_CONTENT AS reviewContent,
+            REVIEW_STATUS AS reviewStatus,
+            CREATED_AT AS createdAt,
+            UPDATED_AT AS updatedAt
+        FROM REVIEW
+        WHERE REVIEW_STATUS = 'ACTIVE'
+
+        <choose>
+            <when test="productId != null and productId != ''">
+                AND PRODUCT_ID = #{productId}
+            </when>
+
+            <when test="packageId != null and packageId != ''">
+                AND PACKAGE_ID = #{packageId}
+            </when>
+        </choose>
+
+        ORDER BY CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+
+    </select>
+
+    <!-- 상품 또는 패키지 리뷰 전체 개수 조회 -->
+    <select id="selectReviewCount"
+        parameterType="hashmap"
+        resultType="int">
+
+        SELECT COUNT(*)
+        FROM REVIEW
+        WHERE REVIEW_STATUS = 'ACTIVE'
+
+        <choose>
+            <when test="productId != null and productId != ''">
+                AND PRODUCT_ID = #{productId}
+            </when>
+
+            <when test="packageId != null and packageId != ''">
+                AND PACKAGE_ID = #{packageId}
+            </when>
+        </choose>
+
+    </select>
+</mapper>

@@ -14,4 +14,5 @@ public class Inquiry {
     private String inqStatus;
     private String createdAt;
     private String answeredAt; 
+    private Boolean isSecret;       // 비밀글 여부
 }

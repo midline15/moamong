@@ -38,4 +38,16 @@ public class CategoryService {
         return subCategoryList;
     }
 
+    // 카테고리 단건 조회
+    public Category getCategoryById(HashMap<String, Object> map) {
+        Category category = new Category();
+
+        try {
+            category = categoryMapper.selectCategoryById(map);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return category;
+    }
 }

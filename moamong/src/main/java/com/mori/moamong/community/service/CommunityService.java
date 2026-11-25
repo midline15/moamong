@@ -30,7 +30,7 @@ public class CommunityService {
     private static final int MAX_TAG = 10; // 게시글당 최대 해시태그 수
     private static final Pattern TAG_PATTERN = Pattern.compile("#([0-9A-Za-z_가-힣]{1,30})");
 
-    // 게시글 목록 (페이지 번호 방식)
+        // 게시글 목록 (스크롤 방식, page 번호로 이어서 조회)
     public HashMap<String, Object> getPostList(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
         try {
@@ -50,6 +50,7 @@ public class CommunityService {
                     ids.add(p.getPostId());
                 map.put("postIdList", ids);
 
+                // 1) 이미지를 글 번호별로 묶기
                 HashMap<String, List<HashMap<String, Object>>> imageMap = new HashMap<String, List<HashMap<String, Object>>>();
                 for (HashMap<String, Object> img : communityMapper.selectPostImageList(map)) {
                     String key = String.valueOf(img.get("postId"));
@@ -58,6 +59,7 @@ public class CommunityService {
                     imageMap.get(key).add(img);
                 }
 
+                // 2) 해시태그를 글 번호별로 묶기
                 HashMap<String, List<String>> tagMap = new HashMap<String, List<String>>();
                 for (HashMap<String, Object> tag : communityMapper.selectPostTagList(map)) {
                     String key = String.valueOf(tag.get("postId"));
@@ -66,10 +68,15 @@ public class CommunityService {
                     tagMap.get(key).add(String.valueOf(tag.get("tagName")));
                 }
 
+                // 3) 글에 붙이기 (관리자가 지운 글은 비워서 내려줌)
                 for (CommunityPost p : list) {
+                    if ("HIDDEN".equals(p.getPostStatus())) {
+                        p.setImageList(new ArrayList<HashMap<String, Object>>());
+                        p.setTagList(new ArrayList<String>());
+                        continue;
+                    }
                     String key = String.valueOf(p.getPostId());
-                    p.setImageList(
-                            imageMap.containsKey(key) ? imageMap.get(key) : new ArrayList<HashMap<String, Object>>());
+                    p.setImageList(imageMap.containsKey(key) ? imageMap.get(key) : new ArrayList<HashMap<String, Object>>());
                     p.setTagList(tagMap.containsKey(key) ? tagMap.get(key) : new ArrayList<String>());
                 }
             }
@@ -298,10 +305,10 @@ public class CommunityService {
             if (order > MAX_IMAGE)
                 break;
 
-            // 우리 서버에 올린 이미지 주소만 허용
+            // 우리 서버에 올린 이미지 주소만 허용 (커뮤니티 폴더만)
             String url = String.valueOf(img.get("imageUrl"));
-            if (!url.startsWith("/upload/"))
-                continue;
+            if (!url.startsWith("/resources/upload/community/"))
+                continue;;
 
             img.put("postId", map.get("postId"));
             img.put("imageType", "DETAIL");

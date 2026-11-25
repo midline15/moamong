@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mori.moamong.dto.Review;
+import com.mori.moamong.dto.ReviewImage;
 import com.mori.moamong.review.mapper.ReviewMapper;
 
 @Service
@@ -393,6 +394,90 @@ public class ReviewService {
         }
 
         return Long.parseLong(memberId.toString());
+    }
+  
+   ///////////////////////////////////////////////////////////////////////////////////
+    // 상품 또는 패키지 리뷰 목록 조회
+    public List<Review> getReviewList(HashMap<String, Object> map) throws Exception {
+
+        List<Review> reviewList = null;
+
+        try {
+
+            boolean hasProductId = map.get("productId") != null
+                    && !map.get("productId").toString().isEmpty();
+
+            boolean hasPackageId = map.get("packageId") != null
+                    && !map.get("packageId").toString().isEmpty();
+
+            // 상품 또는 패키지 ID 중 하나만 전달되어야 함
+            if (hasProductId == hasPackageId) {
+                throw new IllegalArgumentException("상품 또는 패키지 ID를 하나만 전달해야 합니다.");
+            }
+
+            // 페이지 번호 및 조회 개수 설정
+            int page = map.get("page") == null ? 1
+                    : Integer.parseInt(map.get("page").toString());
+
+            int limit = 5;
+            int offset = (page - 1) * limit;
+
+            map.put("limit", limit);
+            map.put("offset", offset);
+
+            // 리뷰 목록 조회
+            reviewList = reviewMapper.selectReviewList(map);
+
+            // 조회된 리뷰가 있는 경우 이미지 조회
+            if (reviewList != null && !reviewList.isEmpty()) {
+
+                List<Long> reviewIds = new ArrayList<>();
+
+                for (Review review : reviewList) {
+                    reviewIds.add(review.getReviewId());
+                }
+
+                HashMap<String, Object> imageMap = new HashMap<>();
+                imageMap.put("reviewIds", reviewIds);
+
+                List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imageMap);
+
+                // 리뷰별 이미지 연결
+                for (Review review : reviewList) {
+
+                    List<ReviewImage> reviewImageList = new ArrayList<>();
+
+                    for (ReviewImage image : imageList) {
+                        if (review.getReviewId().equals(image.getReviewId())) {
+                            reviewImageList.add(image);
+                        }
+                    }
+
+                    review.setImageList(reviewImageList);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return reviewList;
+    }
+
+    // 상품 또는 패키지 리뷰 전체 개수 조회
+    public int getReviewCount(HashMap<String, Object> map) throws Exception {
+
+        int totalCount = 0;
+
+        try {
+            totalCount = reviewMapper.selectReviewCount(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return totalCount;
     }
 
 }

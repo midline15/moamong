@@ -25,6 +25,8 @@ button {
 ================================= */
 
 .header-container {
+    position: relative;   /* 추가 */
+    z-index: 50;          /* 추가 : 본문(.cm-wrap)보다 위로 */
     width: 100%;
     padding: 15px 20px;
     display: flex;

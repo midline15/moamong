@@ -11,151 +11,105 @@
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
         <script src="https://daumcdn.net"></script>
-        <style>
-            body {
-                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-                background-color: #f8f9fa;
-                margin: 0;
-                padding: 30px 16px;
-                color: #222;
-            }
-            .container {
-                max-width: 820px;
-                margin: 0 auto;
-                background: #fff;
-                border-radius: 12px;
-                padding: 28px;
-                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            }
-            .top-nav {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 2px solid #222;
-                padding-bottom: 14px;
-                margin-bottom: 20px;
-            }
-            .top-nav h2 { margin: 0; font-size: 22px; }
-            .btn-group { display: flex; gap: 8px; }
-            .btn {
-                padding: 7px 14px;
-                border: 1px solid #ccc;
-                background: #fff;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 13px;
-                font-weight: 600;
-                color: #222;
-            }
-            .btn:hover { background: #f1f3f5; }
-            .btn-primary { background: #222; color: #fff; border-color: #222; }
-            .btn-primary:hover { background: #444; }
-            .btn-danger { border-color: #ffa8a8; color: #c92a2a; }
-            .addr-card {
-                border: 1px solid #e9ecef;
-                border-radius: 10px;
-                padding: 18px 20px;
-                margin-bottom: 12px;
-                background: #fff;
-            }
-            .addr-card.is-default { border: 2px solid #222; background: #fcfcfc; }
-            .addr-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-            .badge-default {
-                display: inline-block; font-size: 11px; font-weight: 700;
-                padding: 2px 8px; border-radius: 4px; background: #222; color: #fff; margin-left: 6px;
-            }
-            .addr-body { font-size: 14px; color: #495057; line-height: 1.6; }
-            .addr-actions { display: flex; gap: 8px; margin-top: 12px; }
-            .empty-box { text-align: center; padding: 60px 0; color: #888; }
-            .modal-backdrop {
-                position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45);
-                display: flex; align-items: center; justify-content: center; z-index: 999;
-            }
-            .modal-box {
-                background: #fff; width: 92%; max-width: 460px;
-                border-radius: 12px; padding: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            }
-            .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            .form-group { margin-bottom: 12px; }
-            .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-            .form-control { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-            .postal-row { display: flex; gap: 8px; margin-bottom: 6px; }
-            .postal-row input { flex: 1; background: #f8f9fa; }
-            .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
-        </style>
+        <!-- 공통 레이아웃 CSS (헤더 · 사이드바 · 푸터 · 마이페이지) -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage/mypage.css">
     </head>
-    <body>
-        <div id="app" class="container">
-            <div class="top-nav">
-                <h2>📍 배송지 관리</h2>
-                <div class="btn-group">
-                    <button class="btn" @click="fnGoMypage">마이페이지</button>
-                    <button class="btn" @click="fnGoMain">메인으로</button>
-                    <button class="btn btn-primary" @click="fnOpenAddModal">+ 새 배송지 등록</button>
-                </div>
+<body>
+    <%@ include file="/WEB-INF/common/header.jsp"%>
+
+    <div id="app" class="mp-wrap">
+        <% request.setAttribute("activeMenu", "address"); %>
+        <%@ include file="/WEB-INF/common/mypageSidebar.jsp"%>
+
+        <main class="mp-content">
+            <div class="mp-head">
+                <h2>{{ showModal ? (isEdit ? '배송지 수정' : '배송지 추가') : '배송지 관리' }}</h2>
+                <span class="mp-breadcrumb">
+                    마이페이지 &gt; 배송지 관리<span v-if="showModal"> &gt; {{ isEdit ? '배송지 수정' : '배송지 추가' }}</span>
+                </span>
             </div>
 
-            <div v-if="list.length === 0" class="empty-box">
-                <p style="margin-bottom: 14px;">등록된 배송지가 없습니다.</p>
-                <button class="btn btn-primary" @click="fnOpenAddModal">첫 배송지 등록하기</button>
-            </div>
+            <!-- [화면 A] 배송지 목록 -->
+            <div v-if="!showModal">
+                <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+                    <button class="mp-btn mp-btn-gold" @click="fnOpenAddModal">+ 새 배송지 등록</button>
+                </div>
 
-            <div v-for="item in list" :key="item.addressId" class="addr-card" :class="{ 'is-default': item.isDefault == 1 }">
-                <div class="addr-header">
-                    <div>
-                        <strong style="font-size: 16px;">{{ item.addressName || item.recipientName }}</strong>
-                        <span v-if="item.isDefault == 1" class="badge-default">기본 배송지</span>
-                    </div>
-                    <span style="font-size: 13px; color: #666;">{{ item.recipientName }} | {{ item.recipientPhone }}</span>
+                <div v-if="list.length === 0" class="mp-card" style="text-align:center; padding:50px 0; color:#85817b;">
+                    등록된 배송지가 없습니다.
                 </div>
-                <div class="addr-body">
-                    <div>({{ item.postalCode }}) {{ item.addressDefault }}</div>
-                    <div v-if="item.addressDetail">{{ item.addressDetail }}</div>
-                </div>
-                <div class="addr-actions">
-                    <button v-if="item.isDefault != 1" class="btn" @click="fnSetDefault(item.addressId)">기본 배송지 설정</button>
-                    <button class="btn" @click="fnOpenEditModal(item)">수정</button>
-                    <button class="btn btn-danger" @click="fnRemove(item.addressId)">삭제</button>
-                </div>
-            </div>
 
-            <div v-if="showModal" class="modal-backdrop" @click.self="showModal = false">
-                <div class="modal-box">
-                    <div class="modal-title">{{ isEdit ? '배송지 수정' : '새 배송지 등록' }}</div>
-                    <div class="form-group">
-                        <label>배송지 별칭 (선택)</label>
-                        <input type="text" class="form-control" v-model="form.addressName" placeholder="예: 우리집, 회사">
-                    </div>
-                    <div class="form-group">
-                        <label>수령인 이름 *</label>
-                        <input type="text" class="form-control" v-model="form.recipientName" placeholder="수령인 성함">
-                    </div>
-                    <div class="form-group">
-                        <label>수령인 연락처 *</label>
-                        <input type="text" class="form-control" v-model="form.recipientPhone" placeholder="010-0000-0000">
-                    </div>
-                    <div class="form-group">
-                        <label>주소 *</label>
-                        <div class="postal-row">
-                            <input type="text" class="form-control" v-model="form.postalCode" placeholder="우편번호" readonly>
-                            <button type="button" class="btn" @click="fnSearchPostcode">우편번호 검색</button>
+                <div v-for="item in list" :key="item.addressId" class="mp-card"
+                     :style="item.isDefault == 1 ? 'border:1.5px solid #c49a62;' : ''">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div>
+                            <strong style="font-size:15px;">{{ item.addressName || item.recipientName }}</strong>
+                            <span v-if="item.isDefault == 1"
+                                  style="margin-left:8px; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; background:#efe7da; color:#765a36;">
+                                기본 배송지
+                            </span>
                         </div>
-                        <input type="text" class="form-control" v-model="form.addressDefault" placeholder="기본 주소" readonly style="background:#f8f9fa; margin-bottom:6px;">
-                        <input type="text" class="form-control" v-model="form.addressDetail" placeholder="상세 주소 입력">
+                        <span style="font-size:13px; color:#85817b;">{{ item.recipientName }} | {{ item.recipientPhone }}</span>
                     </div>
-                    <div style="margin-top: 8px; font-size: 13px;">
-                        <label style="cursor:pointer;">
-                            <input type="checkbox" v-model="form.isDefaultBool"> 기본 배송지로 설정
-                        </label>
+                    <div style="font-size:13px; color:#5c5346; line-height:1.6;">
+                        ({{ item.postalCode }}) {{ item.addressDefault }} {{ item.addressDetail }}
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn" @click="showModal = false">취소</button>
-                        <button class="btn btn-primary" @click="fnSave">저장</button>
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+                        <button v-if="item.isDefault != 1" class="mp-btn" @click="fnSetDefault(item.addressId)">기본 배송지 설정</button>
+                        <button class="mp-btn" @click="fnOpenEditModal(item)">수정</button>
+                        <button class="mp-btn mp-btn-danger" @click="fnRemove(item.addressId)">삭제</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </body>
+            <!-- [화면 B] 배송지 추가 / 수정 폼 -->
+            <div v-else class="mp-card">
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <tr>
+                        <th style="width:140px; text-align:left; padding:10px 0; color:#5c5346;">배송지 별칭</th>
+                        <td><input class="mp-input" v-model="form.addressName" placeholder="예: 우리집, 회사"></td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:left; padding:10px 0; color:#5c5346;">수령인 *</th>
+                        <td><input class="mp-input" v-model="form.recipientName" placeholder="수령인 이름"></td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:left; padding:10px 0; color:#5c5346;">연락처 *</th>
+                        <td><input class="mp-input" v-model="form.recipientPhone" placeholder="010-0000-0000"></td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:left; padding:10px 0; color:#5c5346; vertical-align:top;">주소 *</th>
+                        <td>
+                            <div style="display:flex; gap:8px; margin-bottom:8px;">
+                                <input class="mp-input" style="max-width:140px;" v-model="form.postalCode" placeholder="우편번호" readonly>
+                                <button type="button" class="mp-btn" @click="fnSearchPostcode">우편번호 검색</button>
+                            </div>
+                            <input class="mp-input" style="margin-bottom:8px;" v-model="form.addressDefault" placeholder="기본 주소" readonly>
+                            <input class="mp-input" v-model="form.addressDetail" placeholder="상세 주소 입력">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:left; padding:10px 0; color:#5c5346;">기본 설정</th>
+                        <td>
+                            <label style="cursor:pointer; font-size:13px;">
+                                <input type="checkbox" v-model="form.isDefaultBool"> 기본 배송지로 설정
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                    <button class="mp-btn" @click="showModal = false">취소</button>
+                    <button class="mp-btn mp-btn-gold" @click="fnSave">저장</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%@ include file="/WEB-INF/common/footer.jsp"%>
+</body>
+
 </html>
 
 <script>

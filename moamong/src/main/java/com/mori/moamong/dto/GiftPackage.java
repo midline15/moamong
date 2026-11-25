@@ -1,7 +1,6 @@
 package com.mori.moamong.dto;
 
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 public class GiftPackage {
@@ -12,6 +11,8 @@ public class GiftPackage {
     private Long packagePrice;
     private String packageStatus;
     private Long viewCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String updatedAt;
+    private String createdAt;
+
+    private String thumbnailUrl;
 }

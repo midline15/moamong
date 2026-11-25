@@ -269,9 +269,130 @@
     WHERE M.member_id = #{memberId}
 
 </select>
+    
 
-	    
-         
-         
+
+
+    <!-- ==========================================
+         5. 운영 정책 전체 목록 조회
+         ========================================== -->
+
+    <select id="selectPolicyList"
+            resultType="com.mori.moamong.dto.Policy">
+
+        SELECT
+            policy_id AS policyId,
+            policy_type AS policyType,
+            title,
+            content,
+            is_required AS isRequired,
+            is_active AS isActive,
+            updated_at AS updatedAt,
+            created_at AS createdAt
+
+        FROM POLICY
+
+        ORDER BY policy_id ASC
+
+    </select>
+
+
+    <!-- ==========================================
+         6. 운영 정책 상세 조회
+         ========================================== -->
+
+    <select id="selectPolicyDetail"
+            parameterType="hashmap"
+            resultType="com.mori.moamong.dto.Policy">
+
+        SELECT
+            policy_id AS policyId,
+            policy_type AS policyType,
+            title,
+            content,
+            is_required AS isRequired,
+            is_active AS isActive,
+            updated_at AS updatedAt,
+            created_at AS createdAt
+
+        FROM POLICY
+
+        WHERE policy_id = #{policyId}
+
+    </select>
+
+
+    <!-- ==========================================
+         7. 운영 정책 수정
+         ========================================== -->
+
+    <update id="updatePolicy"
+            parameterType="com.mori.moamong.dto.Policy">
+
+        UPDATE POLICY
+
+        SET
+            title = #{title},
+            content = #{content},
+            is_required = #{isRequired},
+            is_active = #{isActive},
+            updated_at = NOW()
+
+        WHERE policy_id = #{policyId}
+
+    </update>
+
+
+
+    <!-- ===================================== -->
+    <!-- 고객센터 운영 시간 관리 -->
+    <!-- ===================================== -->
+
+    <!-- 요일별 운영 시간 전체 조회 -->
+    <select id="selectCustomerServiceHours"
+            resultType="hashmap">
+
+        SELECT
+            hours_id AS hoursId,
+            day_of_week AS dayOfWeek,
+            start_time AS startTime,
+            end_time AS endTime,
+            is_closed AS isClosed
+        FROM CUSTOMER_SERVICE_HOURS
+        ORDER BY FIELD(
+            day_of_week,
+            'MON', 'TUE', 'WED', 'THU',
+            'FRI', 'SAT', 'SUN'
+        )
+
+    </select>
+
+
+    <!-- 요일별 운영 시간 저장 및 수정 -->
+    <insert id="saveCustomerServiceHours"
+            parameterType="hashmap">
+
+        INSERT INTO CUSTOMER_SERVICE_HOURS
+        (
+            day_of_week,
+            start_time,
+            end_time,
+            is_closed
+        )
+        VALUES
+        (
+            #{dayOfWeek},
+            #{startTime},
+            #{endTime},
+            #{isClosed}
+        )
+        ON DUPLICATE KEY UPDATE
+            start_time = VALUES(start_time),
+            end_time = VALUES(end_time),
+            is_closed = VALUES(is_closed)
+
+    </insert>
+
+
 
 </mapper>

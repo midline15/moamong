@@ -214,6 +214,7 @@
 
                 let formData = new FormData();
                 formData.append("file", file);
+                formData.append("type", "event");
 
                 $.ajax({
                     url: "http://localhost:8080/common/image-upload.dox",
@@ -231,6 +232,17 @@
                             alert(data.msg || "이미지 업로드에 실패했습니다.");
                         }
                     }
+                });
+            },
+
+            // 서버에 올라간 임시 이미지 삭제 (DB에 연결된 사진은 서버가 보호함)
+            fnImageDelete: function (urls) {
+                if (!urls || urls.length == 0) return;
+                $.ajax({
+                    url: "http://localhost:8080/common/image-delete.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: { urls: JSON.stringify(urls) }
                 });
             },
 
