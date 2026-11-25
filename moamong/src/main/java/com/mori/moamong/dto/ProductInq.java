@@ -17,4 +17,7 @@ public class ProductInq {
     private String updatedAt;
     private String isSecret;
     private String isDeleted;
+
+    private String memberName;
+    private String productName;
 }

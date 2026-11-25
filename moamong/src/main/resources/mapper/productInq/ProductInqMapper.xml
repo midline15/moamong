@@ -2,32 +2,53 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.productInq.mapper.ProductInqMapper">
 
-     <!-- 상품 문의 목록 조회 -->
+    <!-- 상품 문의 목록 조회 -->
     <select id="selectProductInqList" parameterType="hashmap"
-        resultType="com.mori.moamong.dto.ProductInq">
+        resultType="ProductInq">
         SELECT
-            inq_id,
-            product_id,
-            package_id,
-            member_id,
-            inq_content,
-            inq_status,
-            answer_content,
-            answered_by,
-            answered_at,
-            created_at,
-            updated_at,
-            is_secret,
-            is_deleted
-        FROM PRODUCT_INQ
-        WHERE product_id = #{productId}
-          AND is_deleted = 'N'
+            PI.inq_id,
+            PI.product_id,
+            PI.package_id,
+            PI.member_id,
+            CASE
+                WHEN PI.is_secret = 'N' THEN PI.inq_content
+                WHEN PI.member_id = #{memberId} THEN PI.inq_content
+                WHEN #{role} = 'ADMIN' THEN PI.inq_content
+                ELSE '비밀 문의입니다.'
+            END AS inq_content,
+            PI.inq_status,
+            CASE
+                WHEN PI.is_secret = 'N' THEN PI.answer_content
+                WHEN PI.member_id = #{memberId} THEN PI.answer_content
+                WHEN #{role} = 'ADMIN' THEN PI.answer_content
+                ELSE NULL
+            END AS answer_content,
+            PI.answered_by,
+            PI.answered_at,
+            PI.created_at,
+            PI.updated_at,
+            PI.is_secret,
+            PI.is_deleted,
+            CASE
+                WHEN PI.is_secret = 'N' THEN M.member_name
+                WHEN PI.member_id = #{memberId} THEN M.member_name
+                WHEN #{role} = 'ADMIN' THEN M.member_name
+                ELSE '비공개'
+            END AS member_name,
+            P.product_name
+        FROM PRODUCT_INQ PI
+        JOIN MEMBER M
+            ON PI.member_id = M.member_id
+        JOIN PRODUCT P
+            ON PI.product_id = P.product_id
+        WHERE PI.product_id = #{productId}
+        AND PI.is_deleted = 'N'
 
         <if test="inqStatus != null and inqStatus != 'ALL'">
-            AND inq_status = #{inqStatus}
+            AND PI.inq_status = #{inqStatus}
         </if>
 
-        ORDER BY created_at DESC, inq_id DESC
+        ORDER BY PI.created_at DESC, PI.inq_id DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
@@ -60,4 +81,100 @@
           AND inq_status = 'WAITING'
     </select>
 
+    <!-- 선택한 상태의 문의 개수 조회 -->
+    <select id="selectProductInqFilteredCount" parameterType="hashmap" resultType="int">
+        SELECT COUNT(*)
+        FROM PRODUCT_INQ
+        WHERE product_id = #{productId}
+        AND is_deleted = 'N'
+
+        <if test="inqStatus != null and inqStatus != 'ALL'">
+            AND inq_status = #{inqStatus}
+        </if>
+    </select>
+
+    <!-- 상품 문의 등록 -->
+    <insert id="insertProductInq" parameterType="hashmap">
+        INSERT INTO PRODUCT_INQ (
+            product_id,
+            member_id,
+            inq_content,
+            inq_status,
+            is_secret,
+            is_deleted,
+            created_at
+        ) VALUES (
+            #{productId},
+            #{memberId},
+            #{inqContent},
+            'WAITING',
+            #{isSecret},
+            'N',
+            NOW()
+        )
+    </insert>
+
+    <!-- 상품 문의 답변 등록 -->
+    <update id="updateProductInqAnswer" parameterType="hashmap">
+        UPDATE PRODUCT_INQ
+        SET
+            answer_content = #{answerContent},
+            inq_status = 'ANSWERED',
+            answered_by = #{answeredBy},
+            answered_at = NOW(),
+            updated_at = NOW()
+        WHERE inq_id = #{inqId}
+        AND inq_status = 'WAITING'
+        AND is_deleted = 'N'
+    </update>
+
+    <!-- 상품 문의 수정 -->
+    <update id="updateProductInq" parameterType="hashmap">
+        UPDATE PRODUCT_INQ
+        SET
+            inq_content = #{inqContent},
+            is_secret = #{isSecret},
+            updated_at = NOW()
+        WHERE inq_id = #{inqId}
+        AND member_id = #{memberId}
+        AND inq_status = 'WAITING'
+        AND is_deleted = 'N'
+    </update>
+
+    <!-- 상품 문의 삭제 -->
+    <update id="deleteProductInq" parameterType="hashmap">
+        UPDATE PRODUCT_INQ
+        SET
+            is_deleted = 'Y',
+            updated_at = NOW()
+        WHERE inq_id = #{inqId}
+        AND member_id = #{memberId}
+        AND is_deleted = 'N'
+    </update>
+
+    <!-- 상품 문의 답변 수정 -->
+    <update id="updateProductInqAnswerEdit" parameterType="hashmap">
+        UPDATE PRODUCT_INQ
+        SET
+            answer_content = #{answerContent},
+            answered_at = NOW(),
+            updated_at = NOW()
+        WHERE inq_id = #{inqId}
+        AND inq_status = 'ANSWERED'
+        AND is_deleted = 'N'
+    </update>
+
+    <!-- 상품 문의 답변 삭제 -->
+    <update id="deleteProductInqAnswer" parameterType="hashmap">
+        UPDATE PRODUCT_INQ
+        SET
+            answer_content = NULL,
+            inq_status = 'WAITING',
+            answered_by = NULL,
+            answered_at = NULL,
+            updated_at = NOW()
+        WHERE inq_id = #{inqId}
+        AND inq_status = 'ANSWERED'
+        AND is_deleted = 'N'
+    </update>
 </mapper>
