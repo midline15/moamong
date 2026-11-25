@@ -19,7 +19,7 @@ public class CouponController {
 	@Autowired
 	CouponService couponService;
 
-	// 마이페이지 - 내 쿠폰
+	// 마이페이지 - 내 쿠폰 조회
 	@RequestMapping("/coupon/mylist.do")
 	public String myCouponList(@RequestParam("memberId") Long memberId, Model model) {
 		model.addAttribute("memberId", memberId);
