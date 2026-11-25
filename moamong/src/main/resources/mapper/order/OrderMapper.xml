@@ -547,4 +547,105 @@
 		  AND R.member_id = #{memberId}
 	</select>
 
+    <!-- 바로구매 -->
+    <!-- 바로 구매 단품 상품 정보 조회 -->
+    <select id="selectDirectProduct" parameterType="long" resultType="hashmap">
+        SELECT
+            P.product_id AS productId,
+            NULL AS packageId,
+            1 AS quantity,
+            'PRODUCT' AS itemType,
+            P.product_name AS itemName,
+            P.price AS basePrice,
+            P.product_status AS itemStatus,
+            P.stock_quantity AS stockQuantity,
+            NULL AS packageGrade,
+            (
+                SELECT PI.image_url
+                FROM PRODUCT_IMAGE PI
+                WHERE PI.product_id = P.product_id
+                AND PI.image_type = 'THUMBNAIL'
+                ORDER BY PI.display_order ASC, PI.image_id ASC
+                LIMIT 1
+            ) AS thumbnailUrl
+        FROM PRODUCT P
+        WHERE P.product_id = #{productId}
+    </select>
+
+    <!-- 바로 구매 패키지 기본 정보 조회 -->
+    <select id="selectDirectPackage" parameterType="long" resultType="hashmap">
+        SELECT
+            PK.package_id AS packageId,
+            NULL AS productId,
+            1 AS quantity,
+            'PACKAGE' AS itemType,
+            PK.package_name AS itemName,
+            PK.package_price AS basePrice,
+            PK.package_status AS itemStatus,
+            NULL AS stockQuantity,
+            PK.package_grade AS packageGrade,
+            (
+                SELECT PKI.image_url
+                FROM PACKAGE_IMAGE PKI
+                WHERE PKI.package_id = PK.package_id
+                AND PKI.image_type = 'THUMBNAIL'
+                ORDER BY PKI.display_order ASC, PKI.image_id ASC
+                LIMIT 1
+            ) AS thumbnailUrl
+        FROM PACKAGE PK
+        WHERE PK.package_id = #{packageId}
+    </select>
+
+    <!-- 바로 구매 패키지 구성 상품 조회 -->
+    <select id="selectDirectPackageItem" resultType="hashmap">
+        SELECT
+            PI.package_item_id AS packageItemId,
+            PI.product_id AS defaultProductId,
+            #{selectedProductId} AS selectedProductId,
+            PI.item_role AS itemRole,
+            PI.quantity AS itemQuantity,
+            P.product_name AS selectedProductName,
+            P.product_status AS selectedProductStatus,
+            P.stock_quantity AS selectedProductStock,
+            CASE
+                WHEN PI.product_id = #{selectedProductId} THEN 0
+                ELSE PIO.additional_price
+            END AS additionalPrice
+            FROM PACKAGE_ITEM PI
+            INNER JOIN PRODUCT P ON P.product_id = #{selectedProductId}
+            INNER JOIN PACKAGE PK ON PK.package_id = PI.package_id
+            LEFT JOIN PACKAGE_ITEM_OPTION PIO
+                ON PIO.package_item_id = PI.package_item_id
+                AND PIO.option_product_id = #{selectedProductId}
+            WHERE PI.package_item_id = #{packageItemId}
+            AND PK.package_id = #{packageId}
+            AND (
+                PI.product_id = #{selectedProductId}
+                OR PIO.package_item_option_id IS NOT NULL
+            )
+    </select>
+
+    <!-- 바로 구매 패키지 추가 옵션 조회 -->
+    <select id="selectDirectPackageExtra" resultType="hashmap">
+        SELECT
+            PEO.package_extra_option_id AS packageExtraOptionId,
+            PE.package_extra_id AS packageExtraId,
+            PE.extra_type AS extraType,
+            PE.extra_name AS extraName,
+            PEO.option_name AS optionName,
+            PEO.additional_price AS additionalPrice
+        FROM PACKAGE_EXTRA PE
+        INNER JOIN PACKAGE_EXTRA_OPTION PEO
+            ON PE.package_extra_id = PEO.package_extra_id
+        WHERE PE.package_id = #{packageId}
+        AND PEO.package_extra_option_id = #{packageExtraOptionId}
+    </select>
+
+    <!-- 패키지 필수 추가 옵션 그룹 개수 조회 -->
+    <select id="selectRequiredPackageExtraCount" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM PACKAGE_EXTRA
+        WHERE package_id = #{packageId}
+        AND is_required = 1
+    </select>
 </mapper>

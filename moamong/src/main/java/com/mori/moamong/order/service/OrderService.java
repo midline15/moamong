@@ -1,5 +1,7 @@
 package com.mori.moamong.order.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -519,4 +521,318 @@ public class OrderService {
 	private Map<String, Object> toMap(Object obj) {
 		return obj instanceof Map<?, ?> ? (Map<String, Object>) obj : Map.of();
 	}
+  
+  // ==================== 바로 구매 주문서 초기 데이터 조회 ====================
+    public HashMap<String, Object> getDirectCheckoutData(
+            Long memberId, Map<String, Object> directPurchase) {
+
+        HashMap<String, Object> res = new HashMap<>();
+
+        String itemType = String.valueOf(directPurchase.get("itemType"));
+
+        // 구매 유형 확인
+        if (!"PRODUCT".equals(itemType) && !"PACKAGE".equals(itemType)) {
+            res.put("result", "fail");
+            res.put("message", "올바르지 않은 구매 정보입니다.");
+            return res;
+        }
+
+        // 구매 수량 확인
+        int quantity;
+
+        try {
+            quantity = Integer.parseInt(
+                    String.valueOf(directPurchase.get("quantity")));
+        } catch (Exception e) {
+            res.put("result", "fail");
+            res.put("message", "올바르지 않은 구매 수량입니다.");
+            return res;
+        }
+
+        if (quantity < 1) {
+            res.put("result", "fail");
+            res.put("message", "구매 수량은 1개 이상이어야 합니다.");
+            return res;
+        }
+
+        // 현재는 단품 바로 구매만 처리
+        if ("PRODUCT".equals(itemType)) {
+
+            Long productId = Long.valueOf(
+                    String.valueOf(directPurchase.get("productId")));
+
+            HashMap<String, Object> item = orderMapper.selectDirectProduct(productId);
+
+            if (item == null) {
+                res.put("result", "fail");
+                res.put("message", "상품 정보를 찾을 수 없습니다.");
+                return res;
+            }
+
+            // 판매 상태 확인
+            if (!"SELLING".equals(item.get("itemStatus"))) {
+                res.put("result", "fail");
+                res.put("message", "현재 구매할 수 없는 상품입니다.");
+                return res;
+            }
+
+            // 재고 확인
+            int stockQuantity = Integer.parseInt(
+                    String.valueOf(item.get("stockQuantity")));
+
+            if (stockQuantity < quantity) {
+                res.put("result", "fail");
+                res.put("message", "상품 재고가 부족합니다.");
+                return res;
+            }
+
+            // 주문서에서 사용하는 데이터 형태에 맞춤
+            item.put("cartItemId", -1L);
+            item.put("quantity", quantity);
+            item.put("packageItems", new ArrayList<>());
+            item.put("packageExtras", new ArrayList<>());
+
+            BigDecimal unitPrice = new BigDecimal(
+                    String.valueOf(item.get("basePrice")));
+
+            BigDecimal lineAmount = unitPrice.multiply(
+                    BigDecimal.valueOf(quantity));
+
+            item.put("unitPrice", unitPrice);
+            item.put("lineAmount", lineAmount);
+
+            List<HashMap<String, Object>> items = new ArrayList<>();
+            items.add(item);
+
+            // 금액 계산
+            BigDecimal totalProductAmount = lineAmount;
+            BigDecimal totalAdditionalAmount = BigDecimal.ZERO;
+
+            BigDecimal shippingFee = totalProductAmount.compareTo(
+                    BigDecimal.valueOf(FREE_SHIPPING_MIN)) >= 0
+                            ? BigDecimal.ZERO
+                            : BigDecimal.valueOf(BASIC_SHIPPING_FEE);
+
+            BigDecimal finalAmount = totalProductAmount
+                    .add(totalAdditionalAmount)
+                    .add(shippingFee);
+
+            // 주문서 데이터 반환
+            res.put("result", "success");
+            res.put("items", items);
+            res.put("defaultAddress",
+                    addressMapper.selectDefaultAddress(memberId));
+            res.put("addressList",
+                    addressMapper.selectAddressList(memberId));
+            res.put("totalProductAmount", totalProductAmount);
+            res.put("totalAdditionalAmount", totalAdditionalAmount);
+            res.put("shippingFee", shippingFee);
+            res.put("finalAmount", finalAmount);
+
+            return res;
+        }
+
+        // ==================== 패키지 바로 구매 조회 ====================
+        if ("PACKAGE".equals(itemType)) {
+
+            Long packageId = Long.valueOf(
+                    String.valueOf(directPurchase.get("packageId")));
+
+            // 패키지 기본 정보 조회
+            HashMap<String, Object> item = orderMapper.selectDirectPackage(packageId);
+
+            if (item == null) {
+                res.put("result", "fail");
+                res.put("message", "패키지 정보를 찾을 수 없습니다.");
+                return res;
+            }
+
+            // 패키지 판매 상태 확인
+            if (!"SELLING".equals(item.get("itemStatus"))) {
+                res.put("result", "fail");
+                res.put("message", "현재 구매할 수 없는 패키지입니다.");
+                return res;
+            }
+
+            BigDecimal basePrice = new BigDecimal(
+                    String.valueOf(item.get("basePrice")));
+
+            BigDecimal totalAdditionalAmount = BigDecimal.ZERO;
+
+            List<HashMap<String, Object>> packageItems = new ArrayList<>();
+            List<HashMap<String, Object>> packageExtras = new ArrayList<>();
+
+            // 선택한 구성 상품 목록
+            Object packageItemsObj = directPurchase.get("packageItems");
+
+            if (!(packageItemsObj instanceof List<?>)) {
+                res.put("result", "fail");
+                res.put("message", "패키지 구성 상품 정보가 올바르지 않습니다.");
+                return res;
+            }
+
+            List<?> selectedItems = (List<?>) packageItemsObj;
+
+            for (Object obj : selectedItems) {
+
+                if (!(obj instanceof Map<?, ?>)) {
+                    res.put("result", "fail");
+                    res.put("message", "구성 상품 정보가 올바르지 않습니다.");
+                    return res;
+                }
+
+                Map<?, ?> selectedItem = (Map<?, ?>) obj;
+
+                Long packageItemId = Long.valueOf(
+                        String.valueOf(selectedItem.get("packageItemId")));
+
+                Long selectedProductId = Long.valueOf(
+                        String.valueOf(selectedItem.get("selectedProductId")));
+
+                HashMap<String, Object> packageItem = orderMapper.selectDirectPackageItem(
+                        packageId, packageItemId, selectedProductId);
+
+                if (packageItem == null) {
+                    res.put("result", "fail");
+                    res.put("message", "선택한 구성 상품을 확인할 수 없습니다.");
+                    return res;
+                }
+
+                // 구성 상품 판매 상태 확인
+                if (!"SELLING".equals(packageItem.get("selectedProductStatus"))) {
+                    res.put("result", "fail");
+                    res.put("message", "구성 상품 중 구매할 수 없는 상품이 있습니다.");
+                    return res;
+                }
+
+                int itemQuantity = Integer.parseInt(
+                        String.valueOf(packageItem.get("itemQuantity")));
+
+                int stockQuantity = Integer.parseInt(
+                        String.valueOf(packageItem.get("selectedProductStock")));
+
+                // 패키지 구매 수량까지 고려한 재고 확인
+                if (stockQuantity < itemQuantity * quantity) {
+                    res.put("result", "fail");
+                    res.put("message", "구성 상품의 재고가 부족합니다.");
+                    return res;
+                }
+
+                // 주문서 JSP에서 사용하는 데이터 형태에 맞춤
+                packageItem.put("cartPackageItemId", packageItemId);
+
+                BigDecimal additionalPrice = new BigDecimal(
+                        String.valueOf(packageItem.get("additionalPrice")));
+
+                totalAdditionalAmount = totalAdditionalAmount.add(
+                        additionalPrice.multiply(BigDecimal.valueOf(itemQuantity))
+                                .multiply(BigDecimal.valueOf(quantity)));
+
+                packageItems.add(packageItem);
+            }
+
+            // 선택한 추가 옵션 목록
+            Object packageExtrasObj = directPurchase.get("packageExtras");
+
+            if (!(packageExtrasObj instanceof List<?>)) {
+                res.put("result", "fail");
+                res.put("message", "패키지 추가 옵션 정보가 올바르지 않습니다.");
+                return res;
+            }
+
+            List<?> selectedExtras = (List<?>) packageExtrasObj;
+
+            // 패키지 필수 추가 옵션 그룹 개수 확인
+            int requiredExtraCount = orderMapper.selectRequiredPackageExtraCount(packageId);
+
+            if (selectedExtras.size() < requiredExtraCount) {
+                res.put("result", "fail");
+                res.put("message", "필수 추가 옵션을 모두 선택해 주세요.");
+                return res;
+            }
+
+            for (Object obj : selectedExtras) {
+
+                if (!(obj instanceof Map<?, ?>)) {
+                    res.put("result", "fail");
+                    res.put("message", "추가 옵션 정보가 올바르지 않습니다.");
+                    return res;
+                }
+
+                Map<?, ?> selectedExtra = (Map<?, ?>) obj;
+
+                Long packageExtraOptionId = Long.valueOf(
+                        String.valueOf(selectedExtra.get("packageExtraOptionId")));
+
+                HashMap<String, Object> packageExtra = orderMapper.selectDirectPackageExtra(
+                        packageId, packageExtraOptionId);
+
+                if (packageExtra == null) {
+                    res.put("result", "fail");
+                    res.put("message", "선택한 추가 옵션을 확인할 수 없습니다.");
+                    return res;
+                }
+
+                // 주문서 JSP에서 사용하는 데이터 형태에 맞춤
+                packageExtra.put("cartPackageExtraId", packageExtraOptionId);
+                packageExtra.put("optionValue", "");
+
+                BigDecimal additionalPrice = new BigDecimal(
+                        String.valueOf(packageExtra.get("additionalPrice")));
+
+                totalAdditionalAmount = totalAdditionalAmount.add(
+                        additionalPrice.multiply(BigDecimal.valueOf(quantity)));
+
+                packageExtras.add(packageExtra);
+            }
+
+            // 주문서 데이터 구성
+            item.put("cartItemId", -1L);
+            item.put("quantity", quantity);
+            item.put("packageItems", packageItems);
+            item.put("packageExtras", packageExtras);
+
+            BigDecimal unitPrice = basePrice.add(
+                    totalAdditionalAmount.divide(
+                            BigDecimal.valueOf(quantity),
+                            2,
+                            RoundingMode.HALF_UP));
+
+            BigDecimal lineAmount = basePrice
+                    .multiply(BigDecimal.valueOf(quantity))
+                    .add(totalAdditionalAmount);
+
+            item.put("unitPrice", unitPrice);
+            item.put("lineAmount", lineAmount);
+
+            List<HashMap<String, Object>> items = new ArrayList<>();
+            items.add(item);
+
+            // 배송비 계산
+            BigDecimal shippingFee = lineAmount.compareTo(
+                    BigDecimal.valueOf(FREE_SHIPPING_MIN)) >= 0
+                            ? BigDecimal.ZERO
+                            : BigDecimal.valueOf(BASIC_SHIPPING_FEE);
+
+            BigDecimal finalAmount = lineAmount.add(shippingFee);
+
+            // 주문서 데이터 반환
+            res.put("result", "success");
+            res.put("items", items);
+            res.put("defaultAddress",
+                    addressMapper.selectDefaultAddress(memberId));
+            res.put("addressList",
+                    addressMapper.selectAddressList(memberId));
+            res.put("totalProductAmount",
+                    basePrice.multiply(BigDecimal.valueOf(quantity)));
+            res.put("totalAdditionalAmount", totalAdditionalAmount);
+            res.put("shippingFee", shippingFee);
+            res.put("finalAmount", finalAmount);
+
+            return res;
+        }
+        res.put("result", "fail");
+        res.put("message", "올바르지 않은 구매 정보입니다.");
+        return res;
+    }
 }

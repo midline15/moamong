@@ -10,4 +10,8 @@ public class GiftPackageItem {
     private String itemRole;
     private Integer itemOrder;
     private Long quantity;
+
+    private String productName;
+    private int productPrice;
+    private String thumbnailUrl;
 }

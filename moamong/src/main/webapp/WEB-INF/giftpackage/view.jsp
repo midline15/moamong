@@ -1,489 +1,867 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
-<html lang="ko">
+    <!DOCTYPE html>
+    <html lang="ko">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모아몽</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>모아몽</title>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.js"
-        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-        crossorigin="anonymous"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.js"
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
-    <!-- Vue -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <!-- Vue -->
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <script src="/js/page-change.js"></script>
+        <script src="${pageContext.request.contextPath}/js/page-change.js"></script>
 
-    <!-- 공통 CSS -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <!-- 공통 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
 
-    <!-- 상품 상세 CSS -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product/view.css">
-</head>
+        <!-- 패키지 상세 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/package/view.css">
+    </head>
 
-<body>
+    <body>
 
-    <!-- 공통 헤더 -->
-    <%@ include file="/WEB-INF/common/header.jsp" %>
+        <!-- 공통 헤더 -->
+        <%@ include file="/WEB-INF/common/header.jsp" %>
 
-    <div id="app">
+            <div id="app">
 
-        <main class="product-container" v-if="info.productName">
+                <main class="product-container" v-if="info.packageName">
 
-            <!-- 상품명 및 카테고리 -->
-            <section class="product-heading">
-                <h2>{{ info.productName }}</h2>
+                    <!-- 패키지명 -->
+                    <section class="product-heading">
+                        <h2>{{ info.packageName }}</h2>
+                    </section>
 
-                <div class="category-menu">
-                    <button type="button" class="active">액세서리</button>
-                    <button type="button">생활용품</button>
-                    <button type="button">패션</button>
-                    <button type="button">소품</button>
-                    <button type="button">푸드</button>
-                </div>
-            </section>
+                    <!-- 패키지 구매 영역 -->
+                    <section class="product-main">
 
-            <!-- 상품 구매 영역 -->
-            <section class="product-main">
+                        <!-- 패키지 대표 이미지 -->
+                        <div class="product-gallery">
 
-                <!-- 상품 이미지 영역 -->
-                <div class="product-gallery">
+                            <div class="main-image">
+                                <img v-if="selectedImageUrl" :src="selectedImageUrl" :alt="info.packageName">
 
-                    <div class="main-image">
-                        <img v-if="selectedImageUrl"
-                            :src="selectedImageUrl"
-                            :alt="info.productName">
+                                <div v-else class="empty-image">
+                                    등록된 패키지 이미지가 없습니다.
+                                </div>
+                            </div>
 
-                        <div v-else class="empty-image">
-                            등록된 상품 이미지가 없습니다.
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- 상품 정보 영역 -->
-                <div class="product-info">
-
-                    <div class="product-title-area">
-                        <div>
-                            <h2>{{ info.productName }}</h2>
-                            <p class="product-category">모아몽 상품 · 특별한 순간을 위한 선물</p>
                         </div>
 
-                        <button type="button"
-                            class="wish-btn"
-                            :class="{ active: isWished }"
-                            @click="fnWishToggle"
-                            :title="isWished ? '찜 해제' : '찜하기'">
+                        <!-- 패키지 정보 -->
+                        <div class="product-info">
 
-                            {{ isWished ? '♥' : '♡' }}
+                            <div class="product-title-area">
+                                <div>
+                                    <h2>{{ info.packageName }}</h2>
+                                    <p class="product-category">
+                                        모아몽 패키지 · 특별한 순간을 위한 선물
+                                    </p>
+                                </div>
 
-                        </button>
-                    </div>
+                                <button type="button" class="wish-btn" :class="{ active: isWished }"
+                                    @click="fnWishToggle" :title="isWished ? '찜 해제' : '찜하기'">
 
-                    <p class="product-price">
-                        {{ Number(info.price || 0).toLocaleString() }}원
-                    </p>
+                                    {{ isWished ? '♥' : '♡' }}
 
-                    <div class="product-benefit">
+                                </button>
+                            </div>
 
-                        <div class="info-line">
-                            <strong>쿠폰</strong>
-                            <span>첫 구매 고객 쿠폰 혜택</span>
-                            <span class="info-guide">쿠폰 보기</span>
-                        </div>
+                            <p class="product-price">
+                                {{ Number(info.packagePrice || 0).toLocaleString() }}원
+                            </p>
 
-                        <div class="info-line">
-                            <strong>적립</strong>
-                            <span>멤버십 포인트 적립</span>
-                            <span class="info-guide">포인트 안내</span>
-                        </div>
+                            <div class="product-benefit">
 
-                        <div class="info-line">
-                            <strong>결제</strong>
-                            <span>카드사별 혜택 안내</span>
-                            <span class="info-guide">자세히 보기</span>
-                        </div>
+                                <div class="info-line">
+                                    <strong>등급</strong>
+                                    <span>{{ packageGradeName }}</span>
+                                </div>
 
-                        <div class="info-line">
-                            <strong>배송</strong>
-                            <span>택배 배송</span>
-                        </div>
+                                <div class="info-line">
+                                    <strong>쿠폰</strong>
+                                    <span>첫 구매 고객 쿠폰 혜택</span>
+                                    <span class="info-guide">쿠폰 보기</span>
+                                </div>
 
-                    </div>
+                                <div class="info-line">
+                                    <strong>적립</strong>
+                                    <span>멤버십 포인트 적립</span>
+                                    <span class="info-guide">포인트 안내</span>
+                                </div>
 
-                    <!-- 옵션 선택 -->
-                    <div class="option-area">
+                                <div class="info-line">
+                                    <strong>배송</strong>
+                                    <span>택배 배송</span>
+                                </div>
 
-                        <label for="productOption">옵션</label>
-
-                        <select id="productOption" v-model.number="selectedOptionPrice">
-                            <option :value="0">기본 구성</option>
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            <!-- 상품 구매 및 금액 영역 -->
-            <section class="purchase-section">
-
-                <div class="purchase-product">
-                    <span><strong>구매 상품 :</strong> {{ info.productName }}</span>
-
-                    <div class="quantity-control">
-                        <button type="button" @click="fnQuantityChange(-1)">-</button>
-                        <input type="number"
-                            v-model.number="quantity"
-                            min="1"
-                            :max="Number(info.stockQuantity)"
-                            @change="fnQuantityCheck">
-                        <button type="button" @click="fnQuantityChange(1)">+</button>
-                    </div>
-                </div>
-
-                <div class="purchase-option">
-                    <span>
-                        <strong>선택한 옵션 :</strong>
-                        {{ selectedOptionPrice > 0 ? '고급 포장' : '기본 구성' }}
-                        <span v-if="selectedOptionPrice > 0">
-                            (+ {{ selectedOptionPrice.toLocaleString() }}원)
-                        </span>
-                    </span>
-                </div>
-
-                <div class="purchase-buttons">
-
-                    <button type="button"
-                        class="cart-btn"
-                        @click="fnAddCart"
-                        :disabled="info.productStatus !== 'SELLING' || Number(info.stockQuantity) <= 0">
-                        장바구니
-                    </button>
-
-                    <button type="button"
-                        class="buy-btn"
-                        :disabled="info.productStatus !== 'SELLING' || Number(info.stockQuantity) <= 0"
-                        @click="fnBuy">
-                        구매하기
-                    </button>
-
-                </div>
-
-                <div class="purchase-total">
-                    <div>
-                        <strong>배송비 :</strong>
-                        {{ deliveryFee.toLocaleString() }}원
-                    </div>
-
-                    <div class="total-price">
-                        <strong>총 금액 :</strong>
-                        <span>{{ totalPrice.toLocaleString() }}원</span>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- 상품 상세 탭 -->
-            <section class="detail-section">
-
-                <div class="detail-tabs">
-
-                    <button type="button"
-                        :class="{ active: activeTab === 'description' }"
-                        @click="activeTab = 'description'">
-                        상품정보
-                    </button>
-
-                    <button type="button"
-                        :class="{ active: activeTab === 'review' }"
-                        @click="activeTab = 'review'">
-                        리뷰
-                    </button>
-
-                    <button type="button"
-                        :class="{ active: activeTab === 'inquiry' }"
-                        @click="activeTab = 'inquiry'">
-                        문의
-                    </button>
-
-                </div>
-
-                <!-- 상품 상세 설명 -->
-                <div class="detail-content" v-if="activeTab === 'description'">
-
-                    <div v-if="info.productDescription"
-                        class="description-content"
-                        v-html="info.productDescription">
-                    </div>
-
-                    <div v-else class="empty-message">
-                        등록된 상품 상세 설명이 없습니다.
-                    </div>
-
-
-                    <!-- 배송 및 교환 안내 -->
-                    <section class="delivery-section">
-
-                        <h3>배송/교환/반품 안내</h3>
-
-                        <div class="delivery-table-area">
-
-                            <h4>배송안내</h4>
-
-                            <table class="guide-table">
-                                <tbody>
-                                    <tr>
-                                        <th>택배 배송</th>
-                                        <td>
-                                            <strong>3,000원</strong><br>
-                                            배송 기간은 결제 완료 후 영업일 기준으로 안내됩니다.
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>배송 기간</th>
-                                        <td>
-                                            상품 준비 및 배송 상황에 따라 배송 기간이 달라질 수 있습니다.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <h4>반품/교환</h4>
-
-                            <table class="guide-table">
-                                <tbody>
-                                    <tr>
-                                        <th>반품 배송비</th>
-                                        <td>왕복 배송비 6,000원</td>
-                                    </tr>
-                                    <tr>
-                                        <th>교환 및 반품 안내</th>
-                                        <td>
-                                            <ol>
-                                                <li>상품 수령 후 교환 및 반품 가능 여부를 확인해 주세요.</li>
-                                                <li>상품의 사용 흔적이나 훼손이 있는 경우 제한될 수 있습니다.</li>
-                                                <li>단순 변심에 의한 반품은 배송비가 발생할 수 있습니다.</li>
-                                                <li>상품에 문제가 있는 경우 고객센터로 문의해 주세요.</li>
-                                            </ol>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            </div>
 
                         </div>
 
                     </section>
 
+                    <!-- 패키지 구매 및 금액 영역 -->
+                    <section class="purchase-section">
+
+                        <!-- 패키지 구성 상품 선택 -->
+                        <div class="package-item-select">
+                            <h3>패키지 구성 상품 선택</h3>
+
+                            <div v-for="item in packageItems" :key="item.packageItemId">
+                                <label>
+                                    {{ item.productName }}
+                                    <span v-if="item.itemRole === 'MAIN'">(메인 상품)</span>
+                                    <span v-else>(구성 상품)</span>
+                                </label>
+
+                                <select v-model="selectedPackageItems[item.packageItemId]">
+                                    <option :value="item.productId">
+                                        {{ item.productName }} (기본)
+                                    </option>
+
+                                    <option
+                                        v-for="option in packageItemOptions.filter(option => option.packageItemId === item.packageItemId)"
+                                        :key="option.packageItemOptionId" :value="option.optionProductId">
+                                        {{ option.productName }}
+                                        ({{ Number(option.additionalPrice) > 0 ? '+' : '' }}{{
+                                        Number(option.additionalPrice).toLocaleString() }}원)
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 패키지 추가 옵션 선택 -->
+                        <div class="package-extra-select">
+                            <h3>추가 옵션 선택</h3>
+
+                            <div v-for="extra in packageExtras" :key="extra.packageExtraId">
+                                <label>{{ extra.extraName }}</label>
+
+                                <select v-model="selectedPackageExtras[extra.packageExtraId]">
+                                    <option
+                                        v-for="option in packageExtraOptions.filter(option => option.packageExtraId === extra.packageExtraId)"
+                                        :key="option.packageExtraOptionId" :value="option.packageExtraOptionId">
+                                        {{ option.optionName }}
+                                        <span v-if="Number(option.additionalPrice) > 0">
+                                            (+{{ Number(option.additionalPrice).toLocaleString() }}원)
+                                        </span>
+                                        <span v-else>(추가 금액 없음)</span>
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="purchase-product">
+                            <span>
+                                <strong>구매 상품 :</strong>
+                                {{ info.packageName }}
+                            </span>
+
+                            <div class="quantity-control">
+                                <button type="button" @click="fnQuantityChange(-1)">-</button>
+
+                                <input type="number" v-model.number="quantity" min="1" @change="fnQuantityCheck">
+
+                                <button type="button" @click="fnQuantityChange(1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="purchase-buttons">
+
+                            <button type="button" class="cart-btn" @click="fnAddCart"
+                                :disabled="info.packageStatus !== 'SELLING'">
+                                장바구니
+                            </button>
+
+                            <button type="button" class="buy-btn" :disabled="info.packageStatus !== 'SELLING'"
+                                @click="fnBuy">
+                                구매하기
+                            </button>
+
+                        </div>
+
+                        <div class="purchase-total">
+
+                            <div>
+                                <strong>배송비 :</strong>
+                                {{ deliveryFee.toLocaleString() }}원(3만원 이상 무료배송)
+                            </div>
+
+                            <div class="total-price">
+                                <strong>총 금액 :</strong>
+                                <span>{{ totalPrice.toLocaleString() }}원</span>
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- 패키지 상세 탭 -->
+                    <section class="detail-section">
+
+                        <div class="detail-tabs">
+
+                            <button type="button" :class="{ active: activeTab === 'description' }"
+                                @click="activeTab = 'description'">
+                                상품정보
+                            </button>
+
+                            <button type="button" :class="{ active: activeTab === 'review' }" @click="fnReviewTab">
+                                리뷰
+                            </button>
+
+                            <button type="button" :class="{ active: activeTab === 'inquiry' }"
+                                @click="activeTab = 'inquiry'">
+                                문의
+                            </button>
+
+                        </div>
+
+                        <!-- 패키지 상세 설명 -->
+                        <div class="detail-content" v-if="activeTab === 'description'">
+
+                            <div v-if="info.packageDescription" class="description-content"
+                                v-html="info.packageDescription">
+                            </div>
+
+                            <div v-else class="empty-message">
+                                등록된 패키지 상세 설명이 없습니다.
+                            </div>
+
+                            <!-- 배송 및 교환 안내 -->
+                            <section class="delivery-section">
+
+                                <h3>배송/교환/반품 안내</h3>
+
+                                <div class="delivery-table-area">
+
+                                    <h4>배송안내</h4>
+
+                                    <table class="guide-table">
+                                        <tbody>
+                                            <tr>
+                                                <th>택배 배송</th>
+                                                <td>
+                                                    <strong>3,000원</strong><br>
+                                                    배송 기간은 결제 완료 후 영업일 기준으로 안내됩니다.
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>배송 기간</th>
+                                                <td>
+                                                    상품 준비 및 배송 상황에 따라 배송 기간이 달라질 수 있습니다.
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <h4>반품/교환</h4>
+
+                                    <table class="guide-table">
+                                        <tbody>
+                                            <tr>
+                                                <th>반품 배송비</th>
+                                                <td>왕복 배송비 6,000원</td>
+                                            </tr>
+                                            <tr>
+                                                <th>교환 및 반품 안내</th>
+                                                <td>
+                                                    <ol>
+                                                        <li>상품 수령 후 교환 및 반품 가능 여부를 확인해 주세요.</li>
+                                                        <li>상품의 사용 흔적이나 훼손이 있는 경우 제한될 수 있습니다.</li>
+                                                        <li>단순 변심에 의한 반품은 배송비가 발생할 수 있습니다.</li>
+                                                        <li>상품에 문제가 있는 경우 고객센터로 문의해 주세요.</li>
+                                                    </ol>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </section>
+
+                        </div>
+
+                        <!-- 리뷰 -->
+                        <div class="review-section" v-else-if="activeTab === 'review'">
+
+                            <!-- 리뷰 제목 -->
+                            <div class="review-heading">
+                                <div>
+                                    <strong>구매 리뷰</strong>
+                                    <span>{{ reviewTotalCount }}</span>
+                                </div>
+                                <button type="button" class="review-write-btn">
+                                    리뷰 작성
+                                </button>
+                            </div>
+
+                            <p class="review-guide">
+                                구매하신 분들이 남겨주신 소중한 후기입니다.
+                            </p>
+
+                            <!-- 리뷰가 없는 경우 -->
+                            <div class="empty-message" v-if="reviewTotalCount === 0">
+                                등록된 리뷰가 없습니다.
+                            </div>
+
+                            <template v-else>
+
+                                <!-- 별점 필터 -->
+                                <div class="review-filter">
+
+                                    <button type="button" :class="{ active: selectedRating === 0 }"
+                                        @click="selectedRating = 0">
+                                        전체
+                                    </button>
+
+                                    <button type="button" v-for="rating in [5, 4, 3, 2, 1]" :key="rating"
+                                        :class="{ active: selectedRating === rating }" @click="selectedRating = rating">
+                                        {{ rating }}점
+                                    </button>
+
+                                </div>
+
+                                <!-- 리뷰 목록 -->
+                                <div class="review-list">
+
+                                    <div class="review-item" v-for="review in filteredReviewList"
+                                        :key="review.reviewId">
+
+                                        <!-- 리뷰 별점 -->
+                                        <div class="review-rating">
+                                            <span v-for="n in 5" :key="n" :class="{ active: n <= review.rating }">
+                                                ★
+                                            </span>
+
+                                            <div class="review-member">
+                                                회원 {{ review.memberId }}
+                                            </div>
+
+                                            <div class="review-date">
+                                                {{ review.createdAt ? review.createdAt.substring(0, 10) : '' }}
+                                            </div>
+                                        </div>
+
+                                        <!-- 리뷰 내용 -->
+                                        <div class="review-content">
+
+                                            <div class="review-content-rating">
+                                                별점 {{ review.rating }}점
+                                            </div>
+
+                                            <p>{{ review.reviewContent }}</p>
+
+                                            <!-- 리뷰 이미지 -->
+                                            <div class="review-image-list"
+                                                v-if="review.imageList && review.imageList.length > 0">
+
+                                                <img v-for="image in review.imageList" :key="image.imageId"
+                                                    :src="image.imageUrl" alt="리뷰 이미지">
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- 페이지네이션 -->
+                                <div class="review-pagination" v-if="reviewMaxPage > 1">
+
+                                    <button type="button" @click="fnReviewPage(reviewPage - 1)"
+                                        :disabled="reviewPage === 1">
+                                        이전
+                                    </button>
+
+                                    <button type="button" v-for="n in reviewMaxPage" :key="n"
+                                        :class="{ active: reviewPage === n }" @click="fnReviewPage(n)">
+                                        {{ n }}
+                                    </button>
+
+                                    <button type="button" @click="fnReviewPage(reviewPage + 1)"
+                                        :disabled="reviewPage === reviewMaxPage">
+                                        다음
+                                    </button>
+
+                                </div>
+
+                            </template>
+
+                        </div>
+
+                        <!-- 문의 -->
+                        <div class="empty-message tab-empty" v-else>
+                            등록된 문의가 없습니다.
+                        </div>
+
+                    </section>
+
+                </main>
+
+                <!-- 패키지 조회 전 -->
+                <div class="empty-message" v-else-if="isLoading">
+                    패키지 정보를 불러오는 중입니다.
                 </div>
 
-                <!-- 리뷰 -->
-                <div class="empty-message tab-empty" v-else-if="activeTab === 'review'">
-                    등록된 리뷰가 없습니다.
+                <!-- 패키지 조회 실패 -->
+                <div class="empty-message" v-else>
+                    패키지 정보를 불러올 수 없습니다.
                 </div>
 
-                <!-- 문의 -->
-                <div class="empty-message tab-empty" v-else>
-                    등록된 문의가 없습니다.
-                </div>
+            </div>
 
-            </section>
+            <!-- 공통 푸터 -->
+            <%@ include file="/WEB-INF/common/footer.jsp" %>
 
-        </main>
+                <script>
+                    const app = Vue.createApp({
 
-        <!-- 상품 조회 전 -->
-        <div class="empty-message" v-else-if="isLoading">
-            상품 정보를 불러오는 중입니다.
-        </div>
+                        data() {
+                            return {
+                                packageId: "${packageId}",
 
-        <!-- 상품 조회 실패 -->
-        <div class="empty-message" v-else>
-            상품 정보를 불러올 수 없습니다.
-        </div>
+                                info: {},
 
-    </div>
+                                selectedImageUrl: "",
 
-    <!-- 공통 푸터 -->
-    <%@ include file="/WEB-INF/common/footer.jsp" %>
+                                // 패키지 구성 상품 선택 목록
+                                packageItems: [],
+                                packageItemOptions: [],
 
-</body>
+                                // 패키지 추가 옵션 선택 목록
+                                packageExtras: [],
+                                packageExtraOptions: [],
 
-</html>
+                                // 구성 상품별 선택한 상품 ID
+                                selectedPackageItems: {},
+                                // 추가 옵션별 선택한 옵션 ID
+                                selectedPackageExtras: {},
 
-<script>
-    const app = Vue.createApp({
+                                quantity: 1,
 
-        data() {
-            return {
-                productId: "${productId}",
 
-                info: {},
+                                isWished: false,
 
-                thumbnailUrl: "",
+                                activeTab: "description",
 
-                detailImageList: [],
+                                isLoading: true,
+                                // 리뷰 목록
+                                reviewList: [],
 
-                selectedImageUrl: "",
+                                // 리뷰 페이지
+                                reviewPage: 1,
+                                reviewLimit: 5,
+                                reviewTotalCount: 0,
+                                reviewMaxPage: 0,
+                                // 선택한 별점 필터 (0이면 전체)
+                                selectedRating: 0,
+                            };
+                        },
 
-                quantity: 1,
+                        computed: {
+                            // 배송비
+                            deliveryFee() {
+                                let price = Number(this.info.packagePrice || 0);
 
-                selectedOptionPrice: 0,
+                                // 구성 상품 교체 추가 금액
+                                this.packageItems.forEach(function (item) {
+                                    let selectedProductId = this.selectedPackageItems[item.packageItemId];
 
-                deliveryFee: 3000,
+                                    let option = this.packageItemOptions.find(function (option) {
+                                        return option.packageItemId == item.packageItemId
+                                            && option.optionProductId == selectedProductId;
+                                    });
 
-                isWished: false,
+                                    if (option) {
+                                        price += Number(option.additionalPrice || 0);
+                                    }
+                                }, this);
 
-                activeTab: "description",
+                                // 패키지 추가 옵션 금액
+                                this.packageExtras.forEach(function (extra) {
+                                    let selectedOptionId = this.selectedPackageExtras[extra.packageExtraId];
 
-                isLoading: true
-            };
-        },
+                                    let option = this.packageExtraOptions.find(function (option) {
+                                        return option.packageExtraOptionId == selectedOptionId;
+                                    });
 
-        computed: {
+                                    if (option) {
+                                        price += Number(option.additionalPrice || 0);
+                                    }
+                                }, this);
+
+                                // 수량 반영 후 무료배송 여부 판단
+                                return price * this.quantity >= 30000 ? 0 : 3000;
+                            },
+
+                            // 등급 이름
+                            packageGradeName() {
+
+                                let gradeNameList = {
+                                    BASIC: "Basic",
+                                    STANDARD: "Standard",
+                                    PREMIUM: "Premium",
+                                    LUXURY: "Luxury"
+                                };
 
-            // 총 상품 금액
-            totalPrice() {
-                let price = Number(this.info.price || 0);
-                return (price + this.selectedOptionPrice) * this.quantity + this.deliveryFee;
-            }
+                                return gradeNameList[this.info.packageGrade] || "";
+                            },
 
-        },
+                            // 총 금액
+                            totalPrice() {
+                                let price = Number(this.info.packagePrice || 0);
 
-        methods: {
+                                // 구성 상품 교체에 따른 추가 금액
+                                this.packageItems.forEach(function (item) {
+                                    let selectedProductId = this.selectedPackageItems[item.packageItemId];
 
-            // 상품 정보 조회
-            fnProductView: function () {
-                let self = this;
+                                    let option = this.packageItemOptions.find(function (option) {
+                                        return option.packageItemId == item.packageItemId
+                                            && option.optionProductId == selectedProductId;
+                                    });
 
-                let param = {
-                    productId: self.productId
-                };
+                                    if (option) {
+                                        price += Number(option.additionalPrice || 0);
+                                    }
+                                }, this);
 
-                $.ajax({
-                    url: "view.dox",
-                    dataType: "json",
-                    type: "POST",
-                    data: param,
-                    success: function (data) {
+                                // 패키지 추가 옵션 금액
+                                this.packageExtras.forEach(function (extra) {
+                                    let selectedOptionId = this.selectedPackageExtras[extra.packageExtraId];
 
-                        self.info = data.info || {};
+                                    let option = this.packageExtraOptions.find(function (option) {
+                                        return option.packageExtraOptionId == selectedOptionId;
+                                    });
 
-                        let imageList = self.info.productImageList || [];
+                                    if (option) {
+                                        price += Number(option.additionalPrice || 0);
+                                    }
+                                }, this);
 
-                        // 대표 이미지 조회
-                        let thumbnail = imageList.find(function (image) {
-                            return image.imageType === "THUMBNAIL";
-                        });
+                                return (price * this.quantity) + this.deliveryFee;
+                            },
 
-                        // 상세 이미지 조회
-                        self.detailImageList = imageList.filter(function (image) {
-                            return image.imageType === "DETAIL";
-                        });
+                            filteredReviewList: function () {
+                                if (this.selectedRating === 0) {
+                                    return this.reviewList;
+                                }
 
-                        self.thumbnailUrl = thumbnail ? thumbnail.imageUrl : "";
+                                return this.reviewList.filter(function (review) {
+                                    return review.rating === this.selectedRating;
+                                }, this);
+                            }
 
-                        self.selectedImageUrl = self.thumbnailUrl;
+                        },
 
-                        self.isLoading = false;
+                        methods: {
 
-                    },
-                    error: function (xhr) {
+                            // 패키지 정보 조회
+                            fnPackageView: function () {
+                                let self = this;
 
-                        console.log(xhr.responseText);
+                                let param = {
+                                    packageId: self.packageId
+                                };
 
-                        self.isLoading = false;
+                                $.ajax({
+                                    url: "view.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: param,
+                                    success: function (data) {
 
-                        alert("상품 정보를 불러오지 못했습니다.");
+                                        self.info = data.info || {};
 
-                    }
-                });
-            },
+                                        // 패키지 구성 상품 목록
+                                        self.packageItems = data.packageItemList || [];
+                                        // 각 구성 상품의 기본 상품을 최초 선택값으로 설정
+                                        self.packageItems.forEach(function (item) {
+                                            self.selectedPackageItems[item.packageItemId] = item.productId;
+                                        });
 
-            // 이미지 선택
-            fnSelectImage: function (imageUrl) {
-                this.selectedImageUrl = imageUrl;
-            },
+                                        // 패키지 구성 상품 교체 옵션 목록
+                                        self.packageItemOptions = data.packageItemOptionList || [];
 
-            // 수량 변경
-            fnQuantityChange: function (amount) {
+                                        // 패키지 추가 구성 유형 목록
+                                        self.packageExtras = data.packageExtraList || [];
 
-                let maxQuantity = Number(this.info.stockQuantity) || 0;
-                let nextQuantity = this.quantity + amount;
+                                        // 패키지 추가 구성 옵션 목록
+                                        self.packageExtraOptions = data.packageExtraOptionList || [];
+                                        // 추가 옵션별 첫 번째 옵션을 기본 선택값으로 설정
+                                        self.packageExtras.forEach(function (extra) {
+                                            let option = self.packageExtraOptions.find(function (item) {
+                                                return item.packageExtraId === extra.packageExtraId;
+                                            });
 
-                if (nextQuantity < 1) {
-                    return;
-                }
-
-                if (nextQuantity > maxQuantity) {
-                    alert("재고 수량을 초과할 수 없습니다.");
-                    return;
-                }
-
-                this.quantity = nextQuantity;
-
-            },
-
-            // 수량 직접 입력 확인
-            fnQuantityCheck: function () {
-
-                let maxQuantity = Number(this.info.stockQuantity) || 0;
-
-                if (!this.quantity || this.quantity < 1) {
-                    this.quantity = 1;
-                }
-
-                if (this.quantity > maxQuantity) {
-                    alert("재고 수량을 초과할 수 없습니다.");
-                    this.quantity = maxQuantity;
-                }
-
-            },
-
-            // 찜하기 및 찜 해제
-            fnWishToggle: function () {
-                this.isWished = !this.isWished;
-            },
-
-            // 장바구니 담기
-            fnAddCart: function () {
-
-                if (!confirm("장바구니에 상품을 담으시겠습니까?")) {
-                    return;
-                }
-
-                alert("장바구니에 상품이 담겼습니다.");
-
-            },
-
-            // 구매하기
-            fnBuy: function () {
-
-                if (!confirm("상품을 구매하시겠습니까?")) {
-                    return;
-                }
-
-                alert("구매 기능은 준비 중입니다.");
-
-            }
-
-        },
-
-        mounted() {
-
-            let self = this;
-
-            self.fnProductView();
-
-        }
-
-    });
-
-    app.mount("#app");
-</script>
+                                            if (option) {
+                                                self.selectedPackageExtras[extra.packageExtraId] = option.packageExtraOptionId;
+                                            }
+                                        });
+
+                                        self.selectedImageUrl = self.info.thumbnailUrl || "";
+
+                                        self.isLoading = false;
+
+                                    },
+                                    error: function (xhr) {
+
+                                        console.log(xhr.responseText);
+
+                                        self.isLoading = false;
+
+                                        alert("패키지 정보를 불러오지 못했습니다.");
+
+                                    }
+                                });
+                            },
+
+                            // 수량 변경
+                            fnQuantityChange: function (amount) {
+
+                                let nextQuantity = this.quantity + amount;
+
+                                if (nextQuantity < 1) {
+                                    return;
+                                }
+
+                                this.quantity = nextQuantity;
+
+                            },
+
+                            // 수량 직접 입력 확인
+                            fnQuantityCheck: function () {
+
+                                if (!this.quantity || this.quantity < 1) {
+                                    this.quantity = 1;
+                                }
+
+                            },
+
+                            // 찜하기 및 찜 해제
+                            fnWishToggle: function () {
+                                let self = this;
+
+                                let param = {
+                                    packageId: self.packageId
+                                };
+
+                                $.ajax({
+                                    url: "/wishlist/toggle.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: param,
+                                    success: function (data) {
+
+                                        if (data.result == "success") {
+                                            self.isWished = data.wished;
+                                            alert(data.message);
+                                        } else {
+                                            alert(data.message);
+                                        }
+
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr.responseText);
+                                        alert("찜하기 처리 중 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
+
+                            // 장바구니 담기
+                            fnAddCart: function () {
+
+                                let self = this;
+
+                                if (!confirm("장바구니에 패키지를 담으시겠습니까?")) {
+                                    return;
+                                }
+
+                                // 패키지 구성 상품 선택 정보
+                                let packageItems = self.packageItems.map(function (item) {
+                                    return {
+                                        packageItemId: item.packageItemId,
+                                        selectedProductId: self.selectedPackageItems[item.packageItemId]
+                                    };
+                                });
+
+                                // 패키지 추가 옵션 선택 정보
+                                let packageExtras = self.packageExtras.map(function (extra) {
+                                    return {
+                                        packageExtraOptionId: self.selectedPackageExtras[extra.packageExtraId]
+                                    };
+                                });
+
+                                // 서버 전송 데이터
+                                let param = {
+                                    packageId: self.packageId,
+                                    quantity: self.quantity,
+                                    packageItems: packageItems,
+                                    packageExtras: packageExtras
+                                };
+
+                                $.ajax({
+                                    url: "${pageContext.request.contextPath}/cart/add-json.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify(param),
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            alert(data.message);
+                                        } else {
+                                            alert(data.message || "장바구니 담기에 실패했습니다.");
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr.responseText);
+                                        alert("장바구니 담기 중 오류가 발생했습니다.");
+                                    }
+                                });
+
+                            },
+
+                            // 구매하기
+                            fnBuy: function () {
+
+                                if (!confirm("패키지를 구매하시겠습니까?")) {
+                                    return;
+                                }
+
+                                let self = this;
+
+                                $.ajax({
+                                    url: "${pageContext.request.contextPath}/order/direct-buy-json.dox",
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({
+                                        packageId: self.packageId,
+                                        quantity: self.quantity,
+
+                                        packageItems: self.packageItems.map(function (item) {
+                                            return {
+                                                packageItemId: item.packageItemId,
+                                                selectedProductId: self.selectedPackageItems[item.packageItemId]
+                                            };
+                                        }),
+
+                                        packageExtras: self.packageExtras.map(function (extra) {
+                                            return {
+                                                packageExtraOptionId: self.selectedPackageExtras[extra.packageExtraId]
+                                            };
+                                        })
+                                    }),
+                                    dataType: "json",
+                                    success: function (data) {
+
+                                        if (data.result === "success") {
+                                            location.href = "${pageContext.request.contextPath}/order/checkout.do";
+                                        } else {
+                                            alert(data.message || "바로 구매 요청에 실패했습니다.");
+                                        }
+
+                                    },
+                                    error: function () {
+                                        alert("바로 구매 처리 중 오류가 발생했습니다.");
+                                    }
+                                });
+
+                            },
+
+                            // 기존 찜 여부 조회
+                            fnWishCheck: function () {
+                                let self = this;
+
+                                let param = {
+                                    packageId: self.packageId
+                                };
+
+                                $.ajax({
+                                    url: "/wishlist/check.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: param,
+                                    success: function (data) {
+
+                                        if (data.result == "success") {
+                                            self.isWished = data.wished;
+                                        }
+
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr.responseText);
+                                    }
+                                });
+                            },
+                            // 리뷰 탭 클릭
+                            fnReviewTab: function () {
+                                this.activeTab = "review";
+                                this.fnReviewList(1);
+                            },
+
+                            // 리뷰 목록 조회
+                            fnReviewList: function (page) {
+                                let self = this;
+
+                                let param = {
+                                    packageId: self.packageId,
+                                    page: page
+                                };
+
+                                $.ajax({
+                                    url: "${pageContext.request.contextPath}/review/list.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: param,
+                                    success: function (data) {
+
+                                        self.reviewList = data.reviewList || [];
+                                        self.reviewTotalCount = data.totalCount || 0;
+                                        self.reviewPage = page;
+                                        self.reviewMaxPage = Math.ceil(self.reviewTotalCount / self.reviewLimit);
+
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr.responseText);
+                                        alert("리뷰 목록을 불러오지 못했습니다.");
+                                    }
+                                });
+                            },
+
+                            // 리뷰 페이지 변경
+                            fnReviewPage: function (page) {
+                                if (page < 1 || page > this.reviewMaxPage) {
+                                    return;
+                                }
+
+                                this.fnReviewList(page);
+                            },
+
+                        },
+
+                        mounted() {
+
+                            let self = this;
+
+                            self.fnPackageView();
+                            self.fnWishCheck();
+
+                        }
+
+                    });
+
+                    app.mount("#app");
+                </script>
+
+    </body>
+
+    </html>

@@ -1,13 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
-<html lang="ko">
+    <!DOCTYPE html>
+    <html lang="ko">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>모아몽 - 주문서 작성</title>
         <script src="https://code.jquery.com/jquery-3.7.1.js"
-        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
         <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -137,6 +137,7 @@
     const app = Vue.createApp({
         data() {
             return {
+                purchaseType: "${purchaseType}",
                 cartItemIdsStr: "${cartItemIds}",
                 items: [],
                 addressList: [],
@@ -157,7 +158,30 @@
             };
         },
         methods: {
-            fnGoCart() { location.href = "/cart/list.do"; },
+            fnGoCart() {
+                    // 장바구니 구매라면 바로 장바구니로 이동
+                    if (this.purchaseType !== "DIRECT") {
+                        location.href = "/cart/list.do";
+                        return;
+                    }
+
+                    // 바로 구매라면 세션 정보 삭제 후 장바구니로 이동
+                    $.ajax({
+                        url: "/order/cancel-direct.dox",
+                        type: "POST",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.result === "success") {
+                                location.href = "/cart/list.do";
+                            } else {
+                                alert(data.message || "구매 취소에 실패했습니다.");
+                            }
+                        },
+                        error: function () {
+                            alert("구매 취소 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
             fnGoAddress() { location.href = "/address/list.do"; },
             fnImgError(e) { e.target.onerror = null; e.target.src = this.defaultThumb; },
             
@@ -275,40 +299,168 @@
                         alert("결제가 취소되었거나 실패했습니다.\n(" + (rsp.error_msg || "") + ")");
                         return;
                     }
-                    const payload = {
-                        cartItemIds: self.items.map(item => Number(item.cartItemId)),
-                        recipientName: self.delivery.recipientName.trim(),
-                        recipientPhone: self.delivery.recipientPhone.trim(),
-                        postalCode: self.delivery.postalCode,
-                        addressDefault: self.delivery.addressDefault,
-                        addressDetail: self.delivery.addressDetail.trim(),
-                        extraValues: self.extraValues,
-                        impUid: rsp.imp_uid,
-                        payMethod: rsp.pay_method || "KAKAOPAY"
-                    };
+
+                    // 바로 구매라면 세션 정보 삭제 후 장바구니로 이동
                     $.ajax({
-                        url: "/order/create.dox",
+                        url: "/order/cancel-direct.dox",
                         type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify(payload),
                         dataType: "json",
                         success: function (data) {
                             if (data.result === "success") {
-                                alert(data.message + "\n주문번호: " + data.orderNumber);
-                                location.href = "/order/list.do";
+                                location.href = "/cart/list.do";
                             } else {
-                                alert(data.message || "주문 처리에 실패했습니다.");
+                                alert(data.message || "구매 취소에 실패했습니다.");
+                            }
+                        },
+                        error: function () {
+                            alert("구매 취소 중 오류가 발생했습니다.");
+                        }
+                    });
+                },
+                fnGoAddress() { location.href = "/address/list.do"; },
+                fnImgError(e) { e.target.onerror = null; e.target.src = this.defaultThumb; },
+
+                fnLoadCheckout() {
+                    let self = this;
+                    $.ajax({
+                        url: "/order/checkout.dox",
+                        type: "POST",
+                        data: { cartItemIds: this.cartItemIdsStr },
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.result !== "success") {
+                                alert(data.message || "주문서 정보를 불러올 수 없습니다.");
+                                location.href = "/cart/list.do";
+                                return;
+                            }
+                            self.items = data.items || [];
+                            self.addressList = data.addressList || [];
+                            self.totalProductAmount = data.totalProductAmount || 0;
+                            self.totalAdditionalAmount = data.totalAdditionalAmount || 0;
+                            self.shippingFee = data.shippingFee || 0;
+                            self.finalAmount = data.finalAmount || 0;
+
+                            if (data.defaultAddress) {
+                                self.fnSelectAddress(data.defaultAddress);
                             }
                         }
                     });
-                });
-            }
+                },
+                fnRemoveCheckoutItem(cartItemId) {
+                    if (this.items.length <= 1) {
+                        alert("최소 1개 이상의 주문 상품이 필요합니다.");
+                        return;
+                    }
+                    if (!confirm("이 상품을 이번 주문에서 제외하시겠습니까?")) return;
+                    this.items = this.items.filter(item => item.cartItemId !== cartItemId);
+                    delete this.extraValues[cartItemId];
+                    this.fnRecalcSummary();
+                },
+                fnRecalcSummary() {
+                    let prodSum = 0;
+                    let optSum = 0;
+                    for (let item of this.items) {
+                        let qty = Number(item.quantity);
+                        let base = Number(item.basePrice);
+                        let unit = Number(item.unitPrice);
+                        prodSum += base * qty;
+                        optSum += (unit - base) * qty;
+                    }
+                    let subTotal = prodSum + optSum;
+                    this.totalProductAmount = prodSum;
+                    this.totalAdditionalAmount = optSum;
+                    this.shippingFee = subTotal >= 30000 ? 0 : 3000;
+                    this.finalAmount = subTotal + this.shippingFee;
+                },
+                fnSelectAddress(addr) {
+                    this.delivery.recipientName = addr.recipientName || "";
+                    this.delivery.recipientPhone = addr.recipientPhone || "";
+                    this.delivery.postalCode = addr.postalCode || "";
+                    this.delivery.addressDefault = addr.addressDefault || "";
+                    this.delivery.addressDetail = addr.addressDetail || "";
+                    this.showAddrModal = false;
+                },
+                fnSearchPostcode() {
+                    let self = this;
+                    if (typeof daum !== "undefined" && daum.Postcode) {
+                        new daum.Postcode({
+                            oncomplete: function (data) {
+                                self.delivery.postalCode = data.zonecode;
+                                self.delivery.addressDefault = data.roadAddress || data.jibunAddress;
+                            }
+                        }).open();
+                    } else {
+                        this.delivery.postalCode = "21394";
+                        this.delivery.addressDefault = "인천 부평구 경원대로 1366";
+                        alert("우편번호 API를 불러올 수 없어 기본 테스트 주소가 입력되었습니다.");
+                    }
+                },
+                fnSubmitOrder() {
+                    if (!this.delivery.recipientName.trim()) { alert("수령인 이름을 입력해주세요."); return; }
+                    if (!this.delivery.recipientPhone.trim()) { alert("수령인 연락처를 입력해주세요."); return; }
+                    if (!this.delivery.postalCode || !this.delivery.addressDefault) { alert("배송지 주소를 입력해주세요."); return; }
 
-        },
-        mounted() {
-            this.fnLoadCheckout();
-        }
-    });
-    
-    app.mount('#app');
-</script>
+                    let self = this;
+                    const IMP = window.IMP;
+                    IMP.init("${impCode}");
+
+                    const merchantUid = "MOA_" + new Date().getTime();
+                    const orderName = this.items.length > 1
+                        ? this.items[0].itemName + " 외 " + (this.items.length - 1) + "건"
+                        : this.items[0].itemName;
+
+                    IMP.request_pay({
+                        pg: "html5_inicis.INIpayTest",
+                        pay_method: "card",
+                        merchant_uid: merchantUid,
+                        name: orderName,
+                        // [테스트결제용] 무조건 1원 결제 (원복 시: amount: this.finalAmount,)
+                        amount: 1,
+                        buyer_name: this.delivery.recipientName.trim(),
+                        /*amount: this.finalAmount,*/
+                        buyer_name: this.delivery.recipientName.trim(),
+                        buyer_tel: this.delivery.recipientPhone.trim(),
+                        buyer_addr: this.delivery.addressDefault + " " + this.delivery.addressDetail.trim(),
+                        buyer_postcode: this.delivery.postalCode
+                    }, function (rsp) {
+                        if (!rsp.success) {
+                            alert("결제가 취소되었거나 실패했습니다.\n(" + (rsp.error_msg || "") + ")");
+                            return;
+                        }
+                        const payload = {
+                            cartItemIds: self.items.map(item => Number(item.cartItemId)),
+                            recipientName: self.delivery.recipientName.trim(),
+                            recipientPhone: self.delivery.recipientPhone.trim(),
+                            postalCode: self.delivery.postalCode,
+                            addressDefault: self.delivery.addressDefault,
+                            addressDetail: self.delivery.addressDetail.trim(),
+                            extraValues: self.extraValues,
+                            impUid: rsp.imp_uid,
+                            payMethod: rsp.pay_method || "KAKAOPAY"
+                        };
+                        $.ajax({
+                            url: "/order/create.dox",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify(payload),
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.result === "success") {
+                                    alert(data.message + "\n주문번호: " + data.orderNumber);
+                                    location.href = "/order/list.do";
+                                } else {
+                                    alert(data.message || "주문 처리에 실패했습니다.");
+                                }
+                            }
+                        });
+                    });
+                }
+
+            },
+            mounted() {
+                this.fnLoadCheckout();
+            }
+        });
+
+        app.mount('#app');
+    </script>
