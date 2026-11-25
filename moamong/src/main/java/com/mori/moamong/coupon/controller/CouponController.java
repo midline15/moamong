@@ -26,38 +26,6 @@ public class CouponController {
 		return "coupon/MyCouponList";
 	}
 
-	// 관리자 쿠폰 목록
-	@RequestMapping("/coupon/list.do")
-	public String list(Model model) {
-		return "/coupon/list";
-	}
-
-	// 쿠폰 등록 화면
-	@RequestMapping("/coupon/add.do")
-	public String add(Model model) {
-		return "/coupon/add";
-	}
-
-	// 쿠폰 발급 화면
-	@RequestMapping("/coupon/issue.do")
-	public String issue(Model model) {
-		return "/coupon/issue";
-	}
-
-	// 쿠폰 수정 화면
-	@RequestMapping("/coupon/edit.do")
-	public String edit(Model model, @RequestParam HashMap<String, Object> map) {
-		model.addAttribute("couponId", map.get("couponId"));
-		return "/coupon/edit";
-	}
-
-	// 쿠폰 회수 관리 화면
-	@RequestMapping("/coupon/view.do")
-	public String couponView(Model model, @RequestParam HashMap<String, Object> map) {
-		model.addAttribute("couponId", map.get("couponId"));
-		return "coupon/view";
-	}
-
 	// 마이페이지 쿠폰 조회 - 기존 기능 유지
 	@RequestMapping("/coupon/mylist.dox")
 	@ResponseBody
@@ -73,6 +41,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> getCouponList(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.getCouponList(map);
 	}
 
@@ -80,6 +49,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/view.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> getCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.getCoupon(map);
 	}
 
@@ -87,6 +57,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/add.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> addCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.addCoupon(map);
 	}
 
@@ -94,6 +65,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/edit.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> editCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.editCoupon(map);
 	}
 
@@ -101,6 +73,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/remove.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> removeCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.removeCoupon(map);
 	}
 
@@ -108,6 +81,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/member/search.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> searchMember(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.searchMember(map);
 	}
 
@@ -115,6 +89,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/issue.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> issueCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.issueCoupon(map);
 	}
 
@@ -122,6 +97,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/issued/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> getIssuedMemberList(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.getIssuedMemberList(map);
 	}
 
@@ -129,6 +105,7 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/revoke.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> revokeMemberCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.revokeMemberCoupon(map);
 	}
 
@@ -136,6 +113,8 @@ public class CouponController {
 	@RequestMapping(value = "/coupon/revoke/all.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public HashMap<String, Object> revokeAllMemberCoupon(@RequestParam HashMap<String, Object> map) {
+
 		return couponService.revokeAllMemberCoupon(map);
 	}
+
 }

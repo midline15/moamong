@@ -20,7 +20,7 @@
 		<script src="/js/page-change.js"></script>
 
 		<!-- 쿠폰 등록 CSS -->
-		<link rel="stylesheet" href="/css/coupon/add.css">
+		<link rel="stylesheet" href="/css/admin/coupon/add.css">
 
 		<!-- Flatpickr 달력 CSS -->
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -359,7 +359,7 @@
 						success: function (data) {
 							if (data.result === 'success') {
 								alert(data.message);
-								location.href = "/coupon/list.do"
+								location.href = "/admin/coupon/list.do"
 							} else {
 								alert(data.message);
 							}
@@ -371,8 +371,7 @@
 
 				// 목록 화면으로 이동
 				fnCancel() {
-
-					location.href = "/coupon/list.do";
+					location.href = "/admin/coupon/list.do";
 
 				}
 

@@ -1,0 +1,81 @@
+.event-wrap {
+	padding: 25px;
+}
+
+.event-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 25px;
+}
+
+.event-header h2 {
+	margin: 0;
+}
+
+.event-filter {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 20px;
+}
+
+.event-filter button {
+	padding: 9px 16px;
+	border: 1px solid #ddd;
+	background: #fff;
+	cursor: pointer;
+}
+
+.event-filter button.active {
+	background: #333;
+	color: #fff;
+}
+
+.event-table {
+	width: 100%;
+	border-collapse: collapse;
+	text-align: center;
+}
+
+.event-table th,
+.event-table td {
+	padding: 13px 10px;
+	border-bottom: 1px solid #ddd;
+}
+
+.event-table th {
+	background: #f5f5f5;
+}
+
+.event-thumb {
+	width: 90px;
+	height: 60px;
+	object-fit: cover;
+}
+
+.event-btn {
+	padding: 9px 15px;
+	border: 0;
+	background: #333;
+	color: white;
+	cursor: pointer;
+}
+
+.event-pagination {
+	display: flex;
+	justify-content: center;
+	gap: 6px;
+	margin-top: 25px;
+}
+
+.event-pagination button {
+	padding: 7px 11px;
+	border: 1px solid #ddd;
+	background: white;
+	cursor: pointer;
+}
+
+.event-pagination button.active {
+	background: #333;
+	color: white;
+}
