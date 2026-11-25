@@ -27,11 +27,14 @@ public class ReviewService {
     @Autowired
     ReviewMapper reviewMapper;
 
-    @Value("${file.upload-path:src/main/resources/upload/review/}")
+    // 실제 이미지 저장 경로
+    @Value("${file.upload-path:src/main/webapp/resources/upload/}")
     private String uploadPath;
 
-    @Value("${file.upload-url:/upload/review}")
+    // 브라우저 이미지 접근 경로
+    @Value("${file.upload-url:/resources/upload}")
     private String uploadUrl;
+
 
     // 나의 리뷰 목록 조회
     public HashMap<String, Object> getMyReviewList(HashMap<String, Object> map) {
@@ -40,27 +43,22 @@ public class ReviewService {
 
         try {
 
-            // 회원 번호 확인
             Long memberId = getMemberId(map);
-
             map.put("memberId", memberId);
 
-            // 회원이 작성한 리뷰 목록 조회
             List<Review> list = reviewMapper.selectMyReviewList(map);
 
-            // 각 리뷰에 등록된 이미지 목록 조회
             for (Review review : list) {
 
                 HashMap<String, Object> imageMap = new HashMap<>();
-
                 imageMap.put("reviewId", review.getReviewId());
 
-                List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imageMap);
+                List<Review> imageList =
+                        reviewMapper.selectReviewImageList(imageMap);
 
                 review.setImageList(imageList);
             }
 
-            // 리뷰 개수 조회
             int count = reviewMapper.selectMyReviewCount(map);
 
             resultMap.put("list", list);
@@ -78,9 +76,12 @@ public class ReviewService {
         return resultMap;
     }
 
+
     // 리뷰 수정
     @Transactional(rollbackFor = Exception.class)
-    public HashMap<String, Object> editReview(HashMap<String, Object> map, MultipartFile[] files) throws Exception {
+    public HashMap<String, Object> editReview(
+            HashMap<String, Object> map,
+            MultipartFile[] files) throws Exception {
 
         HashMap<String, Object> resultMap = new HashMap<>();
 
@@ -107,7 +108,7 @@ public class ReviewService {
             throw new IllegalArgumentException("별점은 1점부터 5점까지 가능합니다.");
         }
 
-        // 내용 검사
+        // 리뷰 내용 검사
         String reviewContent = map.get("reviewContent").toString().trim();
 
         if (reviewContent.isEmpty()) {
@@ -119,51 +120,67 @@ public class ReviewService {
         map.put("rating", rating);
         map.put("reviewContent", reviewContent);
 
-        // 삭제할 이미지 목록
-        String deleteJson = map.get("deleteImageList") == null ? "[]" : map.get("deleteImageList").toString();
 
-        List<Long> deleteImageList = new Gson().fromJson(deleteJson, new TypeToken<List<Long>>() {
-        }.getType());
+        // 삭제할 이미지 목록
+        String deleteJson = map.get("deleteImageList") == null
+                ? "[]"
+                : map.get("deleteImageList").toString();
+
+        List<Long> deleteImageList = new Gson().fromJson(
+                deleteJson,
+                new TypeToken<List<Long>>() {}.getType()
+        );
 
         if (deleteImageList == null) {
             deleteImageList = new ArrayList<>();
         }
 
-        // 기존 이미지 개수
+
+        // 기존 이미지 조회
         HashMap<String, Object> imageMap = new HashMap<>();
         imageMap.put("reviewId", reviewId);
 
-        List<ReviewImage> currentImageList = reviewMapper.selectReviewImageList(imageMap);
+        List<Review> currentImageList =
+                reviewMapper.selectReviewImageList(imageMap);
 
         int remainingCount = currentImageList.size();
 
-        // 삭제 대상이 실제 해당 리뷰 이미지인지 확인
+        // 삭제 대상 이미지 확인
         for (Long imageId : deleteImageList) {
 
-            boolean exists = currentImageList.stream().anyMatch(img -> img.getImageId().equals(imageId));
+            boolean exists = currentImageList.stream()
+                    .anyMatch(img -> img.getImageId().equals(imageId));
 
             if (!exists) {
-                throw new IllegalArgumentException("잘못된 이미지 삭제 요청입니다.");
+                throw new IllegalArgumentException(
+                        "잘못된 이미지 삭제 요청입니다."
+                );
             }
         }
 
         remainingCount -= deleteImageList.size();
 
-        // 신규 이미지 개수
+
+        // 신규 이미지 개수 확인
         int newFileCount = 0;
 
         if (files != null) {
+
             for (MultipartFile file : files) {
+
                 if (file != null && !file.isEmpty()) {
                     newFileCount++;
                 }
             }
         }
 
-        // 총 3개 제한
+        // 이미지 최대 3장 제한
         if (remainingCount + newFileCount > 3) {
-            throw new IllegalArgumentException("리뷰 이미지는 최대 3개까지 등록할 수 있습니다.");
+            throw new IllegalArgumentException(
+                    "리뷰 이미지는 최대 3개까지 등록할 수 있습니다."
+            );
         }
+
 
         // 신규 이미지 사전 검사
         if (files != null) {
@@ -175,13 +192,17 @@ public class ReviewService {
                 }
 
                 if (file.getSize() > 5 * 1024 * 1024) {
-                    throw new IllegalArgumentException("이미지는 한 장당 5MB 이하만 가능합니다.");
+                    throw new IllegalArgumentException(
+                            "이미지는 한 장당 5MB 이하만 가능합니다."
+                    );
                 }
 
                 String originName = file.getOriginalFilename();
 
                 if (originName == null || originName.isBlank()) {
-                    throw new IllegalArgumentException("파일명이 올바르지 않습니다.");
+                    throw new IllegalArgumentException(
+                            "파일명이 올바르지 않습니다."
+                    );
                 }
 
                 String extName = "";
@@ -193,16 +214,21 @@ public class ReviewService {
                 }
 
                 if (!List.of(".jpg", ".jpeg", ".png").contains(extName)) {
-                    throw new IllegalArgumentException("JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
+                    throw new IllegalArgumentException(
+                            "JPG, JPEG, PNG 파일만 업로드할 수 있습니다."
+                    );
                 }
 
                 String contentType = file.getContentType();
 
                 if (!List.of("image/jpeg", "image/png").contains(contentType)) {
-                    throw new IllegalArgumentException("JPG, PNG 이미지 파일만 업로드할 수 있습니다.");
+                    throw new IllegalArgumentException(
+                            "JPG, PNG 이미지 파일만 업로드할 수 있습니다."
+                    );
                 }
             }
         }
+
 
         // 리뷰 내용 수정
         int updateCnt = reviewMapper.updateReview(map);
@@ -210,6 +236,7 @@ public class ReviewService {
         if (updateCnt == 0) {
             throw new Exception("리뷰 수정에 실패했습니다.");
         }
+
 
         // 기존 이미지 DB 삭제
         if (!deleteImageList.isEmpty()) {
@@ -222,14 +249,18 @@ public class ReviewService {
             reviewMapper.deleteReviewImage(deleteMap);
         }
 
-        // 신규 이미지 등록
+
+        // 신규 이미지 저장
         List<Path> savedFiles = new ArrayList<>();
 
         try {
 
             if (files != null && newFileCount > 0) {
 
-                Path directory = Paths.get(uploadPath).toAbsolutePath().normalize();
+                // WebConfig와 동일한 실제 업로드 폴더
+                Path directory = Paths.get(uploadPath)
+                        .toAbsolutePath()
+                        .normalize();
 
                 Files.createDirectories(directory);
 
@@ -243,26 +274,40 @@ public class ReviewService {
 
                     String originName = file.getOriginalFilename();
 
-                    String extName = originName.substring(originName.lastIndexOf(".")).toLowerCase();
+                    String extName = originName.substring(
+                            originName.lastIndexOf(".")
+                    ).toLowerCase();
 
                     String contentType = file.getContentType();
 
+                    // 중복되지 않는 파일명 생성
                     String saveName = UUID.randomUUID().toString() + extName;
 
                     Path target = directory.resolve(saveName).normalize();
 
                     if (!target.startsWith(directory)) {
-                        throw new IllegalArgumentException("잘못된 파일 경로입니다.");
+                        throw new IllegalArgumentException(
+                                "잘못된 파일 경로입니다."
+                        );
                     }
 
+                    // 실제 파일 저장
                     file.transferTo(target.toFile());
 
                     savedFiles.add(target);
 
+
+                    // 이미지 DB 등록
                     HashMap<String, Object> insertMap = new HashMap<>();
 
                     insertMap.put("reviewId", reviewId);
-                    insertMap.put("imageUrl", uploadUrl + "/" + saveName);
+
+                    // WebConfig에서 접근 가능한 URL
+                    insertMap.put(
+                            "imageUrl",
+                            uploadUrl + "/" + saveName
+                    );
+
                     insertMap.put("imageOriginName", originName);
                     insertMap.put("imageName", saveName);
                     insertMap.put("imageSize", String.valueOf(file.getSize()));
@@ -275,9 +320,12 @@ public class ReviewService {
 
         } catch (Exception e) {
 
+            // 업로드 실패 시 저장된 파일 정리
             for (Path savedFile : savedFiles) {
+
                 try {
                     Files.deleteIfExists(savedFile);
+
                 } catch (Exception fileException) {
                     fileException.printStackTrace();
                 }
@@ -286,11 +334,13 @@ public class ReviewService {
             throw e;
         }
 
+
         resultMap.put("result", "success");
         resultMap.put("message", "리뷰가 수정되었습니다.");
 
         return resultMap;
     }
+
 
     // 리뷰 삭제
     @Transactional(rollbackFor = Exception.class)
@@ -307,8 +357,10 @@ public class ReviewService {
         Review review = reviewMapper.selectReview(map);
 
         if (review == null) {
+
             resultMap.put("result", "fail");
             resultMap.put("message", "삭제할 리뷰가 없거나 권한이 없습니다.");
+
             return resultMap;
         }
 
@@ -317,14 +369,18 @@ public class ReviewService {
         int deleteCnt = reviewMapper.deleteReview(map);
 
         if (deleteCnt > 0) {
+
             resultMap.put("result", "success");
             resultMap.put("message", "리뷰가 삭제되었습니다.");
+
         } else {
+
             throw new RuntimeException("리뷰 삭제에 실패했습니다.");
         }
 
         return resultMap;
     }
+
 
     // 회원 번호 가져오기
     private Long getMemberId(HashMap<String, Object> map) {
@@ -332,13 +388,15 @@ public class ReviewService {
         Object memberId = map.get("memberId");
 
         if (memberId == null) {
-            throw new IllegalArgumentException("회원 번호가 전달되지 않았습니다.");
+            throw new IllegalArgumentException(
+                    "회원 번호가 전달되지 않았습니다."
+            );
         }
 
         return Long.parseLong(memberId.toString());
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////
+  
+   ///////////////////////////////////////////////////////////////////////////////////
     // 상품 또는 패키지 리뷰 목록 조회
     public List<Review> getReviewList(HashMap<String, Object> map) throws Exception {
 
@@ -421,4 +479,5 @@ public class ReviewService {
 
         return totalCount;
     }
+
 }

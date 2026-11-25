@@ -1,6 +1,5 @@
 package com.mori.moamong.dto;
 
-
 import java.time.LocalDateTime;
 
 import lombok.Data;
@@ -8,39 +7,41 @@ import lombok.Data;
 @Data
 public class Coupon {
 
-	// COUPON 테이블 정보
+	// COUPON
+	private Long couponId;
+	private String couponName;
+	private String discountType;
+	private Integer discountValue;
+	private Integer minimumOrderAmount;
+	private Integer maximumDiscountAmount;
+	private LocalDateTime validFrom;
+	private LocalDateTime validUntil;
 
+	// 쿠폰 발급 설정
+	private String issueType;
+	private String issueStatus;
 
-	private Long couponId; // 쿠폰 고유 번호
-	private String couponName; // 쿠폰 이름
-	private String discountType; // 할인 유형 (FIXED / RATE)
-	private Integer discountValue; // 할인 금액 또는 할인율
-	private Integer minimumOrderAmount; // 최소 주문 금액
-	private Integer maximumDiscountAmount; // 최대 할인 금액
-	private LocalDateTime validFrom; // 쿠폰 사용 시작일
-	private LocalDateTime validUntil; // 쿠폰 사용 종료일
+	// MEMBER_COUPON
+	private Long memberCouponId;
+	private Long memberId;
+	private LocalDateTime issuedAt;
+	private LocalDateTime usedAt;
+	private LocalDateTime revokedAt;
+	private String couponStatus;
 
-	
-	// MEMBER_COUPON 테이블 정보
+	// ORDER_COUPON
+	private Long orderId;
+	private Integer discountAmount;
 
+	// 회원 정보
+	private String loginId;
+	private String memberName;
 
-	private Long memberCouponId; // 회원 쿠폰 고유 번호
-	private Long memberId; // 회원 번호
-	private LocalDateTime issuedAt; // 쿠폰 발급일
-	private LocalDateTime usedAt; // 쿠폰 사용일
-	private String couponStatus; // 쿠폰 상태
+	// 화면 표시
+	private String displayStatus;
 
-	
-	// ORDER_COUPON 테이블 정보
-	
-
-	private Long orderId; // 주문 번호
-	private Integer discountAmount; // 실제 할인 금액
-
-	
-	// 화면 표시용 정보
-	
-
-	private String displayStatus; // 화면에 표시할 쿠폰 상태
-
+	// 관리자 발급 통계
+	private Integer issuedCount;
+	private Integer usedCount;
+	private Integer availableCount;
 }
