@@ -192,8 +192,7 @@
                                 리뷰
                             </button>
 
-                            <button type="button" :class="{ active: activeTab === 'inquiry' }"
-                                @click="activeTab = 'inquiry'">
+                            <button type="button" :class="{ active: activeTab === 'inquiry' }" @click="fnInqTab">
                                 문의
                             </button>
 
@@ -376,8 +375,118 @@
                         </div>
 
                         <!-- 문의 -->
-                        <div class="empty-message tab-empty" v-else>
-                            등록된 문의가 없습니다.
+                        <div class="inquiry-section" v-else-if="activeTab === 'inquiry'">
+
+                            <!-- 문의 제목 -->
+                            <div class="inquiry-heading">
+                                <div>
+                                    <strong>상품 문의</strong>
+                                    <span>{{ inquiryTotalCount }}</span>
+                                </div>
+
+                                <button type="button" class="inquiry-write-btn" @click="showInqWrite = true">
+                                    문의 작성
+                                </button>
+                            </div>
+
+                            <!-- 문의 상태 필터 -->
+                            <div class="inquiry-filter">
+
+                                <button type="button" :class="{ active: selectedInqStatus === 'ALL' }"
+                                    @click="fnInqStatus('ALL')">
+                                    전체 ({{ inquiryTotalCount }})
+                                </button>
+
+                                <button type="button" :class="{ active: selectedInqStatus === 'ANSWERED' }"
+                                    @click="fnInqStatus('ANSWERED')">
+                                    답변완료 ({{ inquiryAnsweredCount }})
+                                </button>
+
+                                <button type="button" :class="{ active: selectedInqStatus === 'WAITING' }"
+                                    @click="fnInqStatus('WAITING')">
+                                    미답변 ({{ inquiryWaitingCount }})
+                                </button>
+
+                            </div>
+
+                            <!-- 문의가 없는 경우 -->
+                            <div class="empty-message" v-if="inquiryList.length === 0">
+                                등록된 문의가 없습니다.
+                            </div>
+
+                            <template v-else>
+
+                                <!-- 문의 목록 -->
+                                <div class="inquiry-list">
+
+                                    <div class="inquiry-item" v-for="inquiry in inquiryList" :key="inquiry.inqId">
+
+                                        <!-- 문의 작성자 및 상태 -->
+                                        <div class="inquiry-info">
+                                            <span class="inquiry-status"
+                                                :class="inquiry.inqStatus === 'ANSWERED' ? 'answered' : 'waiting'">
+                                                {{ inquiry.inqStatus === 'ANSWERED' ? '답변완료' : '미답변' }}
+                                            </span>
+
+                                            <span class="inquiry-member">
+                                                {{ inquiry.memberName }}
+                                            </span>
+
+                                            <span class="inquiry-date">
+                                                {{ inquiry.createdAt ? inquiry.createdAt.substring(0, 10) : '' }}
+                                            </span>
+                                        </div>
+
+                                        <!-- 문의 상품 및 제목 -->
+                                        <div class="inquiry-content">
+                                            <span class="inquiry-product-name">
+                                                {{ inquiry.productName }}
+                                            </span>
+
+                                            <strong>{{ inquiry.inqContent }}</strong>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- 페이지네이션 -->
+                                <div class="inquiry-pagination" v-if="inquiryMaxPage > 1">
+
+                                    <button type="button" @click="fnInqPage(inquiryPage - 1)"
+                                        :disabled="inquiryPage === 1">
+                                        이전
+                                    </button>
+
+                                    <button type="button" v-for="n in inquiryMaxPage" :key="n"
+                                        :class="{ active: inquiryPage === n }" @click="fnInqPage(n)">
+                                        {{ n }}
+                                    </button>
+
+                                    <button type="button" @click="fnInqPage(inquiryPage + 1)"
+                                        :disabled="inquiryPage === inquiryMaxPage">
+                                        다음
+                                    </button>
+
+                                </div>
+
+                            </template>
+
+                            <!-- 문의 작성 창 -->
+                            <div class="inquiry-write-modal" v-if="showInqWrite">
+                                <div class="inquiry-write-content">
+
+                                    <h3>상품 문의 작성</h3>
+
+                                    <button type="button" class="inquiry-close-btn" @click="showInqWrite = false">
+                                        닫기
+                                    </button>
+
+                                    <!-- 작성 폼은 다음 단계에서 추가 -->
+
+                                </div>
+                            </div>
+
                         </div>
 
                     </section>
@@ -439,6 +548,27 @@
                     reviewMaxPage: 0,
                     // 선택한 별점 필터 (0이면 전체)
                     selectedRating: 0,
+
+                    // 문의 목록
+                    inquiryList: [],
+
+                    // 문의 전체 개수
+                    inquiryTotalCount: 0,
+
+                    // 문의 답변 상태별 개수
+                    inquiryAnsweredCount: 0,
+                    inquiryWaitingCount: 0,
+
+                    // 문의 상태 필터
+                    selectedInqStatus: "ALL",
+
+                    // 문의 페이지
+                    inquiryPage: 1,
+                    inquiryLimit: 5,
+                    inquiryMaxPage: 0,
+
+                    // 문의 작성 창 표시 여부
+                    showInqWrite: false,
                 };
             },
 
@@ -726,6 +856,65 @@
                     }
 
                     this.fnReviewList(page);
+                },
+
+                // 문의 탭 클릭
+                fnInqTab: function () {
+                    this.activeTab = "inquiry";
+                    this.fnInqList(1);
+                },
+
+                // 문의 목록 조회
+                fnInqList: function (page) {
+                    let self = this;
+
+                    let param = {
+                        productId: self.productId,
+                        page: page,
+                        inqStatus: self.selectedInqStatus
+                    };
+
+                    $.ajax({
+                        url: "${pageContext.request.contextPath}/productInq/list.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: param,
+                        success: function (data) {
+
+                            self.inquiryList = data.inquiryList || [];
+                            self.inquiryTotalCount = data.totalCount || 0;
+                            self.inquiryAnsweredCount = data.answeredCount || 0;
+                            self.inquiryWaitingCount = data.waitingCount || 0;
+
+                            self.inquiryPage = page;
+                            self.inquiryMaxPage = Math.ceil(
+                                self.inquiryTotalCount / self.inquiryLimit
+                            );
+
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
+                            alert("문의 목록을 불러오지 못했습니다.");
+                        }
+                    });
+                },
+                // 문의 상태 필터 변경
+                fnInqStatus: function (status) {
+                    if (this.selectedInqStatus === status) {
+                        return;
+                    }
+
+                    this.selectedInqStatus = status;
+                    this.fnInqList(1);
+                },
+
+                // 문의 페이지 변경
+                fnInqPage: function (page) {
+                    if (page < 1 || page > this.inquiryMaxPage) {
+                        return;
+                    }
+
+                    this.fnInqList(page);
                 },
 
             },
