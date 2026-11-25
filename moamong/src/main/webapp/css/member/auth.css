@@ -1,0 +1,264 @@
+/* 인증/계정 페이지(login, join, findAccount) 공통 스타일 */
+.auth-wrap {
+    max-width: 480px;
+    margin: 30px auto 90px;
+    padding: 0 20px;
+    font-family: 'Pretendard', sans-serif;
+    color: #29251f;
+}
+
+.auth-card {
+    background: #faf7f1;
+    border: 1px solid #e9dfd1;
+    border-radius: 16px;
+    padding: 40px 34px;
+    box-shadow: 0 6px 24px rgba(118, 90, 54, 0.06);
+}
+
+.auth-eyebrow {
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #94764b;
+    margin-bottom: 6px;
+}
+
+.auth-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #29251f;
+    margin-bottom: 26px;
+}
+
+.auth-group {
+    margin-bottom: 16px;
+}
+
+.auth-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #5c5346;
+    margin-bottom: 6px;
+}
+
+.auth-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px 15px;
+    background: #fffdf9;
+    border: 1px solid #dfd1bd;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #29251f;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #94764b;
+    box-shadow: 0 0 0 3px rgba(148, 118, 75, 0.12);
+}
+
+.auth-input:disabled {
+    background: #f0e8da;
+    color: #85817b;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #dfd1bd;
+    background: #fffdf9;
+    color: #765a36;
+    transition: all 0.2s ease;
+}
+
+.auth-btn-gold {
+    background: #94764b;
+    border-color: #94764b;
+    color: #fff;
+}
+
+.auth-btn-gold:hover {
+    background: #765a36;
+}
+
+.auth-btn-sm {
+    width: auto;
+    white-space: nowrap;
+    padding: 0 16px;
+    font-size: 13px;
+}
+
+.auth-benefit-tip {
+    text-align: center;
+    font-size: 12px;
+    color: #94764b;
+    margin: 10px 0 18px;
+}
+
+.auth-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #85817b;
+}
+
+.auth-links a:hover {
+    color: #94764b;
+    text-decoration: underline;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 26px 0 18px;
+    font-size: 12px;
+    color: #9a8f80;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e3d6c1;
+}
+
+/* 간편 소셜 로그인 버튼 */
+.social-circle-group {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+}
+
+.social-circle-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.social-circle-btn:hover {
+    transform: translateY(-3px);
+}
+
+.social-kakao {
+    background: #fee500;
+    color: #191919;
+}
+
+.social-naver {
+    background: #03c75a;
+    color: #fff;
+}
+
+.social-google {
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #4285f4;
+}
+
+/* 회원가입 약관 동의 박스 */
+.terms-box {
+    background: #f3ede2;
+    border: 1px solid #e3d6c1;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.terms-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    cursor: pointer;
+    color: #5c5346;
+}
+
+.terms-all {
+    font-weight: 700;
+    color: #29251f;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #dfd1bd;
+}
+
+/* 계정 찾기 탭 & 결과 카드 */
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid #dfd1bd;
+    margin-bottom: 22px;
+}
+
+.auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9a8f80;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.auth-tab.active {
+    color: #765a36;
+    border-bottom-color: #94764b;
+    font-weight: 700;
+}
+
+.auth-result-card {
+    margin-top: 18px;
+    padding: 18px;
+    background: #efe7da;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* 휴면 해제 모달 */
+.auth-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 30, 24, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.auth-modal-box {
+    background: #fffdf9;
+    border: 1px solid #e3d6c1;
+    width: 92%;
+    max-width: 400px;
+    border-radius: 14px;
+    padding: 26px;
+    box-shadow: 0 8px 28px rgba(60, 45, 25, 0.18);
+}
