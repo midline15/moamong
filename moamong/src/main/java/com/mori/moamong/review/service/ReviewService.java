@@ -53,7 +53,7 @@ public class ReviewService {
                 HashMap<String, Object> imageMap = new HashMap<>();
                 imageMap.put("reviewId", review.getReviewId());
 
-                List<Review> imageList =
+                List<ReviewImage> imageList =
                         reviewMapper.selectReviewImageList(imageMap);
 
                 review.setImageList(imageList);
@@ -140,7 +140,7 @@ public class ReviewService {
         HashMap<String, Object> imageMap = new HashMap<>();
         imageMap.put("reviewId", reviewId);
 
-        List<Review> currentImageList =
+        List<ReviewImage> currentImageList =
                 reviewMapper.selectReviewImageList(imageMap);
 
         int remainingCount = currentImageList.size();
