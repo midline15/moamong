@@ -1,0 +1,169 @@
+
+/* 전체 상품 영역 */
+#app {
+    width: 1200px;
+    max-width: calc(100% - 40px);
+    margin: 0 auto;
+    padding: 40px 0 80px;
+    box-sizing: border-box;
+}
+
+/* 페이지 제목 */
+.page-title {
+    margin-bottom: 24px;
+}
+
+.page-title h2 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #333333;
+}
+
+/* 대분류 메뉴 */
+.main-category {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 0 0 20px;
+    border-bottom: 1px solid #eeeeee;
+    margin-bottom: 40px;
+}
+
+.main-category button {
+    border: none;
+    background: none;
+    padding: 12px 4px;
+    font-size: 16px;
+    color: #777777;
+    cursor: pointer;
+    position: relative;
+}
+
+.main-category button:hover {
+    color: #E76F8A;
+}
+
+.main-category button.active {
+    color: #E76F8A;
+    font-weight: 700;
+}
+
+.main-category button.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -21px;
+    width: 100%;
+    height: 3px;
+    background-color: #E76F8A;
+}
+
+/* 소분류 영역 */
+.sub-category {
+    margin-bottom: 60px;
+}
+
+/* 소분류 제목과 더 보기 */
+.sub-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sub-category-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #333333;
+}
+
+.more-button {
+    border: none;
+    background: none;
+    color: #888888;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.more-button:hover {
+    color: #E76F8A;
+}
+
+/* 상품 목록 */
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 24px;
+}
+
+/* 상품 카드 */
+.product-item {
+    min-width: 0;
+    cursor: pointer;
+}
+
+.product-item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #f7f7f7;
+}
+
+/* 이미지가 없는 경우에도 영역 유지 */
+.product-item {
+    min-width: 0;
+}
+
+.product-item img {
+    min-height: 0;
+}
+
+.product-item:hover img {
+    transform: scale(1.03);
+}
+
+.product-info {
+    padding-top: 12px;
+}
+
+.product-info p {
+    margin: 0;
+    font-size: 15px;
+    color: #333333;
+    line-height: 1.5;
+}
+
+/* 태블릿 */
+@media (max-width: 1024px) {
+    .product-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+    }
+}
+
+/* 모바일 */
+@media (max-width: 600px) {
+    #app {
+        max-width: calc(100% - 32px);
+        padding-top: 24px;
+    }
+
+    .main-category {
+        gap: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .product-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .sub-category-header h3 {
+        font-size: 18px;
+    }
+}

@@ -92,6 +92,8 @@
                                                 <path d="M3 17l5-4.5 4 3.5 3-2.5 6 5"></path>
                                             </svg>
                                         </button>
+                                        <span class="cm-tool-hint" v-if="isLogin && imageList.length > 0">{{ imageList.length }}/4</span>
+
                                         <!-- 해시태그 -->
                                         <button type="button" class="cm-icon-btn" title="해시태그" :disabled="!isLogin"
                                             @click="fnHash">
@@ -102,7 +104,7 @@
                                         </button>
 
                                         <!-- 구매한 상품 표시 (TODO: 구성품 기능 완료 후 연결, 지금은 공개안함 고정) -->
-                                         <!-- 사용자 최근 일주일 구매 물건 목록 작게 띄워서 표시할상품 체크? 선택하는거 하고 공개. -->
+                                        <!-- 사용자 최근 일주일 구매 물건 목록 작게 띄워서 표시할상품 체크? 선택하는거 하고 공개. -->
                                         <label class="cm-switch disabled" title="준비 중인 기능이에요">
                                             <input type="checkbox" v-model="showPurchase" disabled>
                                             <span class="track"><span class="knob"></span></span>
@@ -111,15 +113,26 @@
                                         </label>
                                     </div>
 
-                                    <button type="button" class="cm-submit"
-                                        :disabled="!isLogin || posting || content.trim() == ''"
-                                        @click="fnWrite">게시</button>
+                                    <div>
+                                        <button type="button" class="cm-cancel"
+                                            :disabled="content.trim() == '' && imageList.length == 0"
+                                            @click="fnCancel">취소</button>
+                                        <button type="button" class="cm-submit"
+                                            :disabled="!isLogin || posting || content.trim() == ''"
+                                            @click="fnWrite">게시</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 피드 -->
                         <div class="cm-feed">
+
+                            <!-- 피드 상단 요약 바 -->
+                            <div class="cm-feed-head" v-if="!loading || postList.length > 0">
+                                <span class="cm-feed-tag">{{ tag ? '#' + tag : '전체 소식' }}</span>
+                                <span class="cm-feed-count">총 {{ cnt }}개</span>
+                            </div>
 
                             <div class="cm-empty" v-if="!loading && postList.length == 0">
                                 아직 올라온 소식이 없어요.
@@ -138,6 +151,7 @@
                                     <div class="who">
                                         <div class="name">
                                             <strong>{{ p.displayName }}</strong>
+                                            <span class="cm-admin" v-if="p.role == 'ADMIN'">관리자</span>
                                             <!-- 로그인 방식 (TODO: 아이콘 이미지 생기면 <img> 로 교체) -->
                                             <span class="cm-social" v-if="p.socialType"
                                                 :class="fnSocial(p.socialType).cls">{{ fnSocial(p.socialType).label
@@ -147,7 +161,8 @@
                                     </div>
 
                                     <!-- 더보기 (본인 글 또는 관리자) -->
-                                    <div class="cm-more" v-if="p.memberId == memberId || isAdmin">
+                                    <div class="cm-more"
+                                        v-if="(p.memberId == memberId || isAdmin) && p.postStatus != 'HIDDEN'">
                                         <button type="button"
                                             @click.stop="menuId = (menuId == p.postId ? null : p.postId)">&middot;&middot;&middot;</button>
                                         <ul v-if="menuId == p.postId">
@@ -155,142 +170,152 @@
                                         </ul>
                                     </div>
                                 </header>
+                                <!-- 관리자가 삭제 -->
+                                <p class="cm-blocked" v-if="p.postStatus == 'HIDDEN'"> 관리자에 의해 삭제된 게시글 입니다.</p>
+                                <template v-else>
+                                    <!-- 이미지 -->
+                                    <div class="cm-images" :class="'n' + Math.min((p.imageList || []).length, 4)"
+                                        v-if="p.imageList && p.imageList.length > 0">
+                                        <img v-for="img in p.imageList" :key="img.imageUrl" :src="img.imageUrl"
+                                            :alt="img.imageOriginName">
+                                    </div>
 
-                                <!-- 이미지 -->
-                                <div class="cm-images" :class="'n' + Math.min((p.imageList || []).length, 4)"
-                                    v-if="p.imageList && p.imageList.length > 0">
-                                    <img v-for="img in p.imageList" :key="img.imageUrl" :src="img.imageUrl"
-                                        :alt="img.imageOriginName">
-                                </div>
+                                    <!-- 내용 -->
+                                    <p class="cm-text">{{ p.postContent }}</p>
 
-                                <!-- 내용 -->
-                                <p class="cm-text">{{ p.postContent }}</p>
+                                    <!-- 해시태그 -->
+                                    <div class="cm-tags" v-if="p.tagList && p.tagList.length > 0">
+                                        <a href="javascript:;" v-for="t in p.tagList" :key="t" @click="fnTab(t)">{{ '#'
+                                            + t
+                                            }}</a>
+                                    </div>
 
-                                <!-- 해시태그 -->
-                                <div class="cm-tags" v-if="p.tagList && p.tagList.length > 0">
-                                    <a href="javascript:;" v-for="t in p.tagList" :key="t" @click="fnTab(t)">{{ '#' + t
-                                        }}</a>
-                                </div>
+                                    <!-- 좋아요 / 댓글 -->
+                                    <footer class="cm-action">
+                                        <button type="button" class="like" :class="{ on: p.liked == 1 }"
+                                            @click="fnLike(p)">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor"
+                                                stroke-width="1.6" :fill="p.liked == 1 ? 'currentColor' : 'none'">
+                                                <path
+                                                    d="M12 20.5s-8-5-8-11A4.5 4.5 0 0 1 12 6.8 4.5 4.5 0 0 1 20 9.5c0 6-8 11-8 11z">
+                                                </path>
+                                            </svg>
+                                            <span>{{ p.likeCnt }}</span>
+                                        </button>
+                                        <button type="button" class="comment" :class="{ on: p.open }"
+                                            @click="fnToggleComment(p)">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.6">
+                                                <path d="M4 5h16v11H9l-5 4z"></path>
+                                            </svg>
+                                            <span>{{ p.commentCnt }}</span>
+                                        </button>
+                                    </footer>
 
-                                <!-- 좋아요 / 댓글 -->
-                                <footer class="cm-action">
-                                    <button type="button" class="like" :class="{ on: p.liked == 1 }" @click="fnLike(p)">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="1.6" :fill="p.liked == 1 ? 'currentColor' : 'none'">
-                                            <path
-                                                d="M12 20.5s-8-5-8-11A4.5 4.5 0 0 1 12 6.8 4.5 4.5 0 0 1 20 9.5c0 6-8 11-8 11z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ p.likeCnt }}</span>
-                                    </button>
-                                    <button type="button" class="comment" :class="{ on: p.open }"
-                                        @click="fnToggleComment(p)">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.6">
-                                            <path d="M4 5h16v11H9l-5 4z"></path>
-                                        </svg>
-                                        <span>{{ p.commentCnt }}</span>
-                                    </button>
-                                </footer>
+                                    <!-- 댓글 영역 (아래로 펼쳐짐) -->
+                                    <div class="cm-comments" :class="{ open: p.open }">
+                                        <div class="cm-comments-inner">
 
-                                <!-- 댓글 영역 (아래로 펼쳐짐) -->
-                                <div class="cm-comments" :class="{ open: p.open }">
-                                    <div class="cm-comments-inner">
+                                            <div class="cm-c-state" v-if="p.cLoading">댓글을 불러오는 중...</div>
+                                            <div class="cm-c-state" v-else-if="p.loaded && p.comments.length == 0">
+                                                첫 댓글을 남겨보세요.
+                                            </div>
 
-                                        <div class="cm-c-state" v-if="p.cLoading">댓글을 불러오는 중...</div>
-                                        <div class="cm-c-state" v-else-if="p.loaded && p.comments.length == 0">
-                                            첫 댓글을 남겨보세요.
-                                        </div>
+                                            <!-- 댓글 목록 -->
+                                            <ul class="cm-c-list">
+                                                <li v-for="c in fnParents(p)" :key="c.commentId">
 
-                                        <!-- 댓글 목록 -->
-                                        <ul class="cm-c-list">
-                                            <li v-for="c in fnParents(p)" :key="c.commentId">
-
-                                                <!-- 댓글 -->
-                                                <div class="cm-c-item">
-                                                    <div class="cm-c-body">
-                                                        <div class="cm-c-top">
-                                                            <strong>{{ c.displayName }}</strong>
-                                                            <span class="cm-social" v-if="c.socialType"
-                                                                :class="fnSocial(c.socialType).cls">{{
-                                                                fnSocial(c.socialType).label }}</span>
-                                                            <time>{{ fnAgo(c.createdAt) }}</time>
-                                                        </div>
-                                                        <p class="cm-c-text deleted"
-                                                            v-if="c.commentStatus == 'DELETED'">삭제된 댓글입니다.</p>
-                                                        <p class="cm-c-text" v-else>{{ c.commentContent }}</p>
-                                                        <div class="cm-c-btns" v-if="c.commentStatus != 'DELETED'">
-                                                            <a href="javascript:;" v-if="isLogin"
-                                                                @click="fnReply(p, c, $event)">답글</a>
-                                                            <a href="javascript:;" class="del"
-                                                                v-if="c.memberId == memberId || isAdmin"
-                                                                @click="fnCommentDelete(p, c)">삭제</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- 대댓글 -->
-                                                <ul class="cm-c-reply" v-if="fnReplies(p, c.commentId).length > 0">
-                                                    <li class="cm-c-item" v-for="r in fnReplies(p, c.commentId)"
-                                                        :key="r.commentId">
+                                                    <!-- 댓글 -->
+                                                    <div class="cm-c-item">
                                                         <div class="cm-c-body">
                                                             <div class="cm-c-top">
-                                                                <strong>{{ r.displayName }}</strong>
-                                                                <span class="cm-social" v-if="r.socialType"
-                                                                    :class="fnSocial(r.socialType).cls">{{
-                                                                    fnSocial(r.socialType).label }}</span>
-                                                                <time>{{ fnAgo(r.createdAt) }}</time>
+                                                                <strong>{{ c.displayName }}</strong>
+                                                                <span class="cm-admin"
+                                                                    v-if="c.role == 'ADMIN'">관리자</span>
+                                                                <span class="cm-social" v-if="c.socialType"
+                                                                    :class="fnSocial(c.socialType).cls">{{
+                                                                    fnSocial(c.socialType).label }}</span>
+                                                                <time>{{ fnAgo(c.createdAt) }}</time>
                                                             </div>
-                                                            <p class="cm-c-text">{{ r.commentContent }}</p>
-                                                            <div class="cm-c-btns">
+                                                            <p class="cm-c-text deleted"
+                                                                v-if="c.commentStatus == 'HIDDEN'">관리자에 의해 삭제된 댓글입니다.
+                                                            </p>
+                                                            <p class="cm-c-text deleted"
+                                                                v-else-if="c.commentStatus == 'DELETED'">삭제된 댓글입니다.</p>
+                                                            <p class="cm-c-text" v-else>{{ c.commentContent }}</p>
+                                                            <div class="cm-c-btns" v-if="c.commentStatus == 'ACTIVE'">
                                                                 <a href="javascript:;" v-if="isLogin"
-                                                                    @click="fnReply(p, r, $event)">답글</a>
+                                                                    @click="fnReply(p, c, $event)">답글</a>
                                                                 <a href="javascript:;" class="del"
-                                                                    v-if="r.memberId == memberId || isAdmin"
-                                                                    @click="fnCommentDelete(p, r)">삭제</a>
+                                                                    v-if="c.memberId == memberId || isAdmin"
+                                                                    @click="fnCommentDelete(p, c)">삭제</a>
                                                             </div>
                                                         </div>
-                                                    </li>
-                                                </ul>
+                                                    </div>
 
-                                            </li>
-                                        </ul>
+                                                    <!-- 대댓글 -->
+                                                    <ul class="cm-c-reply" v-if="fnReplies(p, c.commentId).length > 0">
+                                                        <li class="cm-c-item" v-for="r in fnReplies(p, c.commentId)"
+                                                            :key="r.commentId">
+                                                            <div class="cm-c-body">
+                                                                <div class="cm-c-top">
+                                                                    <strong>{{ r.displayName }}</strong>
+                                                                    <span class="cm-admin"
+                                                                        v-if="r.role == 'ADMIN'">관리자</span>
+                                                                    <span class="cm-social" v-if="r.socialType"
+                                                                        :class="fnSocial(r.socialType).cls">{{
+                                                                        fnSocial(r.socialType).label }}</span>
+                                                                    <time>{{ fnAgo(r.createdAt) }}</time>
+                                                                </div>
+                                                                <p class="cm-c-text deleted"
+                                                                    v-if="r.commentStatus == 'HIDDEN'">관리자에 의해 삭제된
+                                                                    댓글입니다.</p>
+                                                                <p class="cm-c-text" v-else>{{ r.commentContent }}</p>
+                                                                <div class="cm-c-btns"
+                                                                    v-if="r.commentStatus == 'ACTIVE'">
+                                                                    <a href="javascript:;" v-if="isLogin"
+                                                                        @click="fnReply(p, r, $event)">답글</a>
+                                                                    <a href="javascript:;" class="del"
+                                                                        v-if="r.memberId == memberId || isAdmin"
+                                                                        @click="fnCommentDelete(p, r)">삭제</a>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
 
-                                        <!-- 댓글 입력 -->
-                                        <div class="cm-c-write">
-                                            <div class="cm-c-to" v-if="p.replyTo">
-                                                <span>{{ '@' + p.replyTo.name }}님에게 답글</span>
-                                                <a href="javascript:;" @click="p.replyTo = null">취소</a>
+                                                </li>
+                                            </ul>
+
+                                            <!-- 댓글 입력 -->
+                                            <div class="cm-c-write">
+                                                <div class="cm-c-to" v-if="p.replyTo">
+                                                    <span>{{ '@' + p.replyTo.name }}님에게 답글</span>
+                                                    <a href="javascript:;" @click="p.replyTo = null">취소</a>
+                                                </div>
+                                                <div class="cm-c-input">
+                                                    <input type="text" v-model="p.commentText" maxlength="1000"
+                                                        :placeholder="isLogin ? '댓글을 입력하세요' : '로그인 후 댓글을 남길 수 있어요.'"
+                                                        :disabled="!isLogin" @keyup.enter="fnCommentAdd(p)">
+                                                    <button type="button"
+                                                        :disabled="!isLogin || p.cPosting || p.commentText.trim() == ''"
+                                                        @click="fnCommentAdd(p)">등록</button>
+                                                </div>
                                             </div>
-                                            <div class="cm-c-input">
-                                                <input type="text" v-model="p.commentText" maxlength="1000"
-                                                    :placeholder="isLogin ? '댓글을 입력하세요' : '로그인 후 댓글을 남길 수 있어요.'"
-                                                    :disabled="!isLogin" @keyup.enter="fnCommentAdd(p)">
-                                                <button type="button"
-                                                    :disabled="!isLogin || p.cPosting || p.commentText.trim() == ''"
-                                                    @click="fnCommentAdd(p)">등록</button>
-                                            </div>
+
                                         </div>
-
                                     </div>
-                                </div>
-
+                                </template>
                             </article>
 
                             <div class="cm-loading" v-if="loading">불러오는 중...</div>
 
-                            <!-- 페이징 -->
-                            <div class="cm-paging" v-if="totalPage > 1">
-                                <a href="javascript:;" class="nav" @click="fnPage(page - 1)">&lsaquo;</a>
-                                <a href="javascript:;" v-for="n in pageList" :key="n" :class="{ on: n == page }"
-                                    @click="fnPage(n)">{{ n }}</a>
-                                <a href="javascript:;" class="nav" @click="fnPage(page + 1)">&rsaquo;</a>
+                            <!-- 마지막 게시글 안내 -->
+                            <div class="cm-end" v-if="!loading && !hasMore && postList.length > 0">
+                                이 글이 마지막 게시글입니다.
                             </div>
 
-                            <!-- 마지막 페이지 안내 -->
-                            <div class="cm-end" v-if="!loading && postList.length > 0 && page >= totalPage">
-                                더 이상 소식이 없어요.
-                            </div>
+                            <!-- 무한 스크롤 감지용 -->
+                            <div ref="sentinel" class="cm-sentinel"></div>
 
                         </div>
 
@@ -318,6 +343,7 @@
                     pageSize: 5,                            // 한 페이지에 보여줄 개수 (서버와 동일)
                     pageBlock: 5,                           // 페이징 번호 몇 개씩 보여줄지
                     cnt: 0,                                 // 전체 게시글 수
+                    hasMore: true,                           // 더 불러올 게시글이 있는지
                     loading: false,                         // 불러오는 중
                     token: 0,                               // 탭 전환 시 이전 요청 무시용
 
@@ -345,22 +371,7 @@
                         arr.push({ label: "#" + self.tag, value: self.tag });
                     }
                     return arr;
-                },
-
-                // 전체 페이지 수
-                totalPage() {
-                    return Math.ceil(this.cnt / this.pageSize);
-                },
-
-                // 화면에 보여줄 페이지 번호들
-                pageList() {
-                    let start = Math.floor((this.page - 1) / this.pageBlock) * this.pageBlock + 1;
-                    let end = Math.min(start + this.pageBlock - 1, this.totalPage);
-                    let arr = [];
-                    for (let i = start; i <= end; i++) arr.push(i);
-                    return arr;
                 }
-
             },
 
             methods: {
@@ -368,7 +379,7 @@
                 // 목록 조회 (페이지 번호 방식)
                 fnList: function () {
                     let self = this;
-                    if (self.loading) return;
+                    if (self.loading || !self.hasMore) return;
 
                     self.loading = true;
                     let token = self.token;
@@ -398,36 +409,52 @@
                                     p.commentText = "";     // 입력 중인 댓글
                                     p.replyTo = null;       // 답글 대상 { id, name }
                                 });
-                                self.postList = data.list;
+                                self.postList = self.postList.concat(data.list);
                                 self.cnt = data.cnt;
+                                self.page++;
+                                // 불러온 글이 전체 개수 도달했거나 빈결과면 마지막
+                                self.hasMore = data.list.length > 0 && self.postList.length < data.cnt;
                             } else {
+                                self.hasMore = false;
                                 alert("게시글을 불러오지 못했습니다.");
                             }
+
+
+                        },
+                        error: function () {
+                            self.hasMore = false;   // 서버 오류면 더 이상 요청하지 않음
+                            alert("게시글을 불러오지 못했습니다.");
                         },
                         complete: function () {
                             if (token != self.token) return;
                             self.loading = false;
+                            self.$nextTick(self.fnCheckMore);
                         }
                     });
                 },
 
-                // 1페이지부터 다시 조회 (탭 변경, 글 등록 후)
+                // 첨부터 다시 조회 (탭 변경, 글 등록/삭제 후)
                 fnReset: function () {
                     let self = this;
                     self.token++;
                     self.page = 1;
+                    self.postList = [];
+                    self.hasMore = true;
                     self.loading = false;
                     self.fnList();
                 },
 
-                // 페이지 이동
-                fnPage: function (n) {
+                //화면이 덜 찼으면 이어서 불러오기
+                fnCheckMore: function () {
                     let self = this;
-                    if (n < 1 || n > self.totalPage || n == self.page) return;
-                    self.page = n;
-                    self.fnList();
-                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    if (!self.hasMore || self.loading || !self.$refs.sentinel) return;
+                    let rect = self.$refs.sentinel.getBoundingClientRect();
+                    if (rect.top < window.innerHeight + 300) {
+                        self.fnList();
+                    }
                 },
+
+
 
                 // 탭(해시태그) 선택
                 fnTab: function (value) {
@@ -499,9 +526,7 @@
                         success: function (data) {
                             console.log(data);
                             if (data.result == "success") {
-                                // 지운 뒤 목록을 다시 불러옴 (현재 페이지가 비면 이전 페이지로)
-                                if (self.postList.length == 1 && self.page > 1) self.page--;
-                                self.fnList();
+                                self.fnReset();
                             } else {
                                 alert(data.msg || "삭제에 실패했습니다.");
                             }
@@ -684,6 +709,7 @@
 
                         let formData = new FormData();
                         formData.append("file", file);
+                        formData.append("type", "community");
 
                         $.ajax({
                             url: "http://localhost:8080/common/image-upload.dox",
@@ -710,9 +736,35 @@
                     });
                 },
 
-                // 첨부 이미지 제거
+                // 서버에 올라간 임시 이미지 삭제 (DB에 연결된 사진은 서버가 보호함)
+                fnImageDelete: function (urls) {
+                    if (!urls || urls.length == 0) return;
+                    $.ajax({
+                        url: "http://localhost:8080/common/image-delete.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: { urls: JSON.stringify(urls) }
+                    });
+                },
+
+                // 첨부 이미지 제거 (서버 임시 파일도 삭제)
                 fnImageRemove: function (idx) {
-                    this.imageList.splice(idx, 1);
+                    let self = this;
+                    let img = self.imageList[idx];
+                    self.imageList.splice(idx, 1);
+                    self.fnImageDelete([img.imageUrl]);
+                },
+
+                // 작성 중인 글 비우기 (내용과 올린 사진 모두 취소)
+                fnCancel: function () {
+                    let self = this;
+                    if (self.content.trim() == "" && self.imageList.length == 0) return;
+                    if (!confirm("작성 중인 내용을 취소하시겠습니까?")) return;
+
+                    self.fnImageDelete(self.imageList.map(function (img) { return img.imageUrl; }));
+                    self.content = "";
+                    self.imageList = [];
+                    self.$nextTick(self.fnResize);
                 },
 
                 // 커서 위치에 # 넣기
@@ -767,9 +819,27 @@
                 let self = this;
                 self.fnList();
 
+                // 스크롤이 끝에 가까워지면 다음 글 불러오기
+                if ("IntersectionObserver" in window) {
+                    let observer = new IntersectionObserver(function (entries) {
+                        if (entries[0].isIntersecting) self.fnList();
+                    }, { rootMargin: "300px" });
+                    observer.observe(self.$refs.sentinel);
+                } else {
+                    window.addEventListener("scroll", self.fnCheckMore);
+                }
+
                 // 바깥을 누르면 더보기 메뉴 닫기
                 document.addEventListener("click", function () {
                     self.menuId = null;
+                });
+
+                // 창을 닫거나 이동할 때, 올리기만 하고 저장 안 한 사진 정리
+                window.addEventListener("pagehide", function () {
+                    if (self.imageList.length == 0) return;
+                    let form = new FormData();
+                    form.append("urls", JSON.stringify(self.imageList.map(function (img) { return img.imageUrl; })));
+                    navigator.sendBeacon("http://localhost:8080/common/image-delete.dox", form);
                 });
             }
 
