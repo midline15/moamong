@@ -81,6 +81,47 @@
                                     </li>
                                 </ul>
 
+                                <!-- 구매 상품 선택 패널 -->
+                                <div class="cm-buy" v-if="showPurchase">
+                                    <div class="cm-buy-head">
+                                        <strong>최근 7일 구매 상품</strong>
+                                        <span>최대 3개까지 선택할 수 있어요 ({{ pickedList.length }}/3)</span>
+                                    </div>
+
+                                    <div class="cm-buy-empty" v-if="buyLoading">구매 내역을 불러오는 중...</div>
+                                    <div class="cm-buy-empty" v-else-if="buyList.length == 0">
+                                        최근 7일간 구매한 상품이 없습니다.
+                                    </div>
+
+                                    <div class="cm-buy-wrap" v-else>
+                                        <button type="button" class="cm-buy-arrow prev" aria-label="이전"
+                                            :disabled="buyPage == 0" @click="fnBuyMove(-1)">&lsaquo;</button>
+
+                                        <div class="cm-buy-view">
+                                            <ul class="cm-buy-list"
+                                                :style="{ transform: 'translateX(-' + buyPage * 100 + '%)' }">
+                                                <li v-for="b in buyList" :key="b.productId"
+                                                    :class="{ on: fnIsPicked(b) }" @click="fnPick(b)">
+                                                    <div class="thumb">
+                                                        <img :src="b.thumbnailUrl" :alt="b.productName"
+                                                            draggable="false">
+                                                        <span class="check" v-if="fnIsPicked(b)">
+                                                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                                                                stroke="currentColor" stroke-width="3">
+                                                                <path d="M5 12l5 5 9-10"></path>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <em>{{ b.productName }}</em>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <button type="button" class="cm-buy-arrow next" aria-label="다음"
+                                            :disabled="buyPage >= buyLastPage" @click="fnBuyMove(1)">&rsaquo;</button>
+                                    </div>
+                                </div>
+
                                 <div class="cm-write-tool">
                                     <div class="cm-tools">
                                         <!-- 사진 -->
@@ -107,13 +148,14 @@
                                             </svg>
                                         </button>
 
-                                        <!-- 구매한 상품 표시 (TODO: 구성품 기능 완료 후 연결, 지금은 공개안함 고정) -->
-                                        <!-- 사용자 최근 일주일 구매 물건 목록 작게 띄워서 표시할상품 체크? 선택하는거 하고 공개. -->
-                                        <label class="cm-switch disabled" title="준비 중인 기능이에요">
-                                            <input type="checkbox" v-model="showPurchase" disabled>
+                                        <!-- 구매한 상품 표시 (최근 7일 구매 상품 중 최대 3개 선택) -->
+                                        <label class="cm-switch" :class="{ disabled: !isLogin, on: showPurchase }"
+                                            :title="isLogin ? '최근 7일간 구매한 상품을 글에 붙여요' : '로그인 후 이용할 수 있어요'">
+                                            <input type="checkbox" v-model="showPurchase" :disabled="!isLogin"
+                                                @change="fnTogglePurchase">
                                             <span class="track"><span class="knob"></span></span>
                                             <em>구매한 상품 표시</em>
-                                            <small>공개안함</small>
+                                            <small>{{ showPurchase ? pickedList.length + '/3 선택' : '공개안함' }}</small>
                                         </label>
                                     </div>
 
@@ -128,6 +170,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- 피드 -->
                         <div class="cm-feed">
@@ -186,10 +229,25 @@
 
                                     <!-- 내용 -->
                                     <p class="cm-text">{{ p.postContent }}</p>
-
+                                    <!-- 첨부된 구매 상품 -->
+                                    <div class="cm-products" v-if="p.productList && p.productList.length > 0">
+                                        <a class="cm-product" v-for="b in p.productList" :key="b.productId"
+                                            :href="b.productUrl">
+                                            <img :src="b.thumbnailUrl" :alt="b.productName" draggable="false">
+                                            <div>
+                                                <strong>{{ b.productName }}</strong>
+                                                <em>{{ Number(b.price).toLocaleString() }}원</em>
+                                            </div>
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
                                     <!-- 해시태그 -->
                                     <div class="cm-tags" v-if="p.tagList && p.tagList.length > 0">
-                                        <a href="javascript:;" v-for="t in p.tagList" :key="t" @click="fnTab(t)">{{ '#'
+                                        <a href="javascript:;" v-for="t in p.tagList" :key="t" @click="fnTab(t)">{{
+                                            '#'
                                             + t
                                             }}</a>
                                     </div>
@@ -242,10 +300,13 @@
                                                                 <time>{{ fnAgo(c.createdAt) }}</time>
                                                             </div>
                                                             <p class="cm-c-text deleted"
-                                                                v-if="c.commentStatus == 'HIDDEN'">관리자에 의해 삭제된 댓글입니다.
+                                                                v-if="c.commentStatus == 'HIDDEN'">
+                                                                관리자에 의해 삭제된
+                                                                댓글입니다.
                                                             </p>
                                                             <p class="cm-c-text deleted"
-                                                                v-else-if="c.commentStatus == 'DELETED'">삭제된 댓글입니다.</p>
+                                                                v-else-if="c.commentStatus == 'DELETED'">삭제된 댓글입니다.
+                                                            </p>
                                                             <p class="cm-c-text" v-else>{{ c.commentContent }}</p>
                                                             <div class="cm-c-btns" v-if="c.commentStatus == 'ACTIVE'">
                                                                 <a href="javascript:;" v-if="isLogin"
@@ -274,7 +335,8 @@
                                                                 <p class="cm-c-text deleted"
                                                                     v-if="r.commentStatus == 'HIDDEN'">관리자에 의해 삭제된
                                                                     댓글입니다.</p>
-                                                                <p class="cm-c-text" v-else>{{ r.commentContent }}</p>
+                                                                <p class="cm-c-text" v-else>{{ r.commentContent }}
+                                                                </p>
                                                                 <div class="cm-c-btns"
                                                                     v-if="r.commentStatus == 'ACTIVE'">
                                                                     <a href="javascript:;" v-if="isLogin"
@@ -354,8 +416,12 @@
                     content: "",                            // 작성 내용
                     imageList: [],                          // 첨부한 이미지 정보
                     posting: false,                         // 등록 중
-                    showPurchase: false,                    // 구매 상품 표시 (아직 사용 안 함)
+                    showPurchase: false,                    // 구매 상품 표시 여부
+                    buyList: [],                            // 최근 7일 구매 상품 (선택 후보)
+                    pickedList: [],                         // 선택한 상품 (최대 3개)
+                    buyPage: 0,                             // 구매 상품 슬라이드 페이지 (5개씩)
                     menuId: null,                           // 더보기 메뉴가 열린 게시글
+                    buyLoading: false,   // 구매 상품 불러오는 중
 
                     // 기본 탭
                     baseTab: ["감성템", "일상", "리뷰", "추천"]
@@ -375,6 +441,11 @@
                         arr.push({ label: "#" + self.tag, value: self.tag });
                     }
                     return arr;
+                },
+
+                // 구매 상품 슬라이드 마지막 페이지 번호 (한 번에 5개)
+                buyLastPage() {
+                    return Math.max(Math.ceil(this.buyList.length / 5) - 1, 0);
                 }
             },
 
@@ -401,6 +472,7 @@
                             if (token != self.token) return;    // 탭이 바뀌었으면 무시
                             if (data.result == "success") {
                                 data.list.forEach(function (p) {
+                                    p.productList = p.productList || [];
                                     p.imageList = p.imageList || [];
                                     p.tagList = p.tagList || [];
                                     p.liking = false;
@@ -484,7 +556,8 @@
                     self.posting = true;
                     let param = {
                         postContent: self.content,
-                        images: JSON.stringify(self.imageList)
+                        images: JSON.stringify(self.imageList),
+                        products: JSON.stringify(self.pickedList.map(function (b) { return b.productId; }))
                     };
 
                     $.ajax({
@@ -498,6 +571,8 @@
                             if (data.result == "success") {
                                 self.content = "";
                                 self.imageList = [];
+                                self.showPurchase = false;
+                                self.pickedList = [];
                                 self.tag = "";      // 전체 탭으로 돌아가서 새 글이 바로 보이게
                                 self.$nextTick(self.fnResize);
                                 self.fnReset();
@@ -772,6 +847,71 @@
                     self.$nextTick(self.fnResize);
                 },
 
+                // 구매 상품 스위치 (켜면 후보를 불러오고, 끄면 선택을 비움)
+                fnTogglePurchase: function () {
+                    let self = this;
+                    if (!self.isLogin) {
+                        self.showPurchase = false;
+                        return;
+                    }
+                    if (self.showPurchase) {
+                        self.fnBuyList();
+                    } else {
+                        self.pickedList = [];
+                    }
+                },
+
+                               // 최근 7일 구매 상품 조회
+                fnBuyList: function () {
+                    let self = this;
+                    self.buyLoading = true;
+                    self.buyList = [];
+                    self.buyPage = 0;
+
+                    $.ajax({
+                        url: "http://localhost:8080/community/buy-list.dox",
+                        dataType: "json",
+                        type: "POST",
+                        data: {},
+
+                        success: function (data) {
+                            console.log(data);
+                            self.buyList = (data.result == "success" && data.list) ? data.list : [];
+                        },
+                        error: function () {
+                            self.buyList = [];
+                        },
+                        complete: function () {
+                            self.buyLoading = false;
+                        }
+                    });
+                },
+
+                // 구매 상품 슬라이드 이동 (5개 단위)
+                fnBuyMove: function (step) {
+                    let self = this;
+                    self.buyPage = Math.min(Math.max(self.buyPage + step, 0), self.buyLastPage);
+                },
+
+                // 선택 여부
+                fnIsPicked: function (b) {
+                    return this.pickedList.some(function (x) { return x.productId == b.productId; });
+                },
+
+                // 상품 선택 / 해제 (최대 3개)
+                fnPick: function (b) {
+                    let self = this;
+                    if (self.fnIsPicked(b)) {
+                        self.pickedList = self.pickedList.filter(function (x) { return x.productId != b.productId; });
+                        return;
+                    }
+                    if (self.pickedList.length >= 3) {
+                        alert("상품은 최대 3개까지 선택할 수 있어요.");
+                        return;
+                    }
+                    self.pickedList.push(b);
+                },
+
                 // 커서 위치에 # 넣기
                 fnHash: function () {
                     let self = this;
@@ -859,32 +999,32 @@
             console.log("넘어온 targetPostId:", targetPostId);
 
             if (!targetPostId) return;
-                sessionStorage.removeItem("targetPostId");
-                sessionStorage.removeItem("targetCommentId");
-                let tries = 0;
-                const timer = setInterval(function () {
+            sessionStorage.removeItem("targetPostId");
+            sessionStorage.removeItem("targetCommentId");
+            let tries = 0;
+            const timer = setInterval(function () {
                 tries++;
                 const postEl = document.querySelector('.cm-post[data-post-id="' + targetPostId + '"]')
-                || Array.from(document.querySelectorAll('.cm-post')).find(el => el.__vnode && el.__vnode.key == targetPostId);
+                    || Array.from(document.querySelectorAll('.cm-post')).find(el => el.__vnode && el.__vnode.key == targetPostId);
 
                 if (postEl) {
                     clearInterval(timer);
                     setTimeout(function () {
                         postEl.scrollIntoView({ behavior: "smooth", block: "center" });
                     }, 300);
-                    
+
                     if (targetCommentId) {
                         const cBtn = postEl.querySelector("button.comment");
-                        
+
                         if (cBtn && !cBtn.classList.contains("on")) cBtn.click();
-                            setTimeout(function () {
-                                const cEl = Array.from(postEl.querySelectorAll(".cm-c-list li, .cm-c-item"))
+                        setTimeout(function () {
+                            const cEl = Array.from(postEl.querySelectorAll(".cm-c-list li, .cm-c-item"))
                                 .find(el => el.__vnode && el.__vnode.key == targetCommentId);
-                    
+
                             if (cEl) cEl.scrollIntoView({ behavior: "smooth", block: "center" });
-                            }, 500);
-                        }
-                    } else if (tries < 15) {
+                        }, 500);
+                    }
+                } else if (tries < 15) {
                     window.scrollTo(0, document.body.scrollHeight);
                 } else {
                     clearInterval(timer);
