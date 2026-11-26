@@ -80,7 +80,7 @@
                                     <button type="button" class="cs-btn" @click="fnList">목록</button>
 
                                     <!-- TODO: 관리자만 보이게 -->
-                                    <div class="right-group">
+                                    <div class="right-group" v-if="isAdmin">
                                         <button type="button" class="cs-btn" @click="fnEdit">수정</button>
                                         <button type="button" class="cs-btn danger" @click="fnDelete">삭제</button>
                                     </div>
@@ -103,6 +103,7 @@
             data() {
                 return {
                     noticeId: "${noticeId}",    // 컨트롤러에서 넘겨받은 공지사항 번호
+                    isAdmin: "${isAdmin}" == "true",    // 관리자 여부 (서버에서도 다시 검사함)
                     info: {}                    // 공지사항 상세 정보
                 };
             },

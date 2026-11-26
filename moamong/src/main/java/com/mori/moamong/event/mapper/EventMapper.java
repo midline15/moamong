@@ -37,4 +37,7 @@ public interface EventMapper {
     // 이벤트 이미지 전체 삭제 (이벤트 기준)
     int deleteEventImage(HashMap<String, Object> map);
 
+    // 메인 슬라이더용 이벤트 (진행중/예정, 썸네일 있는 것만, 최신순 6개)
+    List<Event> selectMainEventList();
+
 }

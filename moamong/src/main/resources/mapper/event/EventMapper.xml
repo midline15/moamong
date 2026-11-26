@@ -112,4 +112,21 @@
         WHERE EVENT_ID = #{eventId}
     </delete>
 
+        <!-- 메인 슬라이더용 이벤트 -->
+    <select id="selectMainEventList" resultType="com.mori.moamong.dto.Event">
+        SELECT E.EVENT_ID, E.EVENT_TITLE, E.STARTED_AT, E.ENDED_AT, E.EVENT_STATUS,
+               (SELECT I.IMAGE_URL
+                  FROM EVENT_IMAGE I
+                 WHERE I.EVENT_ID = E.EVENT_ID
+                   AND I.IMAGE_TYPE = 'THUMBNAIL'
+                 ORDER BY I.DISPLAY_ORDER
+                 LIMIT 1) AS THUMBNAIL_URL
+        FROM EVENT E
+        WHERE E.EVENT_STATUS IN ('ONGOING', 'READY')
+          AND EXISTS (SELECT 1 FROM EVENT_IMAGE I2
+                       WHERE I2.EVENT_ID = E.EVENT_ID AND I2.IMAGE_TYPE = 'THUMBNAIL')
+        ORDER BY E.EVENT_ID DESC
+        LIMIT 6
+    </select>
+
 </mapper>

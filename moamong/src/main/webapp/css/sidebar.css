@@ -25,7 +25,7 @@
     --sb-text: #39342e;
     --sb-muted: #9a8f80;
 
-    font-family: "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+    font-family: "Pretendard Variable", "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
 }
 
 .menu-container ul {
@@ -60,7 +60,9 @@
     position: fixed;
     inset: 0;
 
-    background: rgba(35, 30, 24, 0.42);
+    background: rgba(35, 30, 24, 0.4);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
 
     opacity: 0;
     visibility: hidden;
@@ -100,6 +102,10 @@
     flex-direction: column;
 
     background: var(--sb-bg);
+
+    /* 메인 카드들과 같은 둥근 모서리 */
+    border-radius: 0 28px 28px 0;
+    overflow: hidden;
 
     transform: translateX(-100%);
     visibility: hidden;
@@ -216,11 +222,36 @@
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-line-strong) transparent;
 }
 
 .main-menu > li {
     border-bottom: 1px solid var(--sb-line);
 }
+
+/* 사이드바가 열릴 때 메뉴가 위에서부터 차례로 들어옴 */
+@keyframes sb-rise {
+    from {
+        opacity: 0;
+        transform: translateX(-14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.menu-container.active .main-menu > li {
+    animation: sb-rise 0.55s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.menu-container.active .main-menu > li:nth-child(1) { animation-delay: 0.10s; }
+.menu-container.active .main-menu > li:nth-child(2) { animation-delay: 0.15s; }
+.menu-container.active .main-menu > li:nth-child(3) { animation-delay: 0.20s; }
+.menu-container.active .main-menu > li:nth-child(4) { animation-delay: 0.25s; }
+.menu-container.active .main-menu > li:nth-child(5) { animation-delay: 0.30s; }
 
 
 /* =========================================
@@ -236,7 +267,7 @@
     justify-content: space-between;
 
     width: 100%;
-    padding: 20px 28px;
+    padding: 21px 28px;
 
     font-size: 16px;
     font-weight: 600;
@@ -247,7 +278,7 @@
     transition:
         color 0.3s ease,
         background 0.3s ease,
-        padding 0.3s ease;
+        padding 0.3s cubic-bezier(.22, 1, .36, 1);
 }
 
 /* 왼쪽 골드 포인트 */
@@ -275,6 +306,14 @@
 .has-submenu.open > .menu-toggle {
     color: var(--sb-gold);
     background: var(--sb-bg-soft);
+}
+
+/* 호버하면 글자가 살짝 안쪽으로 밀림 */
+.menu-link:hover,
+.menu-toggle:hover,
+.menu-link:focus-visible,
+.menu-toggle:focus-visible {
+    padding-left: 34px;
 }
 
 .menu-link:hover::before,
@@ -400,7 +439,8 @@
     transition:
         background 0.25s ease,
         border-color 0.25s ease,
-        color 0.25s ease;
+        color 0.25s ease,
+        transform 0.25s ease;
 }
 
 /* 선물 태그의 끈 구멍 */
@@ -426,6 +466,7 @@
     background: var(--sb-gold);
     border-color: var(--sb-gold);
     color: #fff;
+    transform: translateY(-1px);
 }
 
 .chip-list a:hover::before,
@@ -527,6 +568,7 @@ body.sidebar-open {
 
     .menu-container {
         width: 300px;
+        border-radius: 0 24px 24px 0;
     }
 
     .menu-head {
@@ -542,6 +584,13 @@ body.sidebar-open {
     .menu-toggle {
         padding: 18px 22px;
         font-size: 15px;
+    }
+
+    .menu-link:hover,
+    .menu-toggle:hover,
+    .menu-link:focus-visible,
+    .menu-toggle:focus-visible {
+        padding-left: 28px;
     }
 
     .sub-group {
@@ -566,5 +615,6 @@ body.sidebar-open {
     .sidebar-overlay {
         transition-duration: 0.01ms !important;
         transition-delay: 0s !important;
+        animation: none !important;
     }
 }

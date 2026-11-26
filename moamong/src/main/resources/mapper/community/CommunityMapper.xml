@@ -2,23 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.community.mapper.CommunityMapper">
 
-    <!--
+        <!--
         작성자 표시 이름 (글/댓글 공통) - 서버에서 가려서 내려보냄
-          1) 관리자            : 가리지 않음 (이름 -> 없으면 아이디 -> 없으면 '관리자')
-          2) 홈페이지 가입 회원 : 아이디 앞 2글자만 (mo****)
-          3) 소셜 로그인 회원   : 이름 앞 1글자만 (김**)
-        ※ 아이디가 1~2글자인 경우 전부 노출되지 않도록 앞 1글자만 보여줌
+          일반 가입, 소셜(카카오/구글/네이버) 모두 이름 기준: 앞 1글자 + * (김**)
+          관리자는 가리지 않음 (이름 -> 없으면 아이디 -> 없으면 '관리자')
+          이름이 비어 있으면 아이디 앞 2글자만, 둘 다 없으면 '회원'
     -->
     <sql id="displayNameExpr">
         CASE
             WHEN M.ROLE = 'ADMIN'
                 THEN IFNULL(NULLIF(M.MEMBER_NAME, ''), IFNULL(NULLIF(M.LOGIN_ID, ''), '관리자'))
-            WHEN CHAR_LENGTH(M.LOGIN_ID) > 2
-                THEN CONCAT(LEFT(M.LOGIN_ID, 2), REPEAT('*', CHAR_LENGTH(M.LOGIN_ID) - 2))
-            WHEN CHAR_LENGTH(M.LOGIN_ID) > 0
-                THEN CONCAT(LEFT(M.LOGIN_ID, 1), '*')
-            WHEN CHAR_LENGTH(M.MEMBER_NAME) > 0
-                THEN CONCAT(LEFT(M.MEMBER_NAME, 1), REPEAT('*', GREATEST(CHAR_LENGTH(M.MEMBER_NAME) - 1, 0)))
+            WHEN CHAR_LENGTH(IFNULL(M.MEMBER_NAME, '')) > 0
+                THEN CONCAT(LEFT(M.MEMBER_NAME, 1), REPEAT('*', GREATEST(CHAR_LENGTH(M.MEMBER_NAME) - 1, 1)))
+            WHEN CHAR_LENGTH(IFNULL(M.LOGIN_ID, '')) > 0
+                THEN CONCAT(LEFT(M.LOGIN_ID, 2), '**')
             ELSE '회원'
         END
     </sql>
