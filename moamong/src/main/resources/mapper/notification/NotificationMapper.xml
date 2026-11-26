@@ -37,7 +37,7 @@
 			related_id AS relatedId,
 			is_read AS isRead,
 			is_important AS isImportant,
-			DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt
+			DATE_FORMAT(DATE_ADD(created_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS createdAt
 		FROM NOTIFICATION
 		WHERE member_id = #{memberId}
 		  AND is_deleted = 'N'
@@ -56,7 +56,7 @@
 			is_read AS isRead,
 			is_important AS isImportant,
 			is_deleted AS isDeleted,
-			DATE_FORMAT(created_at, '%Y.%m.%d %H:%i') AS createdAt
+			DATE_FORMAT(DATE_ADD(created_at, INTERVAL 9 HOUR), '%Y.%m.%d %H:%i') AS createdAt
 		FROM NOTIFICATION
 		WHERE member_id = #{memberId}
 		<choose>

@@ -144,13 +144,33 @@
                 const pageIds = this.pagedList.map(i => i.notificationId);
                 this.selectedIds = e.target.checked ? pageIds : [];
             },
+            fnGetTargetUrl(item) {
+                const type = item.notificationType;
+                const relId = item.relatedId;
+                if (type === "COUPON") return "/member/myCoupon.do";
+                if (type === "ORDER" || type === "DELIVERY") {
+                    return relId ? ("/order/detail.do?orderId=" + relId) : "/order/list.do";
+                }
+                if (type === "RETURN") return "/order/cancelList.do";
+                if (type === "INQUIRY") return "/inquiry/myList.do";
+                if (type === "REVIEW") return "/review/myReview.do";
+                return null;
+            },
             fnReadOne(item) {
-                if (item.isRead === "Y") return;
-                $.post("/notification/action.dox", { 
-                    type: "READ_ONE", 
-                    notificationId: item.notificationId 
-                }, 
-                this.fnLoad);
+                if (this.tab === "TRASH") return;
+                const destUrl = this.fnGetTargetUrl(item);
+                const goNext = () => {
+                    if (destUrl) location.href = destUrl;
+                    else this.fnLoad();
+                };
+                if (item.isRead === "Y") {
+                    goNext();
+                    return;
+                }
+                $.post("/notification/action.dox", {
+                    type: "READ_ONE",
+                    notificationId: item.notificationId
+                }, goNext);
             },
             fnToggleHeart(item) {
                 const next = item.isImportant === "Y" ? "N" : "Y";
