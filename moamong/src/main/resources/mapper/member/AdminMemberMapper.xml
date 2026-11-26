@@ -3,271 +3,206 @@
 
 <mapper namespace="com.mori.moamong.member.mapper.AdminMemberMapper">
 
+	<!-- 회원 목록 조회 -->
+	<select id="selectAdminList" resultType="com.mori.moamong.dto.Member">
+		SELECT M.*, MG.grade_name AS memberGrade, COALESCE(O.total_payment, 0)
+		AS totalPayment FROM MEMBER M LEFT JOIN MEMBERSHIP_GRADE MG ON
+		M.member_id = MG.member_id LEFT JOIN ( SELECT member_id,
+		SUM(final_amount) AS total_payment FROM ORDERS GROUP BY member_id ) O ON
+		M.member_id = O.member_id <where>
 
-    <!-- ==========================================
-         1. 회원 목록 조회
-         ========================================== -->
+			<!-- 이름, 아이디, 이메일 검색 -->
+			<if test="keyword != null and keyword != ''">
+				AND (
+				M.member_name LIKE CONCAT('%', #{keyword}, '%')
+				OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
+				OR M.email LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
 
-    <select id="selectAdminList"
-        parameterType="hashmap"
-        resultType="com.mori.moamong.dto.Member">
-		
-		    SELECT
-		        M.*,
-		
-		        <!-- 회원 등급 정보를 가져옵니다. -->
-		        MG.*,
-		
-		        <!-- 회원 등급 이름을 Admin의 memberGrade 필드에 연결합니다. -->
-		        MG.grade_name AS memberGrade,
-		
-		        <!-- 회원별 누적 구매 금액을 조회합니다.
-		             구매 내역이 없는 회원은 0원으로 표시합니다. -->
-		        COALESCE(O.total_payment, 0) AS total_payment
-		
-		    FROM MEMBER M
-		
-		    <!-- 회원 등급 정보 조회 -->
-		    LEFT JOIN MEMBERSHIP_GRADE MG
-		        ON M.member_id = MG.member_id
-		
-		    <!-- 회원별 누적 구매 금액 조회 -->
-		    LEFT JOIN (
-		        SELECT
-		            member_id,
-		            SUM(final_amount) AS total_payment
-		        FROM ORDERS
-		        GROUP BY member_id
-		    ) O
-		        ON M.member_id = O.member_id
-		
-		    <!-- 검색 조건 -->
-		    <where>
-		
-		        <!-- 이름, 아이디, 이메일 검색 -->
-		        <if test="keyword != null and keyword != ''">
-		            AND (
-		                M.member_name LIKE CONCAT('%', #{keyword}, '%')
-		                OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
-		                OR M.email LIKE CONCAT('%', #{keyword}, '%')
-		            )
-		        </if>
-		
-		        <!-- 회원 등급 검색 -->
-		        <if test="searchGrade != null and searchGrade != ''">
-		            AND MG.grade_name = #{searchGrade}
-		        </if>
-		
-		        <!-- 회원 상태 검색 -->
-		        <if test="searchStatus != null and searchStatus != ''">
-		            <choose>
-		                <when test="searchStatus == '정상'">
-		                    AND M.status = 'ACTIVE'
-		                </when>
-		
-		                <when test="searchStatus == '휴면'">
-		                    AND M.status = 'WITHDRAWN'
-		                </when>
-		            </choose>
-		        </if>
-		
-		        <!-- 가입 기간 검색 -->
-		        <if test="searchPeriod != null and searchPeriod != ''">
-		
-		            <!-- 오늘 가입 -->
-		            <if test="searchPeriod == 'today'">
-		                AND M.CREATED_AT >= CURDATE()
-		                AND M.CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-		            </if>
-		
-		            <!-- 최근 7일 가입 -->
-		            <if test="searchPeriod == 'week'">
-		                AND M.CREATED_AT >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-		                AND M.CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-		            </if>
-		
-		            <!-- 최근 30일 가입 -->
-		            <if test="searchPeriod == 'month'">
-		                AND M.CREATED_AT >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
-		                AND M.CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-		            </if>
-		
-		        </if>
-		
-		    </where>
-		
-		    <!-- 최신 가입 회원이 먼저 나오도록 정렬 -->
-		    ORDER BY M.CREATED_AT DESC, M.MEMBER_ID DESC
-		
-		    <!-- 한 페이지에 보여줄 회원 수 -->
-		    LIMIT #{limit}
-		
-		    <!-- 조회 시작 위치 -->
-		    OFFSET #{offset}
+			<!-- 회원 등급 검색 -->
+			<if test="searchGrade != null and searchGrade != ''">
+				AND MG.grade_name = #{searchGrade}
+			</if>
 
-    </select>
+			<!-- 회원 상태 검색 -->
+			<if test="searchStatus != null and searchStatus != ''">
+				AND M.status = #{searchStatus}
+			</if>
+
+			<!-- 가입 기간 검색 -->
+			<if test="searchPeriod == 'today'"> AND M.created_at >= CURDATE()
+		AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
+			</if>
+
+			<if test="searchPeriod == 'week'"> AND M.created_at >= CURDATE() -
+		INTERVAL 6 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
+			</if>
+
+			<if test="searchPeriod == 'month'"> AND M.created_at >= CURDATE() -
+		INTERVAL 29 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
+			</if>
+
+		</where>
+		ORDER BY M.created_at DESC, M.member_id DESC LIMIT #{limit} OFFSET
+		#{offset} </select>
 
 
-    <!-- ==========================================
-         2. 전체 회원 수 조회
-         ========================================== -->
+	<!-- 회원 수 조회 -->
+	<select id="selectAdminCount" resultType="int"> SELECT COUNT(*) FROM MEMBER
+		M LEFT JOIN MEMBERSHIP_GRADE MG ON M.member_id = MG.member_id <where>
 
-	   <select id="selectAdminCount"
-	        parameterType="hashmap"
-	        resultType="int">
-	
-	    SELECT COUNT(*)
-	
-	    FROM MEMBER M
-	
-	    <!-- 회원 등급 정보 조회 -->
-	    LEFT JOIN MEMBERSHIP_GRADE MG
-	        ON M.member_id = MG.member_id
-	
-	    <where>
-	
-	        <!-- 이름, 아이디, 이메일 검색 -->
-	        <if test="keyword != null and keyword != ''">
-	            AND (
-	                M.member_name LIKE CONCAT('%', #{keyword}, '%')
-	                OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
-	                OR M.email LIKE CONCAT('%', #{keyword}, '%')
-	            )
-	        </if>
-	
-	        <!-- 회원 등급 검색 -->
-	        <if test="searchGrade != null and searchGrade != ''">
-	            AND MG.grade_name = #{searchGrade}
-	        </if>
-	
-	        <!-- 회원 상태 검색 -->
-	        <!-- 목록 조회와 동일하게 한글 값을 DB 상태값으로 변환합니다. -->
-	        <if test="searchStatus != null and searchStatus != ''">
-	            <choose>
-	                <when test="searchStatus == '정상'">
-	                    AND M.status = 'ACTIVE'
-	                </when>
-	
-	                <when test="searchStatus == '휴면'">
-	                    AND M.status = 'WITHDRAWN'
-	                </when>
-	            </choose>
-	        </if>
-	
-	        <!-- 가입 기간 검색 -->
-	        <if test="searchPeriod != null and searchPeriod != ''">
-	
-	            <!-- 오늘 가입 -->
-	            <if test="searchPeriod == 'today'">
-	                AND M.CREATED_AT >= CURDATE()
-	                AND M.CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-	            </if>
-	
-	            <!-- 최근 7일 가입 -->
-	            <if test="searchPeriod == 'week'">
-	                AND M.CREATED_AT >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-	                AND M.CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-	            </if>
-	
-	            <!-- 최근 30일 가입 -->
-	            <if test="searchPeriod == 'month'">
-	                AND M.CREATED_AT >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
-	                AND M.CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-	            </if>
-	
-	        </if>
-	
-	    </where>
-	
+			<if test="keyword != null and keyword != ''">
+				AND (
+				M.member_name LIKE CONCAT('%', #{keyword}, '%')
+				OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
+				OR M.email LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+
+			<if test="searchGrade != null and searchGrade != ''">
+				AND MG.grade_name = #{searchGrade}
+			</if>
+
+			<if test="searchStatus != null and searchStatus != ''">
+				AND M.status = #{searchStatus}
+			</if>
+
+			<if test="searchPeriod == 'today'"> AND M.created_at >= CURDATE()
+		AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
+			</if>
+
+			<if test="searchPeriod == 'week'"> AND M.created_at >= CURDATE() -
+		INTERVAL 6 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
+			</if>
+
+			<if test="searchPeriod == 'month'"> AND M.created_at >= CURDATE() -
+		INTERVAL 29 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
+			</if>
+
+		</where>
+
 	</select>
 
-    <!-- ==========================================
-         3. 회원 통계 조회
-         ========================================== -->
 
-    <select id="selectStats"
-            parameterType="hashmap"
-            resultType="com.mori.moamong.dto.Member">
-
-        SELECT
-
-            <!--전체 회원 수-->
-            COUNT(*) AS totalCount,
-
-           <!-- 오늘 가입한 회원 수-->
-            SUM(
-                CASE
-                    WHEN CREATED_AT >= CURDATE()
-                     AND CREATED_AT &lt; CURDATE() + INTERVAL 1 DAY
-                    THEN 1 ELSE 0
-                END
-            ) AS todayCount,
-
-            <!-- 활성 회원 수-->
-            SUM(
-                CASE
-                    WHEN status = 'ACTIVE'
-                    THEN 1 ELSE 0
-                END
-            ) AS activeCount,
-
-            <!-- 탈퇴 회원 수-->
-            SUM(
-                CASE
-                    WHEN status = 'WITHDRAWN'
-                    THEN 1 ELSE 0
-                END
-            ) AS dormantCount
-
-        FROM MEMBER
-
-    </select>
-    
-    
-<!-- ==========================================
-     4. 회원 상세정보 조회
-     ========================================== -->
-
-<select id="selectAdminDetail"
-        parameterType="hashmap"
-        resultType="com.mori.moamong.dto.Member">
-
+	<select id="selectStats" resultType="com.mori.moamong.dto.Member">
     SELECT
+        COUNT(*) AS totalCount,
 
-        <!-- 회원 기본 정보를 가져옵니다. -->
-        M.*,
+        SUM(
+            CASE
+                WHEN created_at >= CURDATE()
+                AND created_at &lt; DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+                THEN 1
+                ELSE 0
+            END
+        ) AS todayCount,
 
-        <!-- 회원 등급 이름을 가져옵니다. -->
-        MG.grade_name AS memberGrade,
+        SUM(
+            CASE
+                WHEN status = 'ACTIVE'
+                THEN 1
+                ELSE 0
+            END
+        ) AS activeCount,
 
-        <!-- 누적 구매 금액을 가져옵니다.
-             주문 내역이 없으면 0으로 표시합니다. -->
-        COALESCE(O.total_payment, 0) AS totalPayment,
+        SUM(
+            CASE
+                WHEN status = 'INACTIVE'
+                THEN 1
+                ELSE 0
+            END
+        ) AS dormantCount,
 
-        <!-- 누적 주문 건수를 가져옵니다.
-             주문 내역이 없으면 0으로 표시합니다. -->
-        COALESCE(O.order_count, 0) AS orderCount
+        SUM(
+            CASE
+                WHEN status = 'WITHDRAWN'
+                THEN 1
+                ELSE 0
+            END
+        ) AS withdrawnCount
 
-    FROM MEMBER M
-
-    <!-- 회원 등급 정보를 연결합니다. -->
-    LEFT JOIN MEMBERSHIP_GRADE MG
-        ON M.member_id = MG.member_id
-
-    <!-- 회원별 주문 통계를 가져옵니다. -->
-    LEFT JOIN (
-        SELECT
-            member_id,
-            SUM(final_amount) AS total_payment,
-            COUNT(*) AS order_count
-        FROM ORDERS
-        GROUP BY member_id
-    ) O
-        ON M.member_id = O.member_id
-
-    <!-- JSP에서 전달한 회원 번호와 일치하는 회원을 조회합니다. -->
-    WHERE M.member_id = #{memberId}
-
+    FROM MEMBER
 </select>
+
+
+	<!-- 회원 상세 조회 -->
+	<select id="selectAdminDetail" resultType="com.mori.moamong.dto.Member">
+		SELECT
+		M.*,
+		MG.grade_name AS memberGrade,
+		COALESCE(O.total_payment, 0) AS totalPayment,
+		COALESCE(O.order_count, 0) AS orderCount
+
+		FROM MEMBER M
+
+		LEFT JOIN MEMBERSHIP_GRADE MG
+		ON M.member_id = MG.member_id
+
+		LEFT JOIN (
+		SELECT
+		member_id,
+		SUM(final_amount) AS total_payment,
+		COUNT(*) AS order_count
+		FROM ORDERS
+		GROUP BY member_id
+		) O
+		ON M.member_id = O.member_id
+
+		WHERE M.member_id = #{memberId}
+
+	</select>
+
+
+	<!-- 회원 등급 변경 -->
+	<update id="updateMemberGrade">
+
+		UPDATE MEMBERSHIP_GRADE
+
+		SET
+		grade_code = CASE #{memberGrade}
+		WHEN 'BRONZE' THEN '1'
+		WHEN 'SILVER' THEN '2'
+		WHEN 'GOLD' THEN '3'
+		WHEN 'VIP' THEN '4'
+		END,
+		grade_name = #{memberGrade}
+
+		WHERE member_id = #{memberId}
+
+	</update>
+
+	
+
+
+	<!-- 회원 상태 변경 -->
+	<update id="updateMemberStatus">
+
+		UPDATE MEMBER
+
+		SET
+		status = #{status},
+		updated_at = NOW()
+
+		WHERE member_id = #{memberId}
+		AND status != 'WITHDRAWN'
+
+	</update>
+
+
+	<!-- 회원 강제 탈퇴 -->
+	<update id="withdrawMember">
+
+		UPDATE MEMBER
+
+		SET
+		status = 'WITHDRAWN',
+		withdrawn_at = NOW(),
+		updated_at = NOW()
+
+		WHERE member_id = #{memberId}
+		AND status != 'WITHDRAWN'
+
+	</update>
 
 </mapper>

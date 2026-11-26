@@ -1,0 +1,180 @@
+
+	/* 관리 영역 */
+	.member-manage-area {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px;
+		margin-top: 15px;
+	}
+
+	.manage-box {
+		background: #fff;
+		border: 1px solid #e3e7ef;
+		border-radius: 8px;
+		padding: 20px;
+	}
+
+	.manage-box h3 {
+		font-size: 15px;
+		margin-bottom: 18px;
+		padding-bottom: 12px;
+		border-bottom: 1px solid #e8ebf2;
+	}
+
+	.manage-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 16px;
+		font-size: 13px;
+	}
+
+	.manage-row:last-child {
+		margin-bottom: 0;
+	}
+
+	.manage-row span {
+		color: #8290a8;
+	}
+
+	.manage-actions {
+		display: flex;
+		gap: 8px;
+		margin-top: 15px;
+	}
+
+	.manage-actions button {
+		padding: 8px 14px;
+		border: 1px solid #dce1eb;
+		border-radius: 5px;
+		background: #fff;
+		cursor: pointer;
+	}
+
+	/* 상태 */
+	.status-normal {
+		color: #00875a;
+	}
+
+	.status-dormant {
+		color: #a66b00;
+	}
+
+	.status-suspended {
+		color: #d97706;
+	}
+
+	.status-withdrawn {
+		color: #dc2626;
+	}
+
+	/* 모달 */
+	.modal-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.4);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 9999;
+	}
+
+	.manage-modal {
+		width: 420px;
+		max-width: 90%;
+		background: #fff;
+		border-radius: 10px;
+		padding: 25px;
+	}
+
+	.manage-modal h3 {
+		font-size: 18px;
+		margin-bottom: 20px;
+	}
+
+	.modal-item {
+		margin-bottom: 18px;
+	}
+
+	.modal-item label {
+		display: block;
+		margin-bottom: 8px;
+		font-size: 13px;
+	}
+
+	.modal-item select,
+	.modal-item textarea {
+		width: 100%;
+		padding: 10px;
+		border: 1px solid #dce1eb;
+		border-radius: 5px;
+	}
+
+	.modal-item textarea {
+		min-height: 90px;
+		resize: vertical;
+	}
+
+	.modal-buttons {
+		display: flex;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-top: 20px;
+	}
+
+	.modal-buttons button {
+		padding: 9px 16px;
+		border: 1px solid #dce1eb;
+		border-radius: 5px;
+		cursor: pointer;
+		background: #fff;
+	}
+
+	.btn-confirm {
+		background: #dfc39d !important;
+		border-color: #dfc39d !important;
+		color: #fff;
+	}
+
+	.btn-danger {
+		color: #dc2626;
+		border-color: #fca5a5 !important;
+	}
+
+	/* 변경 이력 */
+	.history-area {
+		margin-top: 15px;
+		padding: 20px;
+		background: #fff;
+		border: 1px solid #e3e7ef;
+		border-radius: 8px;
+	}
+
+	.history-area h3 {
+		font-size: 15px;
+		margin-bottom: 15px;
+	}
+
+	.history-table {
+		width: 100%;
+		border-collapse: collapse;
+		text-align: center;
+		font-size: 12px;
+	}
+
+	.history-table th,
+	.history-table td {
+		padding: 12px;
+		border-bottom: 1px solid #e8ebf2;
+	}
+
+	.history-table th {
+		background: #f7f8fb;
+		color: #8290a8;
+	}
+
+	@media (max-width: 800px) {
+		.member-manage-area {
+			grid-template-columns: 1fr;
+		}
+	}
