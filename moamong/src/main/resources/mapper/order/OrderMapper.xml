@@ -243,7 +243,7 @@
 			shipping_fee AS shippingFee,
 			final_amount AS finalAmount,
 			order_status AS orderStatus,
-			DATE_FORMAT(ordered_at, '%Y-%m-%d %H:%i:%s') AS orderedAt
+			DATE_FORMAT(DATE_ADD(ordered_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS orderedAt
 		FROM ORDERS
 		WHERE member_id = #{memberId}
 		ORDER BY order_id DESC
@@ -267,7 +267,7 @@
 			shipping_fee AS shippingFee,
 			final_amount AS finalAmount,
 			order_status AS orderStatus,
-			DATE_FORMAT(ordered_at, '%Y-%m-%d %H:%i:%s') AS orderedAt
+			DATE_FORMAT(DATE_ADD(O.ordered_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS orderedAt
 		FROM ORDERS
 		WHERE order_id = #{orderId}
 		  AND member_id = #{memberId}

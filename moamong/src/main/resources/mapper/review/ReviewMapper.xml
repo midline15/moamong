@@ -231,4 +231,54 @@
         </choose>
 
     </select>
+    
+        <!-- 리뷰 작성 가능한 내 주문 상품 목록 조회 (미작성 건만) -->
+    <select id="selectReviewableOrderItems" parameterType="hashmap" resultType="hashmap">
+        SELECT
+            OI.order_item_id AS orderItemId,
+            OI.order_id AS orderId,
+            O.order_number AS orderNumber,
+            DATE_FORMAT(O.ordered_at, '%Y-%m-%d') AS orderedAt,
+            OI.product_id AS productId,
+            OI.package_id AS packageId,
+            OI.item_name_snapshot AS itemNameSnapshot,
+            OI.quantity AS quantity,
+            OI.line_amount AS lineAmount,
+            CASE
+                WHEN OI.product_id IS NOT NULL THEN (
+                    SELECT PI.image_url FROM PRODUCT_IMAGE PI
+                    WHERE PI.product_id = OI.product_id AND PI.image_type = 'THUMBNAIL'
+                    ORDER BY PI.display_order ASC, PI.image_id ASC LIMIT 1
+                )
+                ELSE (
+                    SELECT PKI.image_url FROM PACKAGE_IMAGE PKI
+                    WHERE PKI.package_id = OI.package_id AND PKI.image_type = 'THUMBNAIL'
+                    ORDER BY PKI.display_order ASC, PKI.image_id ASC LIMIT 1
+                )
+            END AS thumbnailUrl
+        FROM ORDER_ITEM OI
+        JOIN ORDERS O ON OI.order_id = O.order_id
+        WHERE O.member_id = #{memberId}
+          AND O.order_status IN ('PAID', 'PREPARING', 'SHIPPING', 'DELIVERED', 'CONFIRMED')
+          AND NOT EXISTS (
+              SELECT 1 FROM REVIEW R
+              WHERE R.order_item_id = OI.order_item_id
+                AND R.review_status = 'ACTIVE'
+          )
+        ORDER BY O.ordered_at DESC, OI.order_item_id DESC
+    </select>
+
+    <!-- 신규 리뷰 등록 -->
+    <insert id="insertReview" parameterType="hashmap" useGeneratedKeys="true" keyProperty="reviewId">
+        INSERT INTO REVIEW (
+            MEMBER_ID, PRODUCT_ID, PACKAGE_ID, ORDER_ITEM_ID,
+            RATING, REVIEW_CONTENT, REVIEW_STATUS, CREATED_AT, UPDATED_AT
+        ) VALUES (
+            #{memberId}, #{productId}, #{packageId}, #{orderItemId},
+            #{rating}, #{reviewContent}, 'ACTIVE', NOW(), NOW()
+        )
+    </insert>
+
+    
+    
 </mapper>
