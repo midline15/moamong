@@ -5,98 +5,63 @@
     <!-- 공지사항 검색 조건 (공통) -->
     <sql id="noticeWhere">
         <where>
-            <if test="keyword != null and keyword != ''">
-                NOTICE_TITLE LIKE CONCAT('%', #{keyword}, '%')
-            </if>
+            <if test="keyword != null and keyword != ''"> NOTICE_TITLE LIKE CONCAT('%', #{keyword},
+        '%') </if>
         </where>
     </sql>
 
     <!-- 공지사항 목록 조회 (고정글 먼저, 그 다음 최신순) -->
     <select id="selectNoticeList" parameterType="hashmap" resultType="com.mori.moamong.dto.Notice">
-        SELECT *
-        FROM NOTICE
-        <include refid="noticeWhere"/>
-        ORDER BY IS_PINNED DESC, NOTICE_ID DESC
-        LIMIT #{startNum}, #{pageSize}
-    </select>
+        SELECT * FROM NOTICE <include refid="noticeWhere" /> ORDER BY IS_PINNED DESC, NOTICE_ID DESC
+        LIMIT #{startNum}, #{pageSize} </select>
 
     <!-- 공지사항 전체 개수 -->
-    <select id="selectNoticeCnt" parameterType="hashmap" resultType="int">
-        SELECT COUNT(*)
-        FROM NOTICE
-        <include refid="noticeWhere"/>
+    <select id="selectNoticeCnt" parameterType="hashmap" resultType="int"> SELECT COUNT(*) FROM
+        NOTICE <include refid="noticeWhere" />
     </select>
 
     <!-- 공지사항 상세 조회 -->
     <select id="selectNotice" parameterType="hashmap" resultType="com.mori.moamong.dto.Notice">
-        SELECT *
-        FROM NOTICE
-        WHERE NOTICE_ID = #{noticeId}
-    </select>
+        SELECT * FROM NOTICE WHERE NOTICE_ID = #{noticeId} </select>
 
     <!-- 조회수 증가 -->
-    <update id="updateNoticeViewCount" parameterType="hashmap">
-        UPDATE NOTICE
-        SET VIEW_COUNT = VIEW_COUNT + 1
-        WHERE NOTICE_ID = #{noticeId}
-    </update>
+    <update id="updateNoticeViewCount" parameterType="hashmap"> UPDATE NOTICE SET VIEW_COUNT =
+        VIEW_COUNT + 1 WHERE NOTICE_ID = #{noticeId} </update>
 
     <!-- 공지사항 등록 -->
     <insert id="insertNotice" parameterType="hashmap" useGeneratedKeys="true" keyProperty="noticeId">
-        INSERT INTO NOTICE (
-            ADMIN_ID, NOTICE_TITLE, NOTICE_CONTENT, IS_PINNED,
-            VIEW_COUNT, CREATED_AT, UPDATED_AT
-        ) VALUES (
-            #{adminId}, #{noticeTitle}, #{noticeContent}, #{isPinned},
-            0, NOW(), NOW()
-        )
-    </insert>
+        INSERT INTO NOTICE ( ADMIN_ID, NOTICE_TITLE, NOTICE_CONTENT, IS_PINNED, VIEW_COUNT,
+        CREATED_AT, UPDATED_AT ) VALUES ( #{adminId}, #{noticeTitle}, #{noticeContent}, #{isPinned},
+        0, NOW(), NOW() ) </insert>
 
     <!-- 공지사항 수정 -->
-    <update id="updateNotice" parameterType="hashmap">
-        UPDATE NOTICE
-        SET NOTICE_TITLE = #{noticeTitle},
-            NOTICE_CONTENT = #{noticeContent},
-            IS_PINNED = #{isPinned},
-            UPDATED_AT = NOW()
-        WHERE NOTICE_ID = #{noticeId}
-    </update>
+    <update id="updateNotice" parameterType="hashmap"> UPDATE NOTICE SET NOTICE_TITLE =
+        #{noticeTitle}, NOTICE_CONTENT = #{noticeContent}, IS_PINNED = #{isPinned}, UPDATED_AT =
+        NOW() WHERE NOTICE_ID = #{noticeId} </update>
 
     <!-- 공지사항 삭제 -->
-    <delete id="deleteNotice" parameterType="hashmap">
-        DELETE FROM NOTICE
-        WHERE NOTICE_ID = #{noticeId}
-    </delete>
+    <delete id="deleteNotice" parameterType="hashmap"> DELETE FROM NOTICE WHERE NOTICE_ID =
+        #{noticeId} </delete>
 
     <!-- 공지사항 이미지 목록 -->
-    <select id="selectNoticeImageList" parameterType="hashmap" resultType="hashmap">
-        SELECT IMAGE_ID AS imageId,
-               IMAGE_URL AS imageUrl,
-               IMAGE_ORIGIN_NAME AS imageOriginName,
-               IMAGE_NAME AS imageName,
-               IMAGE_SIZE AS imageSize,
-               IMAGE_TYPE AS imageType,
-               DISPLAY_ORDER AS displayOrder
-        FROM NOTICE_IMAGE
-        WHERE NOTICE_ID = #{noticeId}
-        ORDER BY DISPLAY_ORDER
-    </select>
+    <select id="selectNoticeImageList" parameterType="hashmap" resultType="hashmap"> SELECT IMAGE_ID
+        AS imageId, IMAGE_URL AS imageUrl, IMAGE_ORIGIN_NAME AS imageOriginName, IMAGE_NAME AS
+        imageName, IMAGE_SIZE AS imageSize, IMAGE_TYPE AS imageType, DISPLAY_ORDER AS displayOrder
+        FROM NOTICE_IMAGE WHERE NOTICE_ID = #{noticeId} ORDER BY DISPLAY_ORDER </select>
 
     <!-- 공지사항 이미지 등록 (본문 이미지라 타입은 DETAIL 고정) -->
-    <insert id="insertNoticeImage" parameterType="hashmap">
-        INSERT INTO NOTICE_IMAGE (
-            NOTICE_ID, IMAGE_URL, IMAGE_ORIGIN_NAME, IMAGE_NAME,
-            IMAGE_SIZE, IMAGE_TYPE, DISPLAY_ORDER
-        ) VALUES (
-            #{noticeId}, #{imageUrl}, #{imageOriginName}, #{imageName},
-            #{imageSize}, 'DETAIL', #{displayOrder}
-        )
-    </insert>
+    <insert id="insertNoticeImage" parameterType="hashmap"> INSERT INTO NOTICE_IMAGE ( NOTICE_ID,
+        IMAGE_URL, IMAGE_ORIGIN_NAME, IMAGE_NAME, IMAGE_SIZE, IMAGE_TYPE, DISPLAY_ORDER ) VALUES (
+        #{noticeId}, #{imageUrl}, #{imageOriginName}, #{imageName}, #{imageSize}, 'DETAIL',
+        #{displayOrder} ) </insert>
 
     <!-- 공지사항 이미지 전체 삭제 (공지 기준) -->
-    <delete id="deleteNoticeImage" parameterType="hashmap">
-        DELETE FROM NOTICE_IMAGE
-        WHERE NOTICE_ID = #{noticeId}
-    </delete>
+    <delete id="deleteNoticeImage" parameterType="hashmap"> DELETE FROM NOTICE_IMAGE WHERE NOTICE_ID
+        = #{noticeId} </delete>
+
+    <!-- 관리자 여부 확인 -->
+    <select id="selectAdminCnt" parameterType="hashmap" resultType="int"> SELECT COUNT(*) FROM
+        MEMBER WHERE MEMBER_ID = #{memberId} AND ROLE = 'ADMIN' AND IFNULL(STATUS, 'ACTIVE') !=
+        'WITHDRAWN' </select>
 
 </mapper>

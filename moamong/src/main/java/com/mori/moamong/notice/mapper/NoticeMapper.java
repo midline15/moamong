@@ -40,4 +40,7 @@ public interface NoticeMapper {
     // 공지사항 이미지 전체 삭제 (공지 기준)
     int deleteNoticeImage(HashMap<String, Object> map);
 
+    // 관리자 여부 확인 (1/0)
+    int selectAdminCnt(HashMap<String, Object> map);
+
 }

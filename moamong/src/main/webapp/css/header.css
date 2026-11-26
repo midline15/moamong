@@ -25,12 +25,22 @@ button {
 ================================= */
 
 .header-container {
-    position: relative;   /* 추가 */
-    z-index: 50;          /* 추가 : 본문(.cm-wrap)보다 위로 */
+    /* 헤더 공통 색 / 여백 */
+    --hd-gold: #94764b;
+    --hd-gold-deep: #765a36;
+    --hd-ink: #4a4238;
+    --hd-muted: #8a7f70;
+    --hd-line: #efe7da;
+    --hd-soft: #f8f2e9;
+    --hd-gutter: 24px;      /* 햄버거(왼쪽)와 아이콘(오른쪽)이 화면 끝에서 떨어진 거리 */
+
+    position: relative;
+    z-index: 50;            /* 본문(.cm-wrap)보다 위로 */
     width: 100%;
     padding: 15px 20px;
     display: flex;
     flex-direction: column;
+    border-bottom: 1px solid var(--hd-line);
 }
 
 
@@ -40,7 +50,7 @@ button {
 
 .header {
     width: 100%;
-    height: 140px;
+    height: 180px; /* 기존 140px → 180px */
     background-color: #fff;
     display: flex;
     align-items: center;
@@ -70,9 +80,9 @@ button {
 }
 
 .logo img {
-    width: 250px;
+    width: 270px; /* 기존 250px */
     height: auto;
-    max-height: 120px;
+    max-height: 145px; /* 기존 120px */
     object-fit: contain;
     display: block;
     transition: transform 0.4s ease;
@@ -83,51 +93,63 @@ button {
 }
 
 
-
-/* =================================
-   왼쪽 햄버거 메뉴
-   기존 위쪽 버튼 디자인 적용
-================================= */
-
+/* 왼쪽 햄버거 메뉴 */
 .header-left {
     position: absolute;
-    left: 12px;
-    top: 87%;
+    left: var(--hd-gutter);
+    top: 55%; /* 기존 50%에서 살짝 아래로 */
     transform: translateY(-50%);
 }
 
 .menu-btn {
-    width: 45px;
-    height: 45px;
+    width: 54px;  /* 기존 46px */
+    height: 54px; /* 기존 46px */
+    padding-left: 14px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
 
     background: #fffdf9;
     border: 1px solid #e9dfd1;
-    border-radius: 4px;
+    border-radius: 16px;
 
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition:
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .menu-btn:hover {
-    background: #f8f2e9;
+    background: var(--hd-soft);
+    border-color: #dccbb0;
+    box-shadow: 0 6px 16px rgba(86, 65, 39, 0.08);
+}
+
+.menu-btn:focus-visible {
+    outline: 2px solid var(--hd-gold);
+    outline-offset: 3px;
 }
 
 .menu-btn span {
-    width: 21px;
-    height: 2px;
-
-    background: #a88960;
-
     display: block;
-    transition: 0.3s ease;
+    width: 23px; /* 기존 20px */
+    height: 2px;
+    border-radius: 2px;
+    background: var(--hd-gold);
+    transition: width 0.3s ease;
 }
 
+.menu-btn span:nth-child(2) {
+    width: 15px;
+}
+
+.menu-btn:hover span:nth-child(2) {
+    width: 23px;
+}
 
 
 /* =================================
@@ -136,13 +158,13 @@ button {
 
 .header-right {
     position: absolute;
-    right: 30px;
+    right: var(--hd-gutter);
     top: 50%;
     transform: translateY(-50%);
 
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
 }
 
 
@@ -151,15 +173,38 @@ button {
 ================================= */
 
 .icon-menu {
+    position: relative;
+    isolation: isolate;
+
     width: 30px;
     height: 34px;
 
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
-    position: relative;
-    transition: transform 0.3s ease;
+/* 호버 시 아이콘 뒤에 동그랗게 퍼지는 배경 */
+.icon-menu::before {
+    content: "";
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+
+    width: 44px;
+    height: 44px;
+
+    background: var(--hd-soft);
+    border-radius: 50%;
+
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.3s cubic-bezier(.22, 1, .36, 1);
 }
 
 .icon-menu svg {
@@ -167,41 +212,29 @@ button {
     height: 27px;
 
     fill: none;
-    stroke: #555;
+    stroke: var(--hd-ink);
     stroke-width: 1.7;
     stroke-linecap: round;
     stroke-linejoin: round;
 
-    transition: all 0.3s ease;
+    transition: stroke 0.25s ease;
 }
 
-.icon-menu:hover {
-    transform: translateY(-4px);
+.icon-menu:hover::before,
+.icon-menu:focus-visible::before {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
 }
 
-.icon-menu:hover svg {
-    stroke: #98794d;
-    stroke-width: 2;
+.icon-menu:hover svg,
+.icon-menu:focus-visible svg {
+    stroke: var(--hd-gold);
 }
 
-.icon-menu::after {
-    content: "";
-
-    position: absolute;
-    bottom: -3px;
-    left: 50%;
-
-    width: 0;
-    height: 2px;
-
-    background: #98794d;
-
-    transform: translateX(-50%);
-    transition: width 0.3s ease;
-}
-
-.icon-menu:hover::after {
-    width: 15px;
+.icon-menu:focus-visible {
+    outline: 2px solid var(--hd-gold);
+    outline-offset: 6px;
+    border-radius: 10px;
 }
 
 
@@ -220,21 +253,20 @@ button {
 
     white-space: nowrap;
 
-    font-family: 'Pretendard', sans-serif;
+    font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
     font-size: 13px;
-    color: #555;
+    color: var(--hd-muted);
 }
-
-/* 로그인 - 호버 효과 없음 */
 
 .login-link {
-    color: #777;
-    font-weight: 400;
-    transition: none;
+    color: var(--hd-muted);
+    font-weight: 500;
+    transition: color 0.25s ease;
 }
 
-.login-link:hover {
-    color: #777;
+.login-link:hover,
+.login-link:focus-visible {
+    color: var(--hd-gold-deep);
 }
 
 /* 구분선 */
@@ -242,7 +274,7 @@ button {
 .user-divider {
     width: 1px;
     height: 11px;
-    background: #ddd;
+    background: #ddd2c2;
 }
 
 /* 회원가입 버튼 */
@@ -254,9 +286,9 @@ button {
     align-items: center;
     gap: 5px;
 
-    padding: 7px 13px;
+    padding: 7px 14px;
 
-    background: #94764b;
+    background: var(--hd-gold);
     color: #fff !important;
 
     border-radius: 20px;
@@ -267,6 +299,17 @@ button {
     transition: all 0.3s ease;
 }
 
+.signup-link:hover {
+    background: var(--hd-gold-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(120, 90, 50, 0.22);
+}
+
+.signup-link:focus-visible {
+    outline: 2px solid var(--hd-gold);
+    outline-offset: 3px;
+}
+
 /* NEW 라벨 */
 
 .signup-new {
@@ -274,14 +317,6 @@ button {
     font-weight: 700;
     color: #f7e5bb;
     letter-spacing: 0.5px;
-}
-
-/* 회원가입 호버 */
-
-.signup-link:hover {
-    background: #765a36;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(120, 90, 50, 0.2);
 }
 
 
@@ -299,14 +334,14 @@ button {
     align-items: center;
     gap: 10px;
 
-    width: 285px;
-    padding: 17px;
+    width: 260px;
+    padding: 16px 18px;
 
     background: #fff;
     border: 1px solid #e9dfce;
-    border-radius: 10px;
+    border-radius: 14px;
 
-    box-shadow: 0 8px 25px rgba(70, 50, 30, 0.12);
+    box-shadow: 0 10px 28px rgba(70, 50, 30, 0.12);
 
     opacity: 0;
     visibility: hidden;
@@ -338,14 +373,10 @@ button {
     transform: rotate(45deg);
 }
 
-/* 반짝임 */
-
 .tooltip-icon {
     color: #b18b50;
     font-size: 23px;
 }
-
-/* 혜택 영문 라벨 */
 
 .benefit-label {
     display: block;
@@ -356,16 +387,12 @@ button {
     font-weight: 600;
 }
 
-/* 혜택 제목 */
-
 .signup-tooltip strong {
     display: block;
     font-size: 13px;
-    color: #765a36;
+    color: var(--hd-gold-deep);
     margin-bottom: 5px;
 }
-
-/* 할인 금액 */
 
 .signup-tooltip h3 {
     font-size: 22px;
@@ -374,20 +401,16 @@ button {
     font-weight: 700;
 }
 
-/* 혜택 설명 */
-
 .signup-tooltip p {
-    font-size: 10px;
-    color: #999;
+    font-size: 11px;
+    color: #9a8f80;
     line-height: 1.5;
 }
 
-/* =================================
-   핵심! 회원가입에만 호버 시 혜택 표시
-================================= */
+/* 회원가입에만 호버 시 혜택 표시 */
 
-.signup-link:hover+.signup-tooltip,
-.signup-link:focus-visible+.signup-tooltip {
+.signup-link:hover + .signup-tooltip,
+.signup-link:focus-visible + .signup-tooltip {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -412,6 +435,7 @@ button {
 @media (max-width: 768px) {
 
     .header-container {
+        --hd-gutter: 8px;
         padding: 10px;
     }
 
@@ -425,28 +449,40 @@ button {
     }
 
     .header-left {
-        left: 5px;
         top: 62%;
     }
 
     .menu-btn {
         width: 42px;
         height: 42px;
-        gap: 6px;
+        padding-left: 10px;
+        gap: 5px;
     }
 
     .menu-btn span {
-        width: 21px;
+        width: 18px;
+    }
+
+    .menu-btn span:nth-child(2) {
+        width: 12px;
+    }
+
+    .menu-btn:hover span:nth-child(2) {
+        width: 18px;
     }
 
     .header-right {
-        right: 12px;
         gap: 9px;
     }
 
     .icon-menu {
         width: 25px;
         height: 28px;
+    }
+
+    .icon-menu::before {
+        width: 38px;
+        height: 38px;
     }
 
     .icon-menu svg {

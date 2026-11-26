@@ -68,6 +68,7 @@
                                 <li><a href="/package/list.do?purpose=감사ㆍ답례">감사ㆍ답례</a></li>
                                 <li><a href="/package/list.do?purpose=축하ㆍ응원">축하ㆍ응원</a></li>
                                 <li><a href="/package/list.do?purpose=위로ㆍ격려">위로ㆍ격려</a></li>
+                                <li><a href="/package/list.do?purpose=마음전달">마음전달</a></li>
                             </ul>
                         </div>
 
@@ -77,7 +78,7 @@
             </li>
 
             <li>
-                <a href="#" class="menu-link">단품</a>
+                <a href="/product/list.do" class="menu-link">단품</a>
             </li>
 
             <li>
