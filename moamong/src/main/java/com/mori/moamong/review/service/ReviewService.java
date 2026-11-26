@@ -19,13 +19,17 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mori.moamong.dto.Review;
 import com.mori.moamong.dto.ReviewImage;
+import com.mori.moamong.point.service.PointService;
 import com.mori.moamong.review.mapper.ReviewMapper;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class ReviewService {
 
-    @Autowired
-    ReviewMapper reviewMapper;
+    private final ReviewMapper reviewMapper;
+    private final PointService pointService;
 
     // 실제 이미지 저장 경로
     @Value("${file.upload-path:src/main/webapp/resources/upload/review}")
@@ -470,8 +474,7 @@ public class ReviewService {
 
         return totalCount;
     }
-    
-    
+
     // 리뷰 작성 가능한 주문 상품 목록 조회
     public HashMap<String, Object> getReviewableOrderItems(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<>();
@@ -483,13 +486,16 @@ public class ReviewService {
     }
 
     // 신규 리뷰 등록 (별점 + 내용 + 최대 3장 이미지)
+    // 리뷰 등록시 500포인트 지급
     @Transactional(rollbackFor = Exception.class)
     public HashMap<String, Object> addReview(HashMap<String, Object> map, MultipartFile[] files) throws Exception {
         HashMap<String, Object> resultMap = new HashMap<>();
         Long memberId = getMemberId(map);
         map.put("memberId", memberId);
-        if (map.get("productId") == null || String.valueOf(map.get("productId")).trim().isEmpty()) map.put("productId", null);
-        if (map.get("packageId") == null || String.valueOf(map.get("packageId")).trim().isEmpty()) map.put("packageId", null);
+        if (map.get("productId") == null || String.valueOf(map.get("productId")).trim().isEmpty())
+            map.put("productId", null);
+        if (map.get("packageId") == null || String.valueOf(map.get("packageId")).trim().isEmpty())
+            map.put("packageId", null);
 
         reviewMapper.insertReview(map);
         Long reviewId = Long.parseLong(String.valueOf(map.get("reviewId")));
@@ -501,7 +507,8 @@ public class ReviewService {
                 Files.createDirectories(directory);
                 int displayOrder = 0;
                 for (MultipartFile file : files) {
-                    if (file == null || file.isEmpty()) continue;
+                    if (file == null || file.isEmpty())
+                        continue;
                     String originName = file.getOriginalFilename();
                     String extName = originName.substring(originName.lastIndexOf(".")).toLowerCase();
                     String saveName = UUID.randomUUID().toString() + extName;
@@ -521,13 +528,24 @@ public class ReviewService {
                 }
             }
         } catch (Exception e) {
-            for (Path saved : savedFiles) { try { Files.deleteIfExists(saved); } catch (Exception ignore) {} }
+            for (Path saved : savedFiles) {
+                try {
+                    Files.deleteIfExists(saved);
+                } catch (Exception ignore) {
+                }
+            }
             throw e;
         }
+        // 이미지 저장 완료 후 포인트 500P 지급
+        pointService.addPointHistory(memberId, 
+            null, 
+            "EARN", 
+            500, 
+            "리뷰 작성 포인트");
+
         resultMap.put("result", "success");
         resultMap.put("message", "리뷰가 등록되었습니다.");
         return resultMap;
     }
-
 
 }
