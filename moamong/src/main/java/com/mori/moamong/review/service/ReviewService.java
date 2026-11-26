@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mori.moamong.dto.Review;
 import com.mori.moamong.dto.ReviewImage;
+import com.mori.moamong.order.service.OrderService;
 import com.mori.moamong.point.service.PointService;
 import com.mori.moamong.review.mapper.ReviewMapper;
 
@@ -30,6 +30,7 @@ public class ReviewService {
 
     private final ReviewMapper reviewMapper;
     private final PointService pointService;
+    private final OrderService orderService;
 
     // 실제 이미지 저장 경로
     @Value("${file.upload-path:src/main/webapp/resources/upload/review}")
@@ -536,12 +537,17 @@ public class ReviewService {
             }
             throw e;
         }
+
+        // 주문 상품 리뷰 작성 여부 변경 (N → Y)
+        orderService.toggleOrderItemReviewed(
+                Long.parseLong(String.valueOf(map.get("orderItemId"))));
+                
         // 이미지 저장 완료 후 포인트 500P 지급
-        pointService.addPointHistory(memberId, 
-            null, 
-            "EARN", 
-            500, 
-            "리뷰 작성 포인트");
+        pointService.addPointHistory(memberId,
+                null,
+                "EARN",
+                500,
+                "리뷰 작성 포인트");
 
         resultMap.put("result", "success");
         resultMap.put("message", "리뷰가 등록되었습니다.");
