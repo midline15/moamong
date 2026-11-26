@@ -22,6 +22,10 @@ public class Review {
 
     // 상품명
     private String productName;
+    
+    // 상품 썸네일
+    private String productThumb;
+
 
 
     // 리뷰 하나에 연결된 이미지 목록
