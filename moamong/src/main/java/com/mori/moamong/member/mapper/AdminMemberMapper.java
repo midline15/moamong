@@ -32,4 +32,15 @@ public interface AdminMemberMapper {
 	// 회원 강제 탈퇴
 	int withdrawMember(HashMap<String, Object> map);
 
+	int insertMemberGrade(HashMap<String, Object> map);
+
+	int updateMemberInfo(HashMap<String, Object> map);
+	
+	
+	// 회원 변경 이력 조회
+	List<HashMap<String, Object>> selectMemberHistory(HashMap<String, Object> map);
+
+	// 회원 변경 이력 저장
+	int insertMemberHistory(HashMap<String, Object> map);
+
 }

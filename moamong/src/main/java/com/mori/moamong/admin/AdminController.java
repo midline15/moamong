@@ -13,8 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
 public class AdminController {
-	
-	 
+
 	// 관리자 콘솔 - 회원 목록 화면 이동
 
 	@RequestMapping("/admin/member/list.do")
@@ -28,16 +27,10 @@ public class AdminController {
 
 	@RequestMapping("/admin/member/edit.do")
 	public String memberview(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-
-		// 목록에서 전달받은 회원 ID를 JSP에 전달합니다.
 		model.addAttribute("memberId", map.get("memberId"));
 
 		return "/admin/member/edit";
 	}
-	
-	
-	
-	
 
 	// 관리자 콘솔 - 쿠폰 목록 이동
 	@RequestMapping("/admin/coupon/list.do")
@@ -74,9 +67,6 @@ public class AdminController {
 
 		return "/admin/coupon/view";
 	}
-	
-	
-	
 
 	// 관리자 콘솔 - 관리자 이벤트 목록
 	@RequestMapping("/admin/event/list.do")
@@ -96,11 +86,6 @@ public class AdminController {
 		return "/admin/event/write";
 	}
 
-	
-	
-	
-	
-	
 	// 관리자 콘솔 - 운영 정책 관리 화면
 
 	@RequestMapping("admin/policy/list.do")

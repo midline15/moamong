@@ -3,206 +3,280 @@
 
 <mapper namespace="com.mori.moamong.member.mapper.AdminMemberMapper">
 
-	<!-- 회원 목록 조회 -->
-	<select id="selectAdminList" resultType="com.mori.moamong.dto.Member">
-		SELECT M.*, MG.grade_name AS memberGrade, COALESCE(O.total_payment, 0)
-		AS totalPayment FROM MEMBER M LEFT JOIN MEMBERSHIP_GRADE MG ON
-		M.member_id = MG.member_id LEFT JOIN ( SELECT member_id,
-		SUM(final_amount) AS total_payment FROM ORDERS GROUP BY member_id ) O ON
-		M.member_id = O.member_id <where>
+    <!-- 회원 목록 조회 -->
+    <select id="selectAdminList" resultType="com.mori.moamong.dto.Member">
+        SELECT
+            M.*,
+            MG.grade_name AS memberGrade,
+            COALESCE(O.total_payment, 0) AS totalPayment
+        FROM MEMBER M
+        LEFT JOIN MEMBERSHIP_GRADE MG
+            ON M.member_id = MG.member_id
+        LEFT JOIN (
+            SELECT
+                member_id,
+                SUM(final_amount) AS total_payment
+            FROM ORDERS
+            GROUP BY member_id
+        ) O
+            ON M.member_id = O.member_id
+        <where>
+            <!-- 이름, 아이디, 이메일 검색 -->
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    M.member_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
+                    OR M.email LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
 
-			<!-- 이름, 아이디, 이메일 검색 -->
-			<if test="keyword != null and keyword != ''">
-				AND (
-				M.member_name LIKE CONCAT('%', #{keyword}, '%')
-				OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
-				OR M.email LIKE CONCAT('%', #{keyword}, '%')
-				)
-			</if>
+            <!-- 회원 등급 검색 -->
+            <if test="searchGrade != null and searchGrade != ''">
+                AND MG.grade_name = #{searchGrade}
+            </if>
 
-			<!-- 회원 등급 검색 -->
-			<if test="searchGrade != null and searchGrade != ''">
-				AND MG.grade_name = #{searchGrade}
-			</if>
+            <!-- 회원 상태 검색 -->
+            <if test="searchStatus != null and searchStatus != ''">
+                AND M.status = #{searchStatus}
+            </if>
 
-			<!-- 회원 상태 검색 -->
-			<if test="searchStatus != null and searchStatus != ''">
-				AND M.status = #{searchStatus}
-			</if>
+            <!-- 가입 기간 검색 -->
+            <if test="searchPeriod == 'today'">
+                AND M.created_at >= CURRENT_DATE
+                AND M.created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+            </if>
 
-			<!-- 가입 기간 검색 -->
-			<if test="searchPeriod == 'today'"> AND M.created_at >= CURDATE()
-		AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
-			</if>
+            <if test="searchPeriod == 'week'">
+                AND M.created_at >= CURRENT_DATE - INTERVAL 6 DAY
+                AND M.created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+            </if>
 
-			<if test="searchPeriod == 'week'"> AND M.created_at >= CURDATE() -
-		INTERVAL 6 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
-			</if>
-
-			<if test="searchPeriod == 'month'"> AND M.created_at >= CURDATE() -
-		INTERVAL 29 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
-			</if>
-
-		</where>
-		ORDER BY M.created_at DESC, M.member_id DESC LIMIT #{limit} OFFSET
-		#{offset} </select>
-
-
-	<!-- 회원 수 조회 -->
-	<select id="selectAdminCount" resultType="int"> SELECT COUNT(*) FROM MEMBER
-		M LEFT JOIN MEMBERSHIP_GRADE MG ON M.member_id = MG.member_id <where>
-
-			<if test="keyword != null and keyword != ''">
-				AND (
-				M.member_name LIKE CONCAT('%', #{keyword}, '%')
-				OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
-				OR M.email LIKE CONCAT('%', #{keyword}, '%')
-				)
-			</if>
-
-			<if test="searchGrade != null and searchGrade != ''">
-				AND MG.grade_name = #{searchGrade}
-			</if>
-
-			<if test="searchStatus != null and searchStatus != ''">
-				AND M.status = #{searchStatus}
-			</if>
-
-			<if test="searchPeriod == 'today'"> AND M.created_at >= CURDATE()
-		AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
-			</if>
-
-			<if test="searchPeriod == 'week'"> AND M.created_at >= CURDATE() -
-		INTERVAL 6 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
-			</if>
-
-			<if test="searchPeriod == 'month'"> AND M.created_at >= CURDATE() -
-		INTERVAL 29 DAY AND M.created_at &lt; CURDATE () + INTERVAL 1 DAY
-			</if>
-
-		</where>
-
-	</select>
+            <if test="searchPeriod == 'month'">
+                AND M.created_at >= CURRENT_DATE - INTERVAL 29 DAY
+                AND M.created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+            </if>
+        </where>
+        ORDER BY M.created_at DESC, M.member_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
 
 
-	<select id="selectStats" resultType="com.mori.moamong.dto.Member">
+    <!-- 회원 수 조회 -->
+    <select id="selectAdminCount" resultType="int">
+        SELECT COUNT(*)
+        FROM MEMBER M
+        LEFT JOIN MEMBERSHIP_GRADE MG
+            ON M.member_id = MG.member_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    M.member_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR M.login_id LIKE CONCAT('%', #{keyword}, '%')
+                    OR M.email LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+
+            <if test="searchGrade != null and searchGrade != ''">
+                AND MG.grade_name = #{searchGrade}
+            </if>
+
+            <if test="searchStatus != null and searchStatus != ''">
+                AND M.status = #{searchStatus}
+            </if>
+
+            <if test="searchPeriod == 'today'">
+                AND M.created_at >= CURRENT_DATE
+                AND M.created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+            </if>
+
+            <if test="searchPeriod == 'week'">
+                AND M.created_at >= CURRENT_DATE - INTERVAL 6 DAY
+                AND M.created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+            </if>
+
+            <if test="searchPeriod == 'month'">
+                AND M.created_at >= CURRENT_DATE - INTERVAL 29 DAY
+                AND M.created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 회원 통계 조회 -->
+    <select id="selectStats" resultType="com.mori.moamong.dto.Member">
+        SELECT
+            COUNT(*) AS totalCount,
+            SUM(
+                CASE
+                    WHEN created_at >= CURRENT_DATE
+                    AND created_at &lt; CURRENT_DATE + INTERVAL 1 DAY
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS todayCount,
+            SUM(
+                CASE
+                    WHEN status = 'ACTIVE'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS activeCount,
+            SUM(
+                CASE
+                    WHEN status = 'INACTIVE'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS dormantCount,
+            SUM(
+                CASE
+                    WHEN status = 'WITHDRAWN'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS withdrawnCount
+        FROM MEMBER
+    </select>
+
+
+    <!-- 회원 상세 조회 -->
+    <select id="selectAdminDetail" resultType="com.mori.moamong.dto.Member">
+        SELECT
+            M.*,
+            MG.grade_name AS memberGrade,
+            COALESCE(O.total_payment, 0) AS totalPayment,
+            COALESCE(O.order_count, 0) AS orderCount
+        FROM MEMBER M
+        LEFT JOIN MEMBERSHIP_GRADE MG
+            ON M.member_id = MG.member_id
+        LEFT JOIN (
+            SELECT
+                member_id,
+                SUM(final_amount) AS total_payment,
+                COUNT(*) AS order_count
+            FROM ORDERS
+            GROUP BY member_id
+        ) O
+            ON M.member_id = O.member_id
+        WHERE M.member_id = #{memberId}
+    </select>
+
+
+    <!-- 회원 등급 변경 -->
+    <update id="updateMemberGrade">
+        UPDATE MEMBERSHIP_GRADE
+        SET
+            grade_code = CASE #{memberGrade}
+                WHEN 'BRONZE' THEN '1'
+                WHEN 'SILVER' THEN '2'
+                WHEN 'GOLD' THEN '3'
+                WHEN 'VIP' THEN '4'
+            END,
+            grade_name = #{memberGrade}
+        WHERE member_id = #{memberId}
+    </update>
+    
+    
+    <insert id="insertMemberGrade">
+
+    INSERT INTO MEMBERSHIP_GRADE (
+        grade_code,
+        grade_name,
+        min_purchase_amount,
+        created_at,
+        member_id
+    )
+    VALUES (
+        CASE #{memberGrade}
+            WHEN 'BRONZE' THEN '1'
+            WHEN 'SILVER' THEN '2'
+            WHEN 'GOLD' THEN '3'
+            WHEN 'VIP' THEN '4'
+        END,
+        #{memberGrade},
+        0,
+        NOW(),
+        #{memberId}
+    )
+
+</insert>
+
+
+    <!-- 회원 상태 변경 -->
+    <update id="updateMemberStatus">
+        UPDATE MEMBER
+        SET
+            status = #{status},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+        AND status != 'WITHDRAWN'
+    </update>
+
+
+    <!-- 회원 강제 탈퇴 -->
+    <update id="withdrawMember">
+        UPDATE MEMBER
+        SET
+            status = 'WITHDRAWN',
+            withdrawn_at = NOW(),
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+        AND status != 'WITHDRAWN'
+    </update>
+    
+	<!-- 회원 기본정보 수정 -->
+	<update id="updateMemberInfo" parameterType="hashmap">
+	    UPDATE MEMBER
+	    SET
+	        member_name = #{memberName},
+	        email = #{email},
+	        phone = #{phone},
+	        updated_at = NOW()
+	    WHERE member_id = #{memberId}
+	</update>
+	
+	
+	<!-- 회원 변경 이력 조회 -->
+<select id="selectMemberHistory" parameterType="hashmap" resultType="hashmap">
     SELECT
-        COUNT(*) AS totalCount,
-
-        SUM(
-            CASE
-                WHEN created_at >= CURDATE()
-                AND created_at &lt; DATE_ADD(CURDATE(), INTERVAL 1 DAY)
-                THEN 1
-                ELSE 0
-            END
-        ) AS todayCount,
-
-        SUM(
-            CASE
-                WHEN status = 'ACTIVE'
-                THEN 1
-                ELSE 0
-            END
-        ) AS activeCount,
-
-        SUM(
-            CASE
-                WHEN status = 'INACTIVE'
-                THEN 1
-                ELSE 0
-            END
-        ) AS dormantCount,
-
-        SUM(
-            CASE
-                WHEN status = 'WITHDRAWN'
-                THEN 1
-                ELSE 0
-            END
-        ) AS withdrawnCount
-
-    FROM MEMBER
+        history_id AS historyId,
+        member_id AS memberId,
+        admin_id AS adminId,
+        NULL AS adminName,
+        change_type AS changeType,
+        change_field AS changeField,
+        before_value AS beforeValue,
+        after_value AS afterValue,
+        reason,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt
+    FROM MEMBER_HISTORY
+    WHERE member_id = #{memberId}
+    ORDER BY created_at DESC, history_id DESC
 </select>
 
 
-	<!-- 회원 상세 조회 -->
-	<select id="selectAdminDetail" resultType="com.mori.moamong.dto.Member">
-		SELECT
-		M.*,
-		MG.grade_name AS memberGrade,
-		COALESCE(O.total_payment, 0) AS totalPayment,
-		COALESCE(O.order_count, 0) AS orderCount
-
-		FROM MEMBER M
-
-		LEFT JOIN MEMBERSHIP_GRADE MG
-		ON M.member_id = MG.member_id
-
-		LEFT JOIN (
-		SELECT
-		member_id,
-		SUM(final_amount) AS total_payment,
-		COUNT(*) AS order_count
-		FROM ORDERS
-		GROUP BY member_id
-		) O
-		ON M.member_id = O.member_id
-
-		WHERE M.member_id = #{memberId}
-
-	</select>
-
-
-	<!-- 회원 등급 변경 -->
-	<update id="updateMemberGrade">
-
-		UPDATE MEMBERSHIP_GRADE
-
-		SET
-		grade_code = CASE #{memberGrade}
-		WHEN 'BRONZE' THEN '1'
-		WHEN 'SILVER' THEN '2'
-		WHEN 'GOLD' THEN '3'
-		WHEN 'VIP' THEN '4'
-		END,
-		grade_name = #{memberGrade}
-
-		WHERE member_id = #{memberId}
-
-	</update>
-
-	
-
-
-	<!-- 회원 상태 변경 -->
-	<update id="updateMemberStatus">
-
-		UPDATE MEMBER
-
-		SET
-		status = #{status},
-		updated_at = NOW()
-
-		WHERE member_id = #{memberId}
-		AND status != 'WITHDRAWN'
-
-	</update>
-
-
-	<!-- 회원 강제 탈퇴 -->
-	<update id="withdrawMember">
-
-		UPDATE MEMBER
-
-		SET
-		status = 'WITHDRAWN',
-		withdrawn_at = NOW(),
-		updated_at = NOW()
-
-		WHERE member_id = #{memberId}
-		AND status != 'WITHDRAWN'
-
-	</update>
+<!-- 회원 변경 이력 저장 -->
+<insert id="insertMemberHistory" parameterType="hashmap">
+    INSERT INTO MEMBER_HISTORY (
+        member_id,
+        admin_id,
+        change_type,
+        change_field,
+        before_value,
+        after_value,
+        reason,
+        created_at
+    )
+    VALUES (
+        #{memberId},
+        #{adminId},
+        #{changeType},
+        #{changeField},
+        #{beforeValue},
+        #{afterValue},
+        #{reason},
+        NOW()
+    )
+</insert>
 
 </mapper>
