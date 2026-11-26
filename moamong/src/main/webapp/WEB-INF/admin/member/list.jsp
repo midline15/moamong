@@ -20,9 +20,8 @@
 
         <!-- 기존 프로젝트에서 사용하는 공통 JS -->
         <script src="/js/page-change.js"></script>
-
         <link rel="stylesheet" href="/css/admin/default.css">
-        <link rel="stylesheet" href="/css/admin/list.css">
+        <link rel="stylesheet" href="/css/admin/member/list.css">
 
     </head>
 
@@ -96,16 +95,16 @@
                             리뷰 및 문의
                         </li>
 
-                        <li>
+                        <li onclick="location.href='/admin/coupon/list.do'">
                             쿠폰 관리
                         </li>
 
-                        <li>
+                        <li onclick="location.href='/admin/event/list.do'">
                             이벤트 관리
                         </li>
 
                         <!-- 운영 정책 및 약관 관리 -->
-                        <li onclick="location.href='/admin/policy.do'">
+                        <li onclick="location.href='/admin/policy/list.do'">
                             운영정책 관리
                         </li>
 
@@ -616,7 +615,7 @@
 
                     $.ajax({
 
-                        url: "/admin/list.dox",
+                        url: "/admin/member/list.dox",
 
                         type: "POST",
 
@@ -740,8 +739,7 @@
                 // 회원 상세보기
                 // =====================================
                 fnView(memberId) {
-
-                    pageChange("view.do", {
+                    pageChange("/admin/memeber/view.do", {
                         memberId: memberId
                     });
 

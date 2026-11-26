@@ -1,0 +1,300 @@
+
+/* ==============================
+   리뷰 영역
+============================== */
+
+.review-section {
+    padding: 30px 0;
+    color: #333;
+}
+
+.review-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #eee;
+}
+
+.review-heading strong {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.review-heading span {
+    margin-left: 8px;
+    color: #888;
+    font-size: 14px;
+}
+
+.review-write-btn {
+    padding: 10px 20px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #333;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.review-write-btn:hover {
+    background: #555;
+    border-color: #555;
+}
+
+.review-guide {
+    margin: 12px 0 22px;
+    font-size: 12px;
+    color: #999;
+}
+
+/* ==============================
+   별점 필터
+============================== */
+
+.review-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 18px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.review-filter button {
+    padding: 8px 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 20px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.review-filter button:hover {
+    border-color: #999;
+    color: #333;
+}
+
+.review-filter button.active {
+    background: #333;
+    border-color: #333;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ==============================
+   리뷰 목록
+============================== */
+
+.review-list {
+    width: 100%;
+}
+
+.review-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 35px;
+    padding: 28px 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.review-rating {
+    width: 110px;
+    flex-shrink: 0;
+    font-size: 13px;
+    color: #f0ad4e;
+    letter-spacing: 1px;
+}
+
+.review-rating span {
+    color: #ddd;
+}
+
+.review-rating span.active {
+    color: #f0ad4e;
+}
+
+.review-member,
+.review-date {
+    margin-top: 9px;
+    font-size: 12px;
+    color: #999;
+    letter-spacing: 0;
+}
+
+.review-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-content-rating {
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #888;
+}
+
+.review-content p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #444;
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+/* ==============================
+   리뷰 사진
+============================== */
+
+.review-image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.review-image-list img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    background: #f8f8f8;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+/* ==============================
+   리뷰 수정 / 삭제 버튼
+============================== */
+
+.review-manage-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    flex-shrink: 0;
+    margin-top: 0;
+}
+
+.review-manage-btn button {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 6px 13px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    color: #666;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.review-manage-btn button:hover {
+    border-color: #333;
+    color: #333;
+}
+
+/* ==============================
+   페이지네이션
+============================== */
+
+.review-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin: 35px 0;
+}
+
+.review-pagination button {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    background: white;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.review-pagination button:hover:not(:disabled) {
+    border-color: #333;
+    color: #333;
+}
+
+.review-pagination button.active {
+    background: #333;
+    color: white;
+    border-color: #333;
+    font-weight: 600;
+}
+
+.review-pagination button:disabled {
+    color: #ccc;
+    background: #fafafa;
+    cursor: default;
+}
+
+/* ==============================
+   모바일 대응
+============================== */
+
+@media (max-width: 768px) {
+
+    .review-section {
+        padding: 20px 0;
+    }
+
+    .review-heading strong {
+        font-size: 18px;
+    }
+
+    .review-item {
+        gap: 15px;
+        padding: 22px 5px;
+    }
+
+    .review-rating {
+        width: 85px;
+        font-size: 12px;
+    }
+
+    .review-content p {
+        font-size: 13px;
+    }
+
+    .review-image-list img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .review-filter {
+        gap: 6px;
+    }
+
+    .review-filter button {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .review-item {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .review-rating {
+        width: 100%;
+    }
+
+    .review-image-list img {
+        width: 90px;
+        height: 90px;
+    }
+}

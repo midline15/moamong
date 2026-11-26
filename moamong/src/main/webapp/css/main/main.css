@@ -1,87 +1,534 @@
 /* 메인 페이지(default.jsp) 전용 스타일 */
-.main-wrap {
-    max-width: 1200px;
-    margin: 10px auto 80px;
-    padding: 0 20px;
-    font-family: 'Pretendard', sans-serif;
+
+[v-cloak] {
+    display: none !important;
+}
+
+.main-page {
+    /* ▼ 슬라이더 크기는 여기서 조절 */
+    --hero-img-w: 1200px;       /* 이미지 가로폭 (더 크게 하려면 늘리세요) */
+    --hero-img-h: 450px;        /* 이미지 최대 높이 (이 높이를 넘는 이미지만 위아래가 잘림) */
+    --hero-img-min: 0px;        /* 이미지 최소 높이 (모바일에서만 사용) */
+    --hero-h: calc(var(--hero-img-h) + 88px);       /* 로딩 중 자리 높이 (자동 계산) */
+    --hero-max: calc(var(--hero-img-w) + 140px);    /* 화살표가 놓이는 폭 */
+
+    font-family: 'Pretendard Variable', 'Pretendard', -apple-system, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     color: #29251f;
 }
 
-.gift-section {
-    background: #faf7f1;
-    border: 1px solid #e9dfd1;
-    border-radius: 16px;
-    padding: 56px 32px;
-    margin-bottom: 28px;
-    text-align: center;
+/* =========================================
+   메인 슬라이더 (화면 전체 폭)
+========================================= */
+
+.hero-skeleton {
+    height: var(--hero-h);
+    background: #3a2f22;
 }
 
-.gift-section.alt {
-    background: #f5ede0;
+.hero {
+    position: relative;
+    overflow: hidden;
+    background: #3a2f22;
+    user-select: none;
+}
+
+.hero-track {
+    display: flex;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-slide {
+    position: relative;
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px 56px;    /* 위 32px / 아래 56px(점 표시 자리) */
+    box-sizing: border-box;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+/* 같은 이미지를 흐리게 깔아 만든 배경 */
+.hero-bg {
+    position: absolute;
+    inset: -40px;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px);
+}
+
+.hero-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(30, 20, 10, 0.45);
+}
+
+/* 이미지: 가로를 넓게 채우고, 높이는 이미지 비율대로.
+   최대 높이를 넘을 때만 위아래가 잘림 */
+.hero-img {
+    position: relative;
+    display: block;
+    flex: none;
+    width: min(100%, var(--hero-img-w));
+    height: auto;
+    max-height: var(--hero-img-h);
+    min-height: var(--hero-img-min);
+    object-fit: cover;
+    object-position: center;     /* 위쪽이 중요한 이미지면 center top 으로 */
+    border-radius: 20px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+}
+
+/* 화살표 / 인디케이터 */
+.hero-ui {
+    position: absolute;
+    inset: 0;
+    max-width: var(--hero-max);
+    margin: 0 auto;
+    pointer-events: none;
+}
+
+.hero-ui > * {
+    pointer-events: auto;
+}
+
+.hero-arrow {
+    position: absolute;
+    top: calc(50% - 12px);
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #29251f;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.hero:hover .hero-arrow,
+.hero-arrow:focus-visible {
+    opacity: 1;
+}
+
+.hero-arrow:hover {
+    background: #fff;
+    transform: scale(1.06);
+}
+
+.hero-arrow.prev { left: 20px; }
+.hero-arrow.next { right: 20px; }
+
+/* 점 표시: 이미지 아래 가운데 */
+.hero-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 14px;
+    background: rgba(25, 16, 8, 0.38);
+    border-radius: 999px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.hero-dots {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.hero-dots button {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+/* 눌러야 하는 영역을 점보다 넉넉하게 */
+.hero-dots button::after {
+    content: "";
+    position: absolute;
+    inset: -10px -4px;
+}
+
+.hero-dots button.on {
+    width: 24px;
+    background: #fff;
+}
+
+.hero-count {
+    min-width: 40px;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+/* 슬라이더 반응형 */
+@media (max-width: 900px) {
+    .main-page {
+        --hero-img-h: 260px;
+        --hero-img-min: 170px;
+        --hero-h: calc(var(--hero-img-h) + 72px);
+    }
+
+    .hero-slide {
+        padding: 20px 16px 52px;
+    }
+
+    .hero-arrow {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .main-page {
+        --hero-img-h: 200px;
+        --hero-img-min: 130px;
+    }
+
+    .hero-img {
+        border-radius: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-track,
+    .hero-dots button {
+        transition: none !important;
+    }
+}
+
+/* =========================================
+   MOAMONG - SOFT ROUND CARD DESIGN
+========================================= */
+
+/* 제목 */
+.gift-heading {
+    margin-bottom: 38px;
 }
 
 .gift-eyebrow {
     display: inline-block;
-    font-size: 11px;
+    margin-bottom: 12px;
+    color: #aa9273;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 1.5px;
-    color: #94764b;
-    margin-bottom: 10px;
+    letter-spacing: 0.2em;
 }
 
-.gift-section h2 {
-    font-size: 26px;
-    font-weight: 700;
-    color: #29251f;
-    margin-bottom: 10px;
+.gift-heading h2 {
+    margin: 0 0 11px;
+    color: #493e32;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.045em;
 }
 
-.gift-section p {
+.gift-heading p {
+    margin: 0;
+    color: #8d8173;
     font-size: 14px;
-    color: #85817b;
-    margin-bottom: 32px;
+    line-height: 1.6;
 }
 
-.tag-grid {
+/* =========================================
+   메인 영역
+========================================= */
+
+.main-wrap {
+    max-width: 1200px;
+    margin: 48px auto 100px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   배너 공통 디자인
+========================================= */
+
+.gift-banner {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
-    gap: 14px;
+    padding: 65px 30px 70px;
+    text-align: center;
+    overflow: hidden;
+    border-radius: 28px;
+    background-color: #f7efe2;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    isolation: isolate;
 }
 
-.tag-card {
-    min-width: 150px;
-    padding: 16px 26px;
-    background: #fffdf9;
-    border: 1px solid #dfd1bd;
-    border-radius: 999px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #5c5346;
+.gift-banner.one {
+    background-image: url("../../assets/banner/main1.png");
+}
+
+.gift-banner.two {
+    background-image: url("../../assets/banner/main2.png");
+}
+
+.gift-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+        ellipse 75% 90% at 50% 50%,
+        rgba(255, 251, 244, 0.91) 0%,
+        rgba(255, 251, 244, 0.79) 65%,
+        rgba(255, 251, 244, 0.65) 100%
+    );
+}
+
+.gift-inner {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* =========================================
+   그리드
+========================================= */
+
+.gift-target-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.gift-purpose-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* =========================================
+   카드 공통
+========================================= */
+
+.target-card,
+.purpose-card {
+    min-width: 0;
+    min-height: 175px;
+    padding: 22px 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+
+    font-family: inherit;
+    color: #574a3a;
+
+    background: rgba(255, 253, 249, 0.94);
+    border: 1px solid rgba(165, 139, 105, 0.17);
+    border-radius: 24px;
+
+    box-shadow: 0 5px 18px rgba(86, 65, 39, 0.045);
+
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
 }
 
-.tag-card:hover {
-    background: #94764b;
-    border-color: #94764b;
-    color: #fff;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(118, 90, 54, 0.18);
+/* =========================================
+   원형 아이콘
+========================================= */
+
+.select-icon {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 29px;
+
+    background: #f5ecdf;
+    border: 1px solid rgba(165, 139, 105, 0.10);
+    border-radius: 50%;
+
+    box-shadow: inset 0 2px 6px rgba(255,255,255,0.7);
+    transition: all 0.3s ease;
 }
+
+/* 카드 제목 */
+.target-card strong,
+.purpose-card strong {
+    color: #514536;
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* 설명 */
+.select-description {
+    color: #9a8b79;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
+    word-break: keep-all;
+}
+
+/* =========================================
+   호버 효과
+========================================= */
+
+.target-card:hover,
+.purpose-card:hover {
+    background: #fffefa;
+    border-color: #c7ae8d;
+    box-shadow: 0 12px 28px rgba(86, 65, 39, 0.11);
+    transform: translateY(-5px);
+}
+
+.target-card:hover .select-icon,
+.purpose-card:hover .select-icon {
+    background: #eee0cd;
+    transform: scale(1.08);
+}
+
+.target-card:active,
+.purpose-card:active {
+    transform: scale(0.97);
+}
+
+.target-card:focus-visible,
+.purpose-card:focus-visible {
+    outline: 3px solid rgba(148, 118, 75, 0.5);
+    outline-offset: 4px;
+}
+
+/* =========================================
+   태블릿
+========================================= */
+
+@media (max-width: 900px) {
+
+    .main-wrap {
+        margin-top: 32px;
+        margin-bottom: 72px;
+    }
+
+    .gift-banner {
+        padding: 70px 22px 75px;
+    }
+
+    .gift-target-grid,
+    .gift-purpose-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-width: 600px;
+        gap: 12px;
+    }
+
+    .target-card,
+    .purpose-card {
+        min-height: 155px;
+    }
+}
+
+/* =========================================
+   모바일
+========================================= */
 
 @media (max-width: 600px) {
-    .gift-section {
-        padding: 40px 18px;
+
+    .main-wrap {
+        padding: 0 12px;
+        gap: 14px;
     }
 
-    .gift-section h2 {
-        font-size: 21px;
+    .gift-banner {
+        padding: 55px 16px 60px;
     }
 
-    .tag-card {
-        min-width: 130px;
-        padding: 13px 20px;
-        font-size: 14px;
+    .gift-heading {
+        margin-bottom: 26px;
+    }
+
+    .gift-heading h2 {
+        font-size: 23px;
+    }
+
+    .gift-heading p {
+        font-size: 12px;
+    }
+
+    .gift-target-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .gift-purpose-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .target-card,
+    .purpose-card {
+        min-height: 140px;
+        padding: 16px 6px;
+        gap: 9px;
+        border-radius: 19px;
+    }
+
+    .select-icon {
+        width: 54px;
+        height: 54px;
+        font-size: 24px;
+    }
+
+    .target-card strong,
+    .purpose-card strong {
+        font-size: 13px;
+    }
+
+    .select-description {
+        font-size: 10px;
+    }
+}
+
+/* =========================================
+   모션 최소화
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .target-card,
+    .purpose-card,
+    .select-icon {
+        transition: none !important;
     }
 }

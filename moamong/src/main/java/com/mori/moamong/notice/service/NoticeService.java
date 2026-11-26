@@ -19,6 +19,18 @@ import com.mori.moamong.notice.mapper.NoticeMapper;
 public class NoticeService {
     private final NoticeMapper noticeMapper;
 
+    // 관리자 여부 (ROLE 이 ADMIN 이고 탈퇴 상태가 아니면 true)
+    public boolean isAdmin(long memberId) {
+        try {
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("memberId", memberId);
+            return noticeMapper.selectAdminCnt(map) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // 공지사항 목록 (검색 + 페이징)
     public HashMap<String, Object> getNoticeList(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
@@ -72,7 +84,7 @@ public class NoticeService {
     public HashMap<String, Object> addNotice(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
         try {
-            noticeMapper.insertNotice(map);     // 생성된 noticeId가 map에 담김
+            noticeMapper.insertNotice(map); // 생성된 noticeId가 map에 담김
             saveNoticeImages(map);
             resultMap.put("result", "success");
         } catch (Exception e) {
@@ -119,11 +131,13 @@ public class NoticeService {
     // 이미지 기록 저장 (화면에서 JSON 문자열로 넘어온 images 처리)
     private void saveNoticeImages(HashMap<String, Object> map) {
         Object json = map.get("images");
-        if (json == null || String.valueOf(json).trim().isEmpty()) return;
+        if (json == null || String.valueOf(json).trim().isEmpty())
+            return;
 
         List<HashMap<String, Object>> images = new Gson().fromJson(
                 String.valueOf(json),
-                new TypeToken<List<HashMap<String, Object>>>() {}.getType());
+                new TypeToken<List<HashMap<String, Object>>>() {
+                }.getType());
 
         int order = 1;
         for (HashMap<String, Object> img : images) {
