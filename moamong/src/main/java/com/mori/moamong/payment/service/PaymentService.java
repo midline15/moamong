@@ -31,7 +31,7 @@ public class PaymentService {
 
 	// 1. 포트원 REST API 액세스 토큰 발급
 	private String getAccessToken() {
-		String url = "https://iamport.kr";
+		String url = "https://" + "api.iamport.kr/users/getToken";
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -46,16 +46,29 @@ public class PaymentService {
 		return json.getAsJsonObject("response").get("access_token").getAsString();
 	}
 
-	// 2. 결제 검증 및 PAYMENT 테이블 저장 (금액 위변조 체크)
+	// 2. 결제 검증 및 PAYMENT 테이블 저장 (금액 위변조 체크 + 0.5초 지연 재시도)
 	@Transactional
 	public void verifyAndSavePayment(Long orderId, String impUid, String payMethod, long expectedAmount) {
-		String token = getAccessToken();
-		String url = "https://iamport.kr" + impUid;
+	    String token = getAccessToken();
+	    String url = "https://" + "api.iamport.kr/payments/" + impUid.trim();
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setBearerAuth(token);
-		ResponseEntity<String> res = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers),
-				String.class);
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setBearerAuth(token);
+
+	    ResponseEntity<String> res = null;
+	    try {
+	        for (int i = 0; i < 3; i++) {
+	            try {
+	                res = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+	                break;
+	            } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+	                if (i == 2) throw e;
+	                try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+	            }
+	        }
+	    } catch (Exception e) {
+	        throw new IllegalStateException("결제 승인 내역 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+	    }
 
 		JsonObject paymentInfo = JsonParser.parseString(res.getBody()).getAsJsonObject().getAsJsonObject("response");
 		String status = paymentInfo.get("status").getAsString();
@@ -97,8 +110,9 @@ public class PaymentService {
 		body.put("imp_uid", impUid);
 		body.put("reason", reason != null ? reason : "구매자 요청 취소");
 
-		ResponseEntity<String> res = restTemplate.postForEntity("https://iamport.krcancel",
-				new HttpEntity<>(body, headers), String.class);
+		String cancelUrl = "https://" + "api.iamport.kr/payments/cancel";
+		ResponseEntity<String> res = restTemplate.postForEntity(cancelUrl, new HttpEntity<>(body, headers), String.class);
+		
 		JsonObject json = JsonParser.parseString(res.getBody()).getAsJsonObject();
 		if (json.get("code").getAsInt() != 0) {
 			throw new IllegalStateException("PG 결제 취소 실패: " + json.get("message").getAsString());
