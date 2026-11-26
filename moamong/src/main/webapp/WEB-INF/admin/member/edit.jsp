@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-
 	<!DOCTYPE html>
 	<html lang="ko">
 
@@ -77,7 +76,12 @@
 							<div class="profile-left">
 
 								<div class="profile-image">
+
+									<!-- 추후 회원 프로필 이미지 연동 -->
+									<!-- <img :src="userInfo.profileImage" alt="회원 프로필"> -->
+
 									<span>●</span>
+
 								</div>
 
 								<div class="profile-name">
@@ -137,7 +141,6 @@
 
 						</div>
 
-
 						<!-- 기본 정보 -->
 						<div class="detail-info-area">
 
@@ -165,13 +168,15 @@
 									<strong>{{ userInfo.phone || '-' }}</strong>
 								</div>
 
-								<div class="info-row">
-									<span>주소</span>
-									<strong>{{ userInfo.address || '-' }}</strong>
-								</div>
+								<!-- 추후 주소 연동 -->
+								<!--
+                            <div class="info-row">
+                                <span>주소</span>
+                                <strong>{{ userInfo.address || '-' }}</strong>
+                            </div>
+                            -->
 
 							</div>
-
 
 							<div class="detail-info-box">
 
@@ -182,10 +187,13 @@
 									<strong>{{ userInfo.memberGrade || '-' }}</strong>
 								</div>
 
-								<div class="info-row">
-									<span>마케팅 수신 동의</span>
-									<strong>{{ userInfo.marketingAgree || '-' }}</strong>
-								</div>
+								<!-- 추후 마케팅 수신 동의 연동 -->
+								<!--
+                            <div class="info-row">
+                                <span>마케팅 수신 동의</span>
+                                <strong>{{ userInfo.marketingAgree || '-' }}</strong>
+                            </div>
+                            -->
 
 								<div class="info-row">
 									<span>가입일</span>
@@ -207,7 +215,6 @@
 							</div>
 
 						</div>
-
 
 						<!-- 회원 등급 및 상태 관리 -->
 						<div class="member-manage-area">
@@ -236,7 +243,6 @@
 								</div>
 
 							</div>
-
 
 							<!-- 상태 관리 -->
 							<div class="manage-box">
@@ -272,31 +278,27 @@
 
 						</div>
 
+						<!-- 관리자 메모: 추후 기능 재개 시 주석 해제 -->
+						<!--
+                    <div class="history-area">
 
-						<!-- 관리자 메모 -->
-						<div class="history-area">
+                        <h3>관리자 메모</h3>
 
-							<h3>관리자 메모</h3>
+                        <div class="modal-item">
+                            <textarea v-model="adminMemo"
+                                placeholder="회원 관리 관련 특이사항을 입력하세요."></textarea>
+                        </div>
 
-							<div class="modal-item">
+                        <div class="modal-buttons">
+                            <button class="btn-confirm" @click="fnSaveMemo">
+                                메모 저장
+                            </button>
+                        </div>
 
-								<textarea v-model="adminMemo" placeholder="회원 관리 관련 특이사항을 입력하세요.">
-                            </textarea>
+                    </div>
+                    -->
 
-							</div>
-
-							<div class="modal-buttons">
-
-								<button class="btn-confirm" @click="fnSaveMemo">
-									메모 저장
-								</button>
-
-							</div>
-
-						</div>
-
-
-						<!-- 변경 이력 -->
+						<!-- 회원 변경 이력 -->
 						<div class="history-area">
 
 							<h3>회원 변경 이력</h3>
@@ -307,6 +309,7 @@
 									<tr>
 										<th>변경일</th>
 										<th>관리자</th>
+										<th>변경 종류</th>
 										<th>변경 항목</th>
 										<th>변경 전</th>
 										<th>변경 후</th>
@@ -316,19 +319,26 @@
 
 								<tbody>
 
-									<tr v-for="(item, index) in historyList" :key="index">
+									<tr v-for="(item, index) in historyList" :key="item.historyId || index">
 
 										<td>{{ item.createdAt || '-' }}</td>
+
 										<td>{{ item.adminName || '-' }}</td>
-										<td>{{ item.changeType || '-' }}</td>
+
+										<td>{{ fnHistoryType(item.changeType) }}</td>
+
+										<td>{{ item.changeField || '-' }}</td>
+
 										<td>{{ item.beforeValue || '-' }}</td>
+
 										<td>{{ item.afterValue || '-' }}</td>
+
 										<td>{{ item.reason || '-' }}</td>
 
 									</tr>
 
 									<tr v-if="historyList.length === 0">
-										<td colspan="6">
+										<td colspan="7">
 											변경 이력이 없습니다.
 										</td>
 									</tr>
@@ -338,7 +348,6 @@
 							</table>
 
 						</div>
-
 
 						<!-- 목록으로 -->
 						<div class="detail-footer">
@@ -355,6 +364,52 @@
 
 			</div>
 
+			<!-- 회원정보 수정 모달 -->
+			<div class="modal-overlay" v-if="showInfoModal">
+
+				<div class="manage-modal">
+
+					<h3>회원정보 수정</h3>
+
+					<div class="modal-item">
+
+						<label>회원 이름</label>
+
+						<input type="text" v-model="editInfo.memberName" placeholder="회원 이름 입력">
+
+					</div>
+
+					<div class="modal-item">
+
+						<label>이메일</label>
+
+						<input type="email" v-model="editInfo.email" placeholder="이메일 입력">
+
+					</div>
+
+					<div class="modal-item">
+
+						<label>휴대폰 번호</label>
+
+						<input type="text" v-model="editInfo.phone" placeholder="010-0000-0000">
+
+					</div>
+
+					<div class="modal-buttons">
+
+						<button @click="showInfoModal = false">
+							취소
+						</button>
+
+						<button class="btn-confirm" @click="fnUpdateInfo">
+							수정 저장
+						</button>
+
+					</div>
+
+				</div>
+
+			</div>
 
 			<!-- 등급 변경 모달 -->
 			<div class="modal-overlay" v-if="showGradeModal">
@@ -364,10 +419,8 @@
 					<h3>회원 등급 변경</h3>
 
 					<div class="modal-item">
-
 						<label>현재 등급</label>
 						<strong>{{ userInfo.memberGrade || '-' }}</strong>
-
 					</div>
 
 					<div class="modal-item">
@@ -387,8 +440,7 @@
 
 						<label>변경 사유</label>
 
-						<textarea v-model="changeReason" placeholder="등급 변경 사유를 입력하세요.">
-                    </textarea>
+						<textarea v-model="changeReason" placeholder="등급 변경 사유를 입력하세요."></textarea>
 
 					</div>
 
@@ -407,7 +459,6 @@
 				</div>
 
 			</div>
-
 
 			<!-- 상태 변경 모달 -->
 			<div class="modal-overlay" v-if="showStatusModal">
@@ -439,8 +490,7 @@
 
 						<label>변경 사유</label>
 
-						<textarea v-model="changeReason" placeholder="상태 변경 사유를 입력하세요.">
-                    </textarea>
+						<textarea v-model="changeReason" placeholder="상태 변경 사유를 입력하세요."></textarea>
 
 					</div>
 
@@ -462,7 +512,6 @@
 
 		</div>
 
-
 		<script>
 
 			const app = Vue.createApp({
@@ -473,20 +522,26 @@
 
 						memberId: "${memberId}",
 
-						// 회원 정보
 						userInfo: {},
 
-						// 변경 이력
 						historyList: [],
 
-						// 관리자 메모
-						adminMemo: "",
+						// 관리자 메모 기능 재개 시 사용
+						// adminMemo: "",
 
 						// 모달 상태
+						showInfoModal: false,
 						showGradeModal: false,
 						showStatusModal: false,
 
-						// 변경할 값
+						// 회원정보 수정
+						editInfo: {
+							memberName: "",
+							email: "",
+							phone: ""
+						},
+
+						// 등급 및 상태 변경
 						changeGrade: "",
 						changeStatus: "",
 						changeReason: ""
@@ -495,7 +550,6 @@
 
 				},
 
-
 				methods: {
 
 					// 회원 상세 조회
@@ -503,9 +557,14 @@
 
 						let self = this;
 
+						if (!self.memberId) {
+							alert("회원 번호가 없습니다.");
+							return;
+						}
+
 						$.ajax({
 
-							url: "/admin/member/view.dox",
+							url: "/admin/member/edit.dox",
 							type: "POST",
 							dataType: "json",
 
@@ -514,6 +573,8 @@
 							},
 
 							success: function (data) {
+
+								console.log("회원 상세 조회 결과:", data);
 
 								if (data.result === "success") {
 
@@ -528,7 +589,11 @@
 
 							},
 
-							error: function () {
+							error: function (xhr, status, error) {
+
+								console.error("회원 조회 오류:", xhr.responseText);
+								console.error("상태:", status);
+								console.error("오류:", error);
 
 								alert("회원 정보를 불러오지 못했습니다.");
 
@@ -538,7 +603,6 @@
 
 					},
 
-
 					// 숫자 포맷
 					fnFormatNumber(value) {
 
@@ -546,55 +610,133 @@
 
 					},
 
-
 					// 상태명 변환
 					fnStatusName(status) {
 
 						const statusMap = {
-
 							ACTIVE: "정상",
 							SUSPENDED: "정지",
 							WITHDRAWN: "탈퇴",
 							INACTIVE: "휴면"
-
 						};
 
 						return statusMap[status] || status || "-";
 
 					},
 
-
 					// 상태 CSS
 					fnStatusClass(status) {
 
 						const classMap = {
-
 							ACTIVE: "normal",
 							SUSPENDED: "suspended",
 							WITHDRAWN: "withdrawn",
 							INACTIVE: "inactive"
-
 						};
 
 						return classMap[status] || "";
 
 					},
 
+					// 변경 종류 변환
+					fnHistoryType(type) {
 
-					// 회원 정보 수정
-					fnEditUser() {
+						const typeMap = {
+							GRADE: "등급 변경",
+							STATUS: "상태 변경",
+							INFO: "회원정보 수정",
+							WITHDRAW: "강제 탈퇴"
+						};
 
-						if (this.userInfo.status === "WITHDRAWN") {
-
-							alert("탈퇴 회원은 수정할 수 없습니다.");
-							return;
-
-						}
-
-						location.href = "/user/edit.do?memberId=" + this.memberId;
+						return typeMap[type] || type || "-";
 
 					},
 
+					// 회원정보 수정 모달
+					fnEditUser() {
+
+						if (this.userInfo.status === "WITHDRAWN") {
+							alert("탈퇴 회원은 수정할 수 없습니다.");
+							return;
+						}
+
+						this.editInfo = {
+							memberName: this.userInfo.memberName || "",
+							email: this.userInfo.email || "",
+							phone: this.userInfo.phone || ""
+						};
+
+						this.showInfoModal = true;
+
+					},
+
+					// 회원정보 수정 저장
+					fnUpdateInfo() {
+
+						let self = this;
+
+						if (!self.editInfo.memberName.trim()) {
+							alert("회원 이름을 입력하세요.");
+							return;
+						}
+
+						if (!self.editInfo.email.trim()) {
+							alert("이메일을 입력하세요.");
+							return;
+						}
+
+						if (!self.editInfo.phone.trim()) {
+							alert("휴대폰 번호를 입력하세요.");
+							return;
+						}
+
+						if (!confirm("회원정보를 수정하시겠습니까?")) {
+							return;
+						}
+
+						$.ajax({
+
+							url: "/admin/member/info/update.dox",
+							type: "POST",
+							dataType: "json",
+
+							data: {
+								memberId: self.memberId,
+								memberName: self.editInfo.memberName.trim(),
+								email: self.editInfo.email.trim(),
+								phone: self.editInfo.phone.trim()
+							},
+
+							success: function (data) {
+
+								if (data.result === "success") {
+
+									alert("회원정보가 수정되었습니다.");
+
+									self.showInfoModal = false;
+									self.fnGetUserDetail();
+
+								} else {
+
+									alert(data.message || "회원정보 수정 실패");
+
+								}
+
+							},
+
+							error: function (xhr, status, error) {
+
+								console.error("회원정보 수정 오류:", xhr.responseText);
+								console.error("상태:", status);
+								console.error("오류:", error);
+
+								alert("서버 통신 오류");
+
+							}
+
+						});
+
+					},
 
 					// 등급 변경 모달
 					fnOpenGradeModal() {
@@ -609,7 +751,6 @@
 						this.showGradeModal = true;
 
 					},
-
 
 					// 등급 변경
 					fnChangeGrade() {
@@ -649,6 +790,8 @@
 
 							success: function (data) {
 
+								console.log("등급 변경 응답:", data);
+
 								if (data.result === "success") {
 
 									alert("회원 등급이 변경되었습니다.");
@@ -664,8 +807,9 @@
 
 							},
 
-							error: function () {
+							error: function (xhr, status, error) {
 
+								console.error("등급 변경 오류:", xhr.responseText);
 								alert("서버 통신 오류");
 
 							}
@@ -673,7 +817,6 @@
 						});
 
 					},
-
 
 					// 상태 변경 모달
 					fnOpenStatusModal() {
@@ -688,7 +831,6 @@
 						this.showStatusModal = true;
 
 					},
-
 
 					// 상태 변경
 					fnChangeStatus() {
@@ -743,8 +885,9 @@
 
 							},
 
-							error: function () {
+							error: function (xhr, status, error) {
 
+								console.error("상태 변경 오류:", xhr.responseText);
 								alert("서버 통신 오류");
 
 							}
@@ -752,7 +895,6 @@
 						});
 
 					},
-
 
 					// 강제 탈퇴
 					fnWithdraw() {
@@ -795,7 +937,6 @@
 								if (data.result === "success") {
 
 									alert("회원 탈퇴 처리가 완료되었습니다.");
-
 									self.fnGetUserDetail();
 
 								} else {
@@ -806,8 +947,9 @@
 
 							},
 
-							error: function () {
+							error: function (xhr, status, error) {
 
+								console.error("회원 탈퇴 오류:", xhr.responseText);
 								alert("서버 통신 오류");
 
 							}
@@ -816,53 +958,21 @@
 
 					},
 
-
-					// 관리자 메모 저장
+					// 관리자 메모 기능 재개 시 사용
+					/*
 					fnSaveMemo() {
-
+	
 						let self = this;
-
+	
 						if (!self.adminMemo.trim()) {
 							alert("메모를 입력하세요.");
 							return;
 						}
-
-						$.ajax({
-
-							url: "/admin/member/memo/save.dox",
-							type: "POST",
-							dataType: "json",
-
-							data: {
-								memberId: self.memberId,
-								memo: self.adminMemo
-							},
-
-							success: function (data) {
-
-								if (data.result === "success") {
-
-									alert("메모가 저장되었습니다.");
-									self.adminMemo = "";
-
-								} else {
-
-									alert(data.message || "메모 저장 실패");
-
-								}
-
-							},
-
-							error: function () {
-
-								alert("서버 통신 오류");
-
-							}
-
-						});
-
+	
+						// 기존 메모 저장 AJAX 코드
+	
 					},
-
+					*/
 
 					// 회원 목록 이동
 					fnBack() {
@@ -872,7 +982,6 @@
 					}
 
 				},
-
 
 				mounted() {
 

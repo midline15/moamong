@@ -561,7 +561,7 @@
 					// 회원 상세 페이지 이동
 					fnEdit(memberId) {
 						pageChange("/admin/member/edit.do", {
-							memberId: memberId
+							memberId:memberId
 						});
 
 					}
