@@ -137,7 +137,12 @@ public class OrderService {
 		String impUid = toStr(payload.get("impUid"));
 		String payMethod = toStr(payload.get("payMethod"));
 
-		if (cartItemIds.isEmpty()) {
+		@SuppressWarnings("unchecked")
+		Map<String, Object> directPurchase = (Map<String, Object>) payload.get("directPurchase");
+		boolean isDirect = (directPurchase != null && (cartItemIds.isEmpty() || cartItemIds.contains(-1L)));
+
+		if (cartItemIds.isEmpty() && !isDirect) {
+
 			res.put("result", "fail");
 			res.put("message", "주문할 상품이 없습니다.");
 			return res;
@@ -148,7 +153,9 @@ public class OrderService {
 			return res;
 		}
 		Map<String, Object> extraValues = toMap(payload.get("extraValues"));
-		HashMap<String, Object> check = getCheckoutData(memberId, cartItemIds);
+		HashMap<String, Object> check = isDirect
+				? getDirectCheckoutData(memberId, directPurchase)
+				: getCheckoutData(memberId, cartItemIds);
 		if (!"success".equals(check.get("result"))) {
 			if (!impUid.isEmpty()) {
 				paymentService.cancelPortOnePayment(impUid, "주문 검증 실패 자동취소");
@@ -251,20 +258,22 @@ public class OrderService {
 				}
 			}
 
-			orderMapper.deleteOrderedCartItems(memberId, cartItemIds);
+			if (!isDirect) {
+				orderMapper.deleteOrderedCartItems(memberId, cartItemIds);
+			}
 			res.put("result", "success");
 			res.put("orderId", orderId);
 			res.put("orderNumber", orderNumber);
 			res.put("message", "결제 및 주문이 정상적으로 완료되었습니다.");
-			
+
 			notificationService.sendNotification(
-					memberId, 
-					"ORDER", 
-					"주문이 정상 완료되었습니다.", 
-					"주문번호 [" + orderNumber + "] 결제가 완료되었습니다.", 
+					memberId,
+					"ORDER",
+					"주문이 정상 완료되었습니다.",
+					"주문번호 [" + orderNumber + "] 결제가 완료되었습니다.",
 					orderId
-				);
-			
+			);
+
 			return res;
 		} catch (Exception e) {
 			if (!impUid.isEmpty()) {
@@ -273,6 +282,7 @@ public class OrderService {
 			throw new IllegalStateException(e.getMessage());
 		}
 	}
+
 
 	// ==================== 3. 내 주문 내역 조회 ====================
 	public HashMap<String, Object> getOrderList(Long memberId) {
