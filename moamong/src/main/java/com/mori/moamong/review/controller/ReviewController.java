@@ -115,4 +115,43 @@ public class ReviewController {
 
         return new Gson().toJson(resultMap);
     }
+    
+    
+    
+    
+    // 5. 리뷰 작성 가능한 주문 상품 목록 조회
+    @RequestMapping(value = "/review/reviewable-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String reviewableList(@RequestParam HashMap<String, Object> map, jakarta.servlet.http.HttpSession session) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            fillMemberId(map, session);
+            resultMap = reviewService.getReviewableOrderItems(map);
+        } catch (Exception e) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "작성 가능한 주문 내역 조회에 실패했습니다.");
+            e.printStackTrace();
+        }
+        return new Gson().toJson(resultMap);
+    }
+
+    // 6. 신규 리뷰 등록
+    @RequestMapping(value = "/review/add.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String addReview(@RequestParam HashMap<String, Object> map,
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
+            jakarta.servlet.http.HttpSession session) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            fillMemberId(map, session);
+            resultMap = reviewService.addReview(map, files);
+        } catch (Exception e) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "리뷰 등록 중 오류가 발생했습니다.");
+            e.printStackTrace();
+        }
+        return new Gson().toJson(resultMap);
+    }
+
+    
 }

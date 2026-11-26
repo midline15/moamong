@@ -93,5 +93,16 @@ public class AdminMemberController {
 		return gson.toJson(resultMap);
 
 	}
+	
+	// 회원 기본정보 수정
+	@RequestMapping(value = "/admin/member/info/update.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateInfo(@RequestParam HashMap<String, Object> map) {
+
+	    HashMap<String, Object> resultMap = adminmemberService.updateMemberInfo(map);
+
+	    return gson.toJson(resultMap);
+
+	}
 
 }

@@ -44,4 +44,11 @@ public interface ReviewMapper {
 
     // 리뷰 전체 개수 조회
     int selectReviewCount(HashMap<String, Object> map);
+    
+    // 주문 상품 조회
+    List<HashMap<String, Object>> selectReviewableOrderItems(HashMap<String, Object> map);
+    
+    // 리뷰 작성
+    int insertReview(HashMap<String, Object> map);
+
 }

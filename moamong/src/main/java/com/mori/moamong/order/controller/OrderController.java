@@ -17,6 +17,7 @@ import com.mori.moamong.order.service.OrderService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 주문 컨트롤러 - .do : 주문서(checkout.jsp) 및 주문내역(orderList.jsp) 화면 이동 - .dox : AJAX
@@ -25,8 +26,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
 public class OrderController {
-    @org.springframework.beans.factory.annotation.Value("${portone.imp.code}")
+	@Value("${portone.imp.code}")
     private String impCode;
+
+    @Value("${portone.channel.key:}")
+    private String channelKey;
+
     private final OrderService orderService;
 
     // 1. 주문서 페이지 이동
@@ -55,7 +60,7 @@ public class OrderController {
         }
 
         model.addAttribute("impCode", impCode != null ? impCode.trim() : "");
-
+        model.addAttribute("channelKey", channelKey != null ? channelKey.trim() : "");
         return "order/checkout";
     }
 

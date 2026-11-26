@@ -25,6 +25,23 @@ public class CommunityController {
     private static final boolean DEV_MODE = false;
     private static final long DEV_MEMBER_ID = 1L;
 
+    // 최근 7일 구매 상품 (로그인 필요, 회원번호는 세션에서)
+    @RequestMapping(value = "/community/buy-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String buyList(Model model, HttpSession session) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+
+        long memberId = getMemberId(session);
+        if (memberId == 0) {
+            resultMap.put("result", "fail");
+            resultMap.put("msg", "로그인이 필요합니다.");
+            return new Gson().toJson(resultMap);
+        }
+        resultMap = communityService.getBuyList(memberId);
+
+        return new Gson().toJson(resultMap);
+    }
+
     // 로그인한 회원 번호 (로그아웃 상태면 0) - 로그인 시 세션에 "sessionId" 로 저장됨
     private long getMemberId(HttpSession session) {
         if (DEV_MODE)

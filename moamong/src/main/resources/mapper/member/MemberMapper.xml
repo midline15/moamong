@@ -310,5 +310,7 @@
 		  AND MEMBER_ID = #{memberId}
 		  AND COMMENT_STATUS IN ('ACTIVE', 'HIDDEN')
 	</update>
+	
+	
 
 </mapper>

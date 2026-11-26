@@ -470,5 +470,64 @@ public class ReviewService {
 
         return totalCount;
     }
+    
+    
+    // 리뷰 작성 가능한 주문 상품 목록 조회
+    public HashMap<String, Object> getReviewableOrderItems(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        Long memberId = getMemberId(map);
+        map.put("memberId", memberId);
+        resultMap.put("result", "success");
+        resultMap.put("list", reviewMapper.selectReviewableOrderItems(map));
+        return resultMap;
+    }
+
+    // 신규 리뷰 등록 (별점 + 내용 + 최대 3장 이미지)
+    @Transactional(rollbackFor = Exception.class)
+    public HashMap<String, Object> addReview(HashMap<String, Object> map, MultipartFile[] files) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        Long memberId = getMemberId(map);
+        map.put("memberId", memberId);
+        if (map.get("productId") == null || String.valueOf(map.get("productId")).trim().isEmpty()) map.put("productId", null);
+        if (map.get("packageId") == null || String.valueOf(map.get("packageId")).trim().isEmpty()) map.put("packageId", null);
+
+        reviewMapper.insertReview(map);
+        Long reviewId = Long.parseLong(String.valueOf(map.get("reviewId")));
+
+        List<Path> savedFiles = new ArrayList<>();
+        try {
+            if (files != null && files.length > 0) {
+                Path directory = Paths.get(uploadPath).toAbsolutePath().normalize();
+                Files.createDirectories(directory);
+                int displayOrder = 0;
+                for (MultipartFile file : files) {
+                    if (file == null || file.isEmpty()) continue;
+                    String originName = file.getOriginalFilename();
+                    String extName = originName.substring(originName.lastIndexOf(".")).toLowerCase();
+                    String saveName = UUID.randomUUID().toString() + extName;
+                    Path target = directory.resolve(saveName).normalize();
+                    file.transferTo(target.toFile());
+                    savedFiles.add(target);
+
+                    HashMap<String, Object> imgMap = new HashMap<>();
+                    imgMap.put("reviewId", reviewId);
+                    imgMap.put("imageUrl", uploadUrl + "/" + saveName);
+                    imgMap.put("imageOriginName", originName);
+                    imgMap.put("imageName", saveName);
+                    imgMap.put("imageSize", String.valueOf(file.getSize()));
+                    imgMap.put("imageType", file.getContentType());
+                    imgMap.put("displayOrder", displayOrder++);
+                    reviewMapper.insertReviewImage(imgMap);
+                }
+            }
+        } catch (Exception e) {
+            for (Path saved : savedFiles) { try { Files.deleteIfExists(saved); } catch (Exception ignore) {} }
+            throw e;
+        }
+        resultMap.put("result", "success");
+        resultMap.put("message", "리뷰가 등록되었습니다.");
+        return resultMap;
+    }
+
 
 }

@@ -4,25 +4,39 @@
 <mapper namespace="com.mori.moamong.review.mapper.ReviewMapper">
 
 	<!-- 나의 리뷰 목록 조회 -->
-	<select id="selectMyReviewList"
-		parameterType="hashmap"
-		resultType="com.mori.moamong.dto.Review">
-
+	<select id="selectMyReviewList" parameterType="hashmap" resultType="com.mori.moamong.dto.Review">
 		SELECT
-		REVIEW_ID,
-		MEMBER_ID,
-		PRODUCT_ID,
-		ORDER_ITEM_ID,
-		RATING,
-		REVIEW_CONTENT,
-		REVIEW_STATUS,
-		CREATED_AT,
-		UPDATED_AT
-		FROM REVIEW
-		WHERE MEMBER_ID = #{memberId}
-		ORDER BY CREATED_AT DESC
-
+			R.REVIEW_ID AS reviewId,
+			R.MEMBER_ID AS memberId,
+			R.PACKAGE_ID AS packageId,
+			R.PRODUCT_ID AS productId,
+			R.ORDER_ITEM_ID AS orderItemId,
+			R.RATING AS rating,
+			R.REVIEW_CONTENT AS reviewContent,
+			R.REVIEW_STATUS AS reviewStatus,
+			DATE_FORMAT(DATE_ADD(R.CREATED_AT, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i') AS createdAt,
+			COALESCE(OI.item_name_snapshot, P.product_name, PK.package_name) AS productName,
+			CASE
+				WHEN R.PRODUCT_ID IS NOT NULL THEN (
+					SELECT PI.image_url FROM PRODUCT_IMAGE PI
+					WHERE PI.product_id = R.PRODUCT_ID AND PI.image_type = 'THUMBNAIL'
+					ORDER BY PI.display_order ASC, PI.image_id ASC LIMIT 1
+				)
+				ELSE (
+					SELECT PKI.image_url FROM PACKAGE_IMAGE PKI
+					WHERE PKI.package_id = R.PACKAGE_ID AND PKI.image_type = 'THUMBNAIL'
+					ORDER BY PKI.display_order ASC, PKI.image_id ASC LIMIT 1
+				)
+			END AS productThumb
+		FROM REVIEW R
+		LEFT JOIN ORDER_ITEM OI ON R.ORDER_ITEM_ID = OI.order_item_id
+		LEFT JOIN PRODUCT P ON R.PRODUCT_ID = P.product_id
+		LEFT JOIN PACKAGE PK ON R.PACKAGE_ID = PK.package_id
+		WHERE R.MEMBER_ID = #{memberId}
+		  AND R.REVIEW_STATUS = 'ACTIVE'
+		ORDER BY R.CREATED_AT DESC
 	</select>
+
 
 
 	<!-- 나의 리뷰 개수 조회 -->
@@ -231,4 +245,54 @@
         </choose>
 
     </select>
+    
+        <!-- 리뷰 작성 가능한 내 주문 상품 목록 조회 (미작성 건만) -->
+    <select id="selectReviewableOrderItems" parameterType="hashmap" resultType="hashmap">
+        SELECT
+            OI.order_item_id AS orderItemId,
+            OI.order_id AS orderId,
+            O.order_number AS orderNumber,
+            DATE_FORMAT(O.ordered_at, '%Y-%m-%d') AS orderedAt,
+            OI.product_id AS productId,
+            OI.package_id AS packageId,
+            OI.item_name_snapshot AS itemNameSnapshot,
+            OI.quantity AS quantity,
+            OI.line_amount AS lineAmount,
+            CASE
+                WHEN OI.product_id IS NOT NULL THEN (
+                    SELECT PI.image_url FROM PRODUCT_IMAGE PI
+                    WHERE PI.product_id = OI.product_id AND PI.image_type = 'THUMBNAIL'
+                    ORDER BY PI.display_order ASC, PI.image_id ASC LIMIT 1
+                )
+                ELSE (
+                    SELECT PKI.image_url FROM PACKAGE_IMAGE PKI
+                    WHERE PKI.package_id = OI.package_id AND PKI.image_type = 'THUMBNAIL'
+                    ORDER BY PKI.display_order ASC, PKI.image_id ASC LIMIT 1
+                )
+            END AS thumbnailUrl
+        FROM ORDER_ITEM OI
+        JOIN ORDERS O ON OI.order_id = O.order_id
+        WHERE O.member_id = #{memberId}
+          AND O.order_status IN ('PAID', 'PREPARING', 'SHIPPING', 'DELIVERED', 'CONFIRMED')
+          AND NOT EXISTS (
+              SELECT 1 FROM REVIEW R
+              WHERE R.order_item_id = OI.order_item_id
+                AND R.review_status = 'ACTIVE'
+          )
+        ORDER BY O.ordered_at DESC, OI.order_item_id DESC
+    </select>
+
+    <!-- 신규 리뷰 등록 -->
+    <insert id="insertReview" parameterType="hashmap" useGeneratedKeys="true" keyProperty="reviewId">
+        INSERT INTO REVIEW (
+            MEMBER_ID, PRODUCT_ID, PACKAGE_ID, ORDER_ITEM_ID,
+            RATING, REVIEW_CONTENT, REVIEW_STATUS, CREATED_AT, UPDATED_AT
+        ) VALUES (
+            #{memberId}, #{productId}, #{packageId}, #{orderItemId},
+            #{rating}, #{reviewContent}, 'ACTIVE', NOW(), NOW()
+        )
+    </insert>
+
+    
+    
 </mapper>
