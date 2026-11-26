@@ -20,4 +20,5 @@ public class CommunityPost {
     private List<String> tagList; // 해시태그
     private String postStatus; // ACTIVE / HIDDEN (관리자 삭제)
     private String role;
+    private List<HashMap<String, Object>> productList;
 }

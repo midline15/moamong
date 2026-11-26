@@ -15,7 +15,8 @@
     --cm-2: #F0DFC3;
     --cm-3: #FBF5EB;
     --cm-4: #C5A477;
-    --cm-4d: #A98557;           /* 포인트 어두운 톤 (호버) */
+    --cm-4d: #A98557;
+    /* 포인트 어두운 톤 (호버) */
     --cm-on-point: #fff;
 
     /* 배너 리본 느낌의 샴페인 그라데이션 */
@@ -23,10 +24,12 @@
 
     /* 글자 : 배너의 토프(taupe) 톤에 맞춤 */
     --cm-ink: #33281F;
-    --cm-taupe: #8B7660;        /* 배너 글자색 */
+    --cm-taupe: #8B7660;
+    /* 배너 글자색 */
     --cm-sub: #6B5B49;
     --cm-mute: #9A8A74;
-    --cm-line: #F1E8D8;         /* 아주 연한 구분선 */
+    --cm-line: #F1E8D8;
+    /* 아주 연한 구분선 */
 
     /* 좋아요 */
     --cm-heart: #E5484D;
@@ -40,7 +43,8 @@
     width: 100%;
     max-width: 960px;
     margin: 0 auto;
-    padding: 40px 20px 96px;    /* 위쪽 = 헤더와 배너 사이 간격 */
+    padding: 40px 20px 96px;
+    /* 위쪽 = 헤더와 배너 사이 간격 */
     color: var(--cm-ink);
     box-sizing: border-box;
 
@@ -50,7 +54,7 @@
     clip-path: inset(0 -100vmax);
 }
 
-.cm-wrap > * {
+.cm-wrap>* {
     position: relative;
 }
 
@@ -70,10 +74,12 @@
 
 .cm-banner {
     position: relative;
-    margin: 0 0 28px;           /* 글쓰기 박스와의 간격 */
+    margin: 0 0 28px;
+    /* 글쓰기 박스와의 간격 */
     aspect-ratio: 2030 / 365;
     overflow: hidden;
-    background: #F6EADA;        /* 이미지 로딩 전 배경 */
+    background: #F6EADA;
+    /* 이미지 로딩 전 배경 */
     border-radius: 28px;
     box-shadow: var(--cm-shadow-md);
 }
@@ -316,25 +322,29 @@
     align-items: center;
     gap: 8px;
     margin-left: 8px;
-    padding: 5px 12px 5px 8px;
+    padding: 5px 14px 5px 8px;
     font-size: 12px;
-    color: var(--cm-sub);
-    background: var(--cm-3);
+    color: #9A9690;
+    background: #F2F1EF;
+    border: 1px solid #E6E4E0;
     border-radius: 999px;
     cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .cm-switch input {
-    display: none;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .cm-switch .track {
     position: relative;
     width: 34px;
     height: 20px;
-    background: var(--cm-1);
+    background: #CFCDC9;
     border-radius: 999px;
-    transition: background 0.2s ease;
+    transition: background 0.25s ease;
 }
 
 .cm-switch .knob {
@@ -349,14 +359,6 @@
     transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.cm-switch input:checked + .track {
-    background: var(--cm-4);
-}
-
-.cm-switch input:checked + .track .knob {
-    transform: translateX(14px);
-}
-
 .cm-switch em {
     font-style: normal;
     font-weight: 600;
@@ -364,12 +366,42 @@
 
 .cm-switch small {
     font-size: 11px;
-    color: var(--cm-mute);
+    color: inherit;
+    opacity: 0.8;
+}
+
+.cm-switch:hover:not(.disabled) {
+    border-color: var(--cm-1);
+}
+
+/* 켜진 상태 */
+.cm-switch.on {
+    color: var(--cm-4d);
+    background: var(--cm-2);
+    border-color: var(--cm-1);
+    box-shadow: 0 4px 12px rgba(197, 164, 119, 0.28);
+}
+
+.cm-switch.on .track {
+    background: var(--cm-grad);
+}
+
+.cm-switch.on .knob {
+    transform: translateX(14px);
+}
+
+.cm-switch.on small {
+    font-weight: 700;
+}
+
+.cm-switch input:focus-visible + .track {
+    outline: 2px solid var(--cm-4);
+    outline-offset: 2px;
 }
 
 .cm-switch.disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.55;
 }
 
 /* 게시 버튼 */
@@ -598,7 +630,7 @@
     position: relative;
 }
 
-.cm-more > button {
+.cm-more>button {
     width: 32px;
     height: 32px;
     padding: 0;
@@ -612,7 +644,7 @@
     transition: background 0.18s ease, color 0.18s ease;
 }
 
-.cm-more > button:hover {
+.cm-more>button:hover {
     color: var(--cm-ink);
     background: var(--cm-3);
 }
@@ -649,8 +681,15 @@
 }
 
 @keyframes cm-pop {
-    from { opacity: 0; transform: translateY(-4px) scale(0.97); }
-    to { opacity: 1; transform: none; }
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 /* 이미지 */
@@ -779,9 +818,17 @@
 }
 
 @keyframes cm-heart-pop {
-    0% { transform: scale(1); }
-    45% { transform: scale(1.35); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.35);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .cm-action .comment:hover,
@@ -834,7 +881,9 @@
 }
 
 @keyframes cm-spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* 마지막 게시글 안내 : 배너 제목 옆 얇은 선과 같은 느낌 */
@@ -937,7 +986,7 @@
     padding: 0;
 }
 
-.cm-c-list > li {
+.cm-c-list>li {
     padding: 8px 0 2px;
 }
 
@@ -1135,6 +1184,236 @@
     cursor: not-allowed;
 }
 
+@keyframes cm-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* =========================================
+   구매 상품 선택 패널 / 글 안의 상품 칩
+========================================= */
+
+@keyframes cm-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.cm-buy {
+    margin: 10px 0 4px;
+    padding: 16px 16px 14px;
+    background: #fff;
+    border-radius: 18px;
+    animation: cm-rise 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.cm-buy-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.cm-buy-head strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--cm-ink);
+}
+
+.cm-buy-head span {
+    font-size: 11.5px;
+    color: var(--cm-mute);
+}
+
+.cm-buy-empty {
+    padding: 26px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #A8A5A0;
+    background: #F7F6F4;
+    border-radius: 14px;
+}
+
+.cm-buy-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cm-buy-view {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.cm-buy-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 한 화면에 5개 */
+.cm-buy-list li {
+    flex: 0 0 20%;
+    min-width: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.cm-buy-list .thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--cm-3);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.cm-buy-list .thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cm-buy-list li:hover .thumb {
+    transform: translateY(-2px);
+}
+
+.cm-buy-list li.on .thumb {
+    border-color: var(--cm-4);
+}
+
+.cm-buy-list .check {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    background: var(--cm-4);
+    border-radius: 50%;
+}
+
+.cm-buy-list em {
+    display: block;
+    margin-top: 6px;
+    overflow: hidden;
+    font-size: 11.5px;
+    font-style: normal;
+    color: var(--cm-sub);
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cm-buy-arrow {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    padding: 0 0 2px;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--cm-sub);
+    background: var(--cm-3);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cm-buy-arrow:hover:not(:disabled) {
+    color: #fff;
+    background: var(--cm-4);
+}
+
+.cm-buy-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* 글 안의 상품 칩 */
+.cm-products {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0 6px;
+}
+
+.cm-product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px 10px 10px;
+    color: var(--cm-ink);
+    text-decoration: none;
+    background: var(--cm-3);
+    border-radius: 16px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.cm-product:hover {
+    background: var(--cm-2);
+    transform: translateY(-1px);
+}
+
+.cm-product img {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.cm-product div {
+    flex: 1;
+    min-width: 0;
+}
+
+.cm-product strong {
+    display: block;
+    overflow: hidden;
+    font-size: 13.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cm-product em {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--cm-4d);
+}
+
+.cm-product svg {
+    flex-shrink: 0;
+    color: var(--cm-mute);
+}
 
 /* =========================================
    반응형
@@ -1201,6 +1480,11 @@
     .cm-c-reply .cm-c-item::before {
         left: -14px;
         width: 10px;
+    }
+
+    .cm-buy-list li {
+        flex: 0 0 33.333%;
+        /* 모바일은 3개씩 */
     }
 }
 

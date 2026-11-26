@@ -67,4 +67,13 @@ public interface CommunityMapper {
     // 답글을 달 수 있는 부모 댓글인지 (1/0)
     int selectParentCommentCnt(HashMap<String, Object> map);
 
+    // 최근 7일 구매 상품
+    List<HashMap<String, Object>> selectBuyList(HashMap<String, Object> map);
+
+    // 글에 붙은 상품 등록
+    int insertPostProduct(HashMap<String, Object> map);
+
+    // 글에 붙은 상품 목록 (여러 게시글 한 번에)
+    List<HashMap<String, Object>> selectPostProductList(HashMap<String, Object> map);
+
 }

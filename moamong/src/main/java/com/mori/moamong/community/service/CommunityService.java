@@ -1,9 +1,8 @@
 package com.mori.moamong.community.service;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,6 +17,8 @@ import com.google.gson.reflect.TypeToken;
 import com.mori.moamong.community.mapper.CommunityMapper;
 import com.mori.moamong.dto.CommunityPost;
 
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @Service
 public class CommunityService {
@@ -29,8 +30,9 @@ public class CommunityService {
     private static final int MAX_IMAGE = 4; // 게시글당 최대 이미지 수
     private static final int MAX_TAG = 10; // 게시글당 최대 해시태그 수
     private static final Pattern TAG_PATTERN = Pattern.compile("#([0-9A-Za-z_가-힣]{1,30})");
+    private static final int MAX_PRODUCT = 3; // 게시글당 최대 상품 수
 
-        // 게시글 목록 (스크롤 방식, page 번호로 이어서 조회)
+    // 게시글 목록 (스크롤 방식, page 번호로 이어서 조회)
     public HashMap<String, Object> getPostList(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
         try {
@@ -43,7 +45,7 @@ public class CommunityService {
             List<CommunityPost> list = communityMapper.selectPostList(map);
             int cnt = communityMapper.selectPostCnt(map);
 
-            // 이미지, 해시태그는 한 번에 조회해서 게시글에 붙이기
+            // 이미지, 해시태그, 상품은 한 번에 조회해서 게시글에 붙이기
             if (!list.isEmpty()) {
                 List<Long> ids = new ArrayList<Long>();
                 for (CommunityPost p : list)
@@ -68,16 +70,34 @@ public class CommunityService {
                     tagMap.get(key).add(String.valueOf(tag.get("tagName")));
                 }
 
+                // 2-1) 첨부 상품을 글 번호별로 묶기 (실패해도 글 목록은 보이게)
+                HashMap<String, List<HashMap<String, Object>>> productMap = new HashMap<String, List<HashMap<String, Object>>>();
+                try {
+                    for (HashMap<String, Object> pr : communityMapper.selectPostProductList(map)) {
+                        pr.put("productUrl", "/product/view.do?productId=" + pr.get("productId"));
+                        String key = String.valueOf(pr.get("postId"));
+                        if (!productMap.containsKey(key))
+                            productMap.put(key, new ArrayList<HashMap<String, Object>>());
+                        productMap.get(key).add(pr);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 // 3) 글에 붙이기 (관리자가 지운 글은 비워서 내려줌)
                 for (CommunityPost p : list) {
                     if ("HIDDEN".equals(p.getPostStatus())) {
                         p.setImageList(new ArrayList<HashMap<String, Object>>());
                         p.setTagList(new ArrayList<String>());
+                        p.setProductList(new ArrayList<HashMap<String, Object>>());
                         continue;
                     }
                     String key = String.valueOf(p.getPostId());
-                    p.setImageList(imageMap.containsKey(key) ? imageMap.get(key) : new ArrayList<HashMap<String, Object>>());
+                    p.setImageList(
+                            imageMap.containsKey(key) ? imageMap.get(key) : new ArrayList<HashMap<String, Object>>());
                     p.setTagList(tagMap.containsKey(key) ? tagMap.get(key) : new ArrayList<String>());
+                    p.setProductList(productMap.containsKey(key) ? productMap.get(key)
+                            : new ArrayList<HashMap<String, Object>>());
                 }
             }
 
@@ -92,7 +112,28 @@ public class CommunityService {
         return resultMap;
     }
 
-    // 게시글 등록 (해시태그, 이미지 함께 저장)
+    // 최근 7일 구매 상품
+    public HashMap<String, Object> getBuyList(long memberId) {
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+        try {
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("memberId", memberId);
+            List<HashMap<String, Object>> list = communityMapper.selectBuyList(map);
+
+            // 상세 페이지 주소는 서버에서 내려줌
+            for (HashMap<String, Object> b : list) {
+                b.put("productUrl", "/product/view.do?productId=" + b.get("productId"));
+            }
+            resultMap.put("list", list);
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "fail");
+            e.printStackTrace();
+        }
+        return resultMap;
+    }
+
+    // 게시글 등록 (해시태그, 이미지, 구매 상품 함께 저장)
     @Transactional
     public HashMap<String, Object> addPost(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
@@ -126,6 +167,25 @@ public class CommunityService {
             if (title.length() > 50)
                 title = title.substring(0, 50);
 
+            // 첨부 상품 검증: 최대 3개, 내가 최근 7일 안에 구매한 상품만
+            List<Long> productIds = parseProductIds(map);
+            if (productIds.size() > MAX_PRODUCT) {
+                resultMap.put("result", "fail");
+                resultMap.put("msg", "상품은 최대 " + MAX_PRODUCT + "개까지 선택할 수 있습니다.");
+                return resultMap;
+            }
+            if (!productIds.isEmpty()) {
+                HashSet<Long> boughtIds = new HashSet<Long>();
+                for (HashMap<String, Object> b : communityMapper.selectBuyList(map)) {
+                    boughtIds.add(Long.valueOf(String.valueOf(b.get("productId"))));
+                }
+                if (!boughtIds.containsAll(productIds)) {
+                    resultMap.put("result", "fail");
+                    resultMap.put("msg", "최근 7일 안에 구매한 상품만 붙일 수 있습니다.");
+                    return resultMap;
+                }
+            }
+
             map.put("postTitle", title);
             map.put("postContent", text);
             communityMapper.insertPost(map); // 생성된 postId가 map에 담김
@@ -141,6 +201,16 @@ public class CommunityService {
             // 이미지 저장
             saveImages(map);
 
+            // 구매 상품 저장
+            int pOrder = 1;
+            for (Long pid : productIds) {
+                HashMap<String, Object> pMap = new HashMap<String, Object>();
+                pMap.put("postId", map.get("postId"));
+                pMap.put("productId", pid);
+                pMap.put("displayOrder", pOrder++);
+                communityMapper.insertPostProduct(pMap);
+            }
+
             resultMap.put("result", "success");
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -148,6 +218,17 @@ public class CommunityService {
             e.printStackTrace();
         }
         return resultMap;
+    }
+
+    // 화면에서 JSON 으로 넘어온 products(상품번호 배열) 파싱, 중복 제거
+    private List<Long> parseProductIds(HashMap<String, Object> map) {
+        String json = String.valueOf(map.getOrDefault("products", "")).trim();
+        if (json.isEmpty() || "null".equals(json))
+            return new ArrayList<Long>();
+
+        List<Long> raw = new Gson().fromJson(json, new TypeToken<List<Long>>() {
+        }.getType());
+        return raw == null ? new ArrayList<Long>() : new ArrayList<Long>(new LinkedHashSet<Long>(raw));
     }
 
     // 관리자 여부 (role 이 ADMIN 이고 활성 계정이면 true)
@@ -308,7 +389,7 @@ public class CommunityService {
             // 우리 서버에 올린 이미지 주소만 허용 (커뮤니티 폴더만)
             String url = String.valueOf(img.get("imageUrl"));
             if (!url.startsWith("/resources/upload/community/"))
-                continue;;
+                continue;
 
             img.put("postId", map.get("postId"));
             img.put("imageType", "DETAIL");
