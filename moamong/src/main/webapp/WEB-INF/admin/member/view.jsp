@@ -22,7 +22,7 @@
 		<script src="/js/page-change.js"></script>
 
 		<link rel="stylesheet" href="/css/admin/default.css">
-		<link rel="stylesheet" href="/css/admin/view.css">
+		<link rel="stylesheet" href="/css/admin/member/view.css">
 
 	</head>
 
@@ -528,7 +528,7 @@
 						$.ajax({
 
 							// 회원 상세정보 조회 주소
-							url: "/admin/view.dox",
+							url: "/admin/member/view.dox",
 
 							type: "POST",
 
@@ -629,7 +629,7 @@
 					// =====================================
 					fnBack: function () {
 
-						location.href = "/admin/list.do";
+						location.href = "/admin/member/list.do";
 
 					}
 

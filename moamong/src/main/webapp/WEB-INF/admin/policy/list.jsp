@@ -10,7 +10,6 @@
     <title>운영정책 관리</title>
 
     <link rel="stylesheet" href="/css/admin/default.css">
-    <link rel="stylesheet" href="/css/admin/list.css">
 
     <style>
         .policy-container {
@@ -141,7 +140,7 @@
             <h2>관리자 메뉴</h2>
 
             <ul>
-                <li onclick="location.href='/admin/list.do'">회원 관리</li>
+                <li onclick="location.href='/admin/member/list.do'">회원 관리</li>
                 <li>상품조회 / 등록</li>
                 <li>주문 관리</li>
                 <li>배송 관리</li>
@@ -150,7 +149,7 @@
                 <li>리뷰 및 문의</li>
                 <li>쿠폰 관리</li>
                 <li>이벤트 관리</li>
-                <li class="active" onclick="location.href='/admin/policy.do'">
+                <li class="active" onclick="location.href='/admin/policy/list.do'">
                     운영정책 관리
                 </li>
                 <li>매출 통계</li>
@@ -379,7 +378,7 @@
 
         function loadPolicyList() {
 
-            fetch('/admin/policyList.dox', {
+            fetch('/policy/policyList.dox', {
                 method: 'POST'
             })
                 .then(response => response.json())
@@ -474,7 +473,7 @@
                 return;
             }
 
-            fetch('/admin/policyDetail.dox', {
+            fetch('/policy/policyDetail.dox', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -547,7 +546,7 @@
                 isActive: document.getElementById('isActive').value
             });
 
-            fetch('/admin/policyUpdate.dox', {
+            fetch('/policy/policyUpdate.dox', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -586,7 +585,7 @@
 
         function loadCustomerServiceHours() {
 
-            fetch('/admin/customerServiceHoursList.dox', {
+            fetch('/policy/customerServiceHoursList.dox', {
                 method: 'POST'
             })
                 .then(response => response.json())
@@ -698,7 +697,7 @@
                 isClosed: isClosed
             });
 
-            fetch('/admin/customerServiceHoursSave.dox', {
+            fetch('/policy/customerServiceHoursSave.dox', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
