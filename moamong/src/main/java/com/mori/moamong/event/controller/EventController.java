@@ -131,7 +131,14 @@ public class EventController {
         return new Gson().toJson(resultMap);
     }
     
-    
+        // 메인 슬라이더용 이벤트 목록 (공개)
+    @RequestMapping(value = "/event/main-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String mainList(Model model) throws Exception {
+        HashMap<String, Object> resultMap = eventService.getMainEventList();
+
+        return new Gson().toJson(resultMap);
+    }
 
 
 }

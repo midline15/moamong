@@ -52,7 +52,8 @@
 }
 
 /* 우측 본문 영역 */
-.mp-content {
+.mp-content,
+.mp-main {
     flex: 1;
     min-width: 0;
 }

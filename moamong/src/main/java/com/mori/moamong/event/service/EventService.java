@@ -145,4 +145,17 @@ EventMapper eventMapper;
         }
     }
 
+        // 메인 슬라이더용 이벤트 목록
+    public HashMap<String, Object> getMainEventList() {
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+        try {
+            resultMap.put("list", eventMapper.selectMainEventList());
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "fail");
+            e.printStackTrace();
+        }
+        return resultMap;
+    }
+
 }

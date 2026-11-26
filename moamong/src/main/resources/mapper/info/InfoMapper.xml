@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mori.moamong.info.mapper.InfoMapper">
+
+    <select id="selectActivePolicies" resultType="hashmap">
+        SELECT
+            policy_id   AS policyId,
+            policy_type AS policyType,
+            title       AS title,
+            content     AS content
+        FROM POLICY
+        WHERE is_active = 'Y'
+          AND policy_type IN ('TERMS', 'PRIVACY', 'DELIVERY', 'REFUND')
+    </select>
+
+</mapper>

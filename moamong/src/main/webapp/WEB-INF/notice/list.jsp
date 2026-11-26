@@ -105,7 +105,7 @@
                                 </div>
 
                                 <!-- 버튼 영역 (TODO: 관리자만 보이게) -->
-                                <div class="cs-btn-area right">
+                                <div class="cs-btn-area right" v-if="isAdmin">
                                     <button type="button" class="cs-btn primary" @click="fnWrite">글쓰기</button>
                                 </div>
 
@@ -126,6 +126,7 @@
             data() {
                 return {
                     noticeList: [],     // 공지사항 목록
+                    isAdmin: "${isAdmin}" == "true",    // 관리자 여부 (서버에서도 다시 검사함)
                     keyword: "",        // 검색어
                     page: 1,            // 현재 페이지
                     pageSize: 10,       // 한 페이지에 보여줄 개수

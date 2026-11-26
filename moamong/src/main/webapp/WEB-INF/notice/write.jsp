@@ -115,7 +115,6 @@
             data() {
                 return {
                     noticeId: "${noticeId}",    // 있으면 수정, 없으면 등록
-                    adminId: 1,                 // TODO: 로그인 세션의 관리자 번호로 교체
                     noticeTitle: "",            // 제목
                     isPinned: false,            // 상단 고정 여부
                     imageList: [],               // 업로드한 이미지 정보 (NOTICE_IMAGE 저장용)
