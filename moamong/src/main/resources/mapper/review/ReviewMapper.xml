@@ -260,25 +260,27 @@
             OI.line_amount AS lineAmount,
             CASE
                 WHEN OI.product_id IS NOT NULL THEN (
-                    SELECT PI.image_url FROM PRODUCT_IMAGE PI
-                    WHERE PI.product_id = OI.product_id AND PI.image_type = 'THUMBNAIL'
-                    ORDER BY PI.display_order ASC, PI.image_id ASC LIMIT 1
+                    SELECT PI.image_url
+                    FROM PRODUCT_IMAGE PI
+                    WHERE PI.product_id = OI.product_id
+                    AND PI.image_type = 'THUMBNAIL'
+                    ORDER BY PI.display_order ASC, PI.image_id ASC
+                    LIMIT 1
                 )
                 ELSE (
-                    SELECT PKI.image_url FROM PACKAGE_IMAGE PKI
-                    WHERE PKI.package_id = OI.package_id AND PKI.image_type = 'THUMBNAIL'
-                    ORDER BY PKI.display_order ASC, PKI.image_id ASC LIMIT 1
+                    SELECT PKI.image_url
+                    FROM PACKAGE_IMAGE PKI
+                    WHERE PKI.package_id = OI.package_id
+                    AND PKI.image_type = 'THUMBNAIL'
+                    ORDER BY PKI.display_order ASC, PKI.image_id ASC
+                    LIMIT 1
                 )
             END AS thumbnailUrl
         FROM ORDER_ITEM OI
         JOIN ORDERS O ON OI.order_id = O.order_id
         WHERE O.member_id = #{memberId}
-          AND O.order_status IN ('PAID', 'PREPARING', 'SHIPPING', 'DELIVERED', 'CONFIRMED')
-          AND NOT EXISTS (
-              SELECT 1 FROM REVIEW R
-              WHERE R.order_item_id = OI.order_item_id
-                AND R.review_status = 'ACTIVE'
-          )
+        AND O.order_status = 'DELIVERED'
+        AND OI.is_reviewed = 'N'
         ORDER BY O.ordered_at DESC, OI.order_item_id DESC
     </select>
 

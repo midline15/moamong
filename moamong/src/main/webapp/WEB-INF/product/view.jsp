@@ -472,8 +472,7 @@
 
                         },
                         error: function (xhr) {
-                            console.log(xhr.responseText);
-                            alert("찜하기 처리 중 오류가 발생했습니다.");
+                            alert(xhr.responseText);
                         }
                     });
                 },
@@ -506,8 +505,7 @@
 
                         },
                         error: function (xhr) {
-                            console.log(xhr.responseText);
-                            alert("장바구니 담기 중 오류가 발생했습니다.");
+                            alert(xhr.responseText);
                         }
                     });
                 },
@@ -538,8 +536,8 @@
                             }
 
                         },
-                        error: function () {
-                            alert("바로 구매 처리 중 오류가 발생했습니다.");
+                        error: function (xhr) {
+                            alert(xhr.responseText);
                         }
                     });
 
@@ -566,7 +564,7 @@
 
                         },
                         error: function (xhr) {
-                            console.log(xhr.responseText);
+                            alert(xhr.responseText);
                         }
                     });
                 },
@@ -578,7 +576,8 @@
                 let self = this;
 
                 self.fnProductView();
-                self.fnWishCheck();
+
+                self.isLogin === "true" ? self.fnWishCheck() : null;
 
             }
 

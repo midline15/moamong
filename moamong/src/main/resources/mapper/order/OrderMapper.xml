@@ -648,4 +648,14 @@
         WHERE package_id = #{packageId}
         AND is_required = 1
     </select>
+
+    <!-- 리뷰 추가나 삭제 시 is_reviewed 상태 변경 -->
+    <update id="toggleOrderItemReviewed" parameterType="long">
+        UPDATE ORDER_ITEM
+        SET is_reviewed = CASE
+            WHEN is_reviewed = 'Y' THEN 'N'
+            ELSE 'Y'
+        END
+        WHERE order_item_id = #{orderItemId}
+    </update>
 </mapper>

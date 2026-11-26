@@ -12,4 +12,6 @@ public class OrderItem {
     private Long unitPrice;
     private Long quantity;
     private Long lineAmount;
+
+    private String isReviewed;
 }

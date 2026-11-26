@@ -9,7 +9,7 @@
                 <strong>구매 리뷰</strong>
                 <span>{{ reviewTotalCount }}</span>
             </div>
-            <button type="button" class="review-write-btn">
+            <button type="button" class="review-write-btn" @click="fnReviewWrite">
                 리뷰 작성
             </button>
         </div>
