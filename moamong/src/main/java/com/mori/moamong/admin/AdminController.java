@@ -1,5 +1,5 @@
 
-package com.mori.moamong.admin.controller;
+package com.mori.moamong.admin;
 
 import java.util.HashMap;
 
@@ -26,13 +26,13 @@ public class AdminController {
 
 	// 관리자 콘솔 - 회원 상세 화면 이동
 
-	@RequestMapping("/admin/memeber/view.do")
+	@RequestMapping("/admin/member/edit.do")
 	public String memberview(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 
 		// 목록에서 전달받은 회원 ID를 JSP에 전달합니다.
 		model.addAttribute("memberId", map.get("memberId"));
 
-		return "/admin/member/view";
+		return "/admin/member/edit";
 	}
 	
 	
