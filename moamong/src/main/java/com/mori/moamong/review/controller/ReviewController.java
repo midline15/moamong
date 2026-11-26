@@ -97,4 +97,22 @@ public class ReviewController {
 		return new Gson().toJson(resultMap);
 	}
 
+    ////////////////////////////////////////////////////////////
+    // 리뷰 목록 조회
+    @RequestMapping(value = "/review/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String list(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+
+        // 리뷰 목록 조회
+        List<Review> reviewList = reviewService.getReviewList(map);
+
+        // 리뷰 전체 개수 조회
+        int totalCount = reviewService.getReviewCount(map);
+
+        resultMap.put("reviewList", reviewList);
+        resultMap.put("totalCount", totalCount);
+
+        return new Gson().toJson(resultMap);
+    }
 }
