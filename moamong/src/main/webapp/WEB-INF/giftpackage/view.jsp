@@ -337,7 +337,7 @@
                 return {
                     isAdmin: "${sessionScope.sessionRole}" === "ADMIN",
                     isLogin: "${sessionScope.sessionId != null}",
-                    
+
                     packageId: "${packageId}",
 
                     info: {},
@@ -562,8 +562,7 @@
 
                         },
                         error: function (xhr) {
-                            console.log(xhr.responseText);
-                            alert("찜하기 처리 중 오류가 발생했습니다.");
+                            alert(JSON.parse(xhr.responseText).message);
                         }
                     });
                 },
@@ -614,8 +613,7 @@
                             }
                         },
                         error: function (xhr) {
-                            console.log(xhr.responseText);
-                            alert("장바구니 담기 중 오류가 발생했습니다.");
+                            alert(JSON.parse(xhr.responseText).message);
                         }
                     });
 
@@ -661,8 +659,8 @@
                             }
 
                         },
-                        error: function () {
-                            alert("바로 구매 처리 중 오류가 발생했습니다.");
+                        error: function (xhr) {
+                            alert(JSON.parse(xhr.responseText).message);
                         }
                     });
 
@@ -689,7 +687,7 @@
 
                         },
                         error: function (xhr) {
-                            console.log(xhr.responseText);
+                            alert(JSON.parse(xhr.responseText).message);
                         }
                     });
                 },
@@ -702,7 +700,8 @@
                 let self = this;
 
                 self.fnPackageView();
-                self.fnWishCheck();
+
+                self.isLogin === "true" ? self.fnWishCheck() : null;
 
             }
 

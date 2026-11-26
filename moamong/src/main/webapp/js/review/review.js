@@ -5,7 +5,6 @@ window.reviewMixin = {
     // 리뷰 데이터
     data() {
         return {
-            memberId: "${sessionScope.sessionId}",
             reviewList: [],
 
             reviewPage: 1,

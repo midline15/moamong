@@ -845,4 +845,9 @@ public class OrderService {
         res.put("message", "올바르지 않은 구매 정보입니다.");
         return res;
     }
+
+    // 주문 상품 리뷰 작성 여부 변경
+    public void toggleOrderItemReviewed(Long orderItemId) {
+        orderMapper.toggleOrderItemReviewed(orderItemId);
+    }
 }

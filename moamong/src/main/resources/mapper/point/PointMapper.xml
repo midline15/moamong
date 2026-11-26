@@ -22,5 +22,37 @@
 
     </select>
 
-</mapper>
+    <!-- 회원의 현재 포인트 잔액 조회 -->
+    <select id="selectPointBalance" parameterType="long" resultType="int">
+        SELECT COALESCE(
+            (
+                SELECT balance_after
+                FROM POINT_HISTORY
+                WHERE member_id = #{memberId}
+                ORDER BY created_at DESC, point_history_id DESC
+                LIMIT 1
+            ), 0
+        )
+    </select>
 
+    <!-- 포인트 적립 내역 등록 -->
+    <insert id="insertPointHistory" parameterType="hashmap">
+        INSERT INTO POINT_HISTORY (
+            member_id,
+            order_id,
+            history_type,
+            point_amount,
+            balance_after,
+            description,
+            created_at
+        ) VALUES (
+            #{memberId},
+            #{orderId},
+            #{historyType},
+            #{pointAmount},
+            #{balanceAfter},
+            #{description},
+            NOW()
+        )
+    </insert>
+</mapper>

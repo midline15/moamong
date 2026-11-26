@@ -98,7 +98,7 @@ public class ReviewController {
 	}
 
     ////////////////////////////////////////////////////////////
-    // 리뷰 목록 조회
+    // 상품에서 리뷰 목록 조회
     @RequestMapping(value = "/review/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String list(Model model, @RequestParam HashMap<String, Object> map) throws Exception {

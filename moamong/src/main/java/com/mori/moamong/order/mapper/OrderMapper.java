@@ -113,4 +113,7 @@ public interface OrderMapper {
 
     // 패키지 필수 추가 옵션 그룹 개수 조회
     int selectRequiredPackageExtraCount(Long packageId);
+
+    // 리뷰 추가나 리뷰 삭제시 is_reviewd 변경
+    int toggleOrderItemReviewed(Long orderItemId);
 }
