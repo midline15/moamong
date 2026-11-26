@@ -15,12 +15,31 @@ import lombok.RequiredArgsConstructor;
 public class ProductInqService {
     private final ProductInqMapper productInqMapper;
 
+    // 상품 ID 또는 패키지 ID 전달 여부 확인
+    private boolean hasTargetId(HashMap<String, Object> map) {
+        Object productId = map.get("productId");
+        Object packageId = map.get("packageId");
+
+        return (productId != null && !productId.toString().trim().isEmpty())
+                || (packageId != null && !packageId.toString().trim().isEmpty());
+    }
+
     // 상품 문의 목록 조회
     public HashMap<String, Object> getProductInqList(HashMap<String, Object> map) {
 
         HashMap<String, Object> result = new HashMap<>();
 
         try {
+
+            // 상품 ID 또는 패키지 ID 확인
+            if (!hasTargetId(map)) {
+                result.put("inquiryList", List.of());
+                result.put("totalCount", 0);
+                result.put("filteredCount", 0);
+                result.put("answeredCount", 0);
+                result.put("waitingCount", 0);
+                return result;
+            }
 
             int page = Integer.parseInt(map.get("page").toString());
             int limit = 5;
@@ -32,11 +51,8 @@ public class ProductInqService {
             List<ProductInq> inquiryList = productInqMapper.selectProductInqList(map);
 
             int totalCount = productInqMapper.selectProductInqCount(map);
-
             int filteredCount = productInqMapper.selectProductInqFilteredCount(map);
-
             int answeredCount = productInqMapper.selectProductInqAnsweredCount(map);
-
             int waitingCount = productInqMapper.selectProductInqWaitingCount(map);
 
             result.put("inquiryList", inquiryList);
@@ -59,6 +75,12 @@ public class ProductInqService {
         HashMap<String, Object> result = new HashMap<>();
 
         try {
+            // 상품 ID 또는 패키지 ID 확인
+            if (!hasTargetId(map)) {
+                result.put("result", "fail");
+                result.put("message", "문의 대상을 확인할 수 없습니다.");
+                return result;
+            }
 
             // 문의 내용 확인
             if (map.get("inqContent") == null

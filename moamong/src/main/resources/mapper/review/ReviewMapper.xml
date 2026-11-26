@@ -165,15 +165,17 @@
 	</delete>
 
 
-	<!-- 리뷰 삭제 -->
-	<delete id="deleteReview"
-		parameterType="hashmap">
+	<!-- 리뷰 논리 삭제 -->
+    <update id="deleteReview"
+        parameterType="hashmap">
 
-		DELETE FROM REVIEW
-		WHERE REVIEW_ID = #{reviewId}
-		AND MEMBER_ID = #{memberId}
+        UPDATE REVIEW
+        SET REVIEW_STATUS = 'DELETE',
+            UPDATED_AT = NOW()
+        WHERE REVIEW_ID = #{reviewId}
+        AND REVIEW_STATUS = 'ACTIVE'
 
-	</delete>
+    </update>
 
     <!-- 상품 또는 패키지 리뷰 목록 조회 -->
     <select id="selectReviewList"
