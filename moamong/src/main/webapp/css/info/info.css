@@ -1,0 +1,138 @@
+/* 안내 · 약관 · 회사소개 공통 스타일 (모아몽 아이보리/골드 테마) */
+.info-wrap {
+    max-width: 960px;
+    margin: 36px auto 90px;
+    padding: 0 20px;
+    font-family: 'Pretendard', sans-serif;
+    color: #29251f;
+}
+
+.info-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.info-tab {
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #faf7f1;
+    border: 1px solid #dfd1bd;
+    color: #5c5346;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.info-tab:hover {
+    background: #efe7da;
+}
+
+.info-tab.active {
+    background: #94764b;
+    border-color: #94764b;
+    color: #fff;
+}
+
+.info-head {
+    padding-bottom: 16px;
+    border-bottom: 1.5px solid #29251f;
+    margin-bottom: 24px;
+}
+
+.info-head h2 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.info-head p {
+    margin: 0;
+    font-size: 13px;
+    color: #85817b;
+}
+
+.info-card {
+    background: #faf7f1;
+    border: 1px solid #e9dfd1;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 18px;
+    line-height: 1.75;
+}
+
+.info-card h3 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #765a36;
+}
+
+.info-card p,
+.info-card li {
+    font-size: 14px;
+    color: #3d372f;
+    margin: 0 0 8px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.info-step {
+    background: #fffdf9;
+    border: 1px solid #e3d6c1;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.info-step .num {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    background: #efe7da;
+    color: #765a36;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 13px;
+    background: #fffdf9;
+}
+
+.info-table th,
+.info-table td {
+    border: 1px solid #e3d6c1;
+    padding: 12px 14px;
+    text-align: left;
+}
+
+.info-table th {
+    background: #efe7da;
+    color: #5c5346;
+    width: 180px;
+    font-weight: 700;
+}
+
+.policy-box {
+    background: #fffdf9;
+    border: 1px solid #e3d6c1;
+    border-radius: 10px;
+    padding: 24px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #29251f;
+    min-height: 260px;
+}
+

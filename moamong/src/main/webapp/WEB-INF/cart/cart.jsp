@@ -39,9 +39,12 @@
                     </div>
                 </div>
 
-                <div v-if="cartList.length === 0" class="shop-card" style="text-align:center; padding:60px 0; color:#85817b;">
-                    장바구니에 담긴 상품이 없습니다.
+                <div v-if="cartList.length === 0" class="shop-card" style="text-align:center; padding:64px 20px; color:#85817b;">
+                    <div style="font-size:15px; font-weight:600; color:#5c5346; margin-bottom:6px;">장바구니에 담긴 상품이 없습니다.</div>
+                    <div style="font-size:13px; margin-bottom:20px;">모아몽의 감성 패키지와 추천 상품을 둘러보세요.</div>
+                    <a href="/" class="shop-btn shop-btn-gold" style="display:inline-block; padding:10px 24px;">쇼핑 계속하기</a>
                 </div>
+
 
                 <div v-for="item in cartList" :key="item.cartItemId" class="shop-card" :class="{ soldout: !item.available }">
                     <div style="display:flex; align-items:flex-start; gap:14px;">
@@ -102,6 +105,16 @@
             <!-- 우측 영역: 결제 예정 금액 패널 -->
             <aside class="summary-panel">
                 <h3>결제 예정 금액</h3>
+                <div class="free-ship-box" v-if="selectedTotal > 0">
+                    <div class="free-ship-text">
+                        <span v-if="selectedTotal >= 30000">🎉 <strong>무료배송</strong> 혜택이 적용되었습니다!</span>
+                        <span v-else><strong>{{ (30000 - selectedTotal).toLocaleString() }}원</strong> 더 담으면 무료배송</span>
+                        <span>{{ Math.min(100, Math.round(selectedTotal / 30000 * 100)) }}%</span>
+                    </div>
+                    <div class="free-ship-bar">
+                    <div class="free-ship-fill" :style="{ width: Math.min(100, (selectedTotal / 30000 * 100)) + '%' }"></div>
+                    </div>
+                </div>
                 <div class="summary-row">
                     <span>선택 상품 수</span>
                     <span>{{ selectedIds.length }}건</span>
@@ -119,8 +132,8 @@
                     <span class="amount">{{ (selectedTotal === 0 ? 0 : (selectedTotal >= 30000 ? selectedTotal : selectedTotal + 3000)).toLocaleString() }}원</span>
                 </div>
                 <button class="shop-btn shop-btn-gold" style="width:100%; padding:14px; font-size:15px; margin-top:18px;"
-                        @click="fnOrderSelected">
-                    총 {{ selectedIds.length }}건 주문하기
+                    :disabled="selectedIds.length === 0" @click="fnOrderSelected">
+                {{ selectedIds.length === 0 ? '주문할 상품을 선택해주세요' : '총 ' + selectedIds.length + '건 주문하기' }}
                 </button>
             </aside>
         </div>

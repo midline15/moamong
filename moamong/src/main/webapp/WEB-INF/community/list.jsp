@@ -851,4 +851,45 @@
         });
 
         app.mount('#app');
+
+        window.addEventListener("load", function () {
+            const urlParams = new URLSearchParams(location.search);
+            const targetPostId = urlParams.get("postId") || sessionStorage.getItem("targetPostId");
+            const targetCommentId = urlParams.get("commentId") || sessionStorage.getItem("targetCommentId");
+            console.log("넘어온 targetPostId:", targetPostId);
+
+            if (!targetPostId) return;
+                sessionStorage.removeItem("targetPostId");
+                sessionStorage.removeItem("targetCommentId");
+                let tries = 0;
+                const timer = setInterval(function () {
+                tries++;
+                const postEl = document.querySelector('.cm-post[data-post-id="' + targetPostId + '"]')
+                || Array.from(document.querySelectorAll('.cm-post')).find(el => el.__vnode && el.__vnode.key == targetPostId);
+
+                if (postEl) {
+                    clearInterval(timer);
+                    setTimeout(function () {
+                        postEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }, 300);
+                    
+                    if (targetCommentId) {
+                        const cBtn = postEl.querySelector("button.comment");
+                        
+                        if (cBtn && !cBtn.classList.contains("on")) cBtn.click();
+                            setTimeout(function () {
+                                const cEl = Array.from(postEl.querySelectorAll(".cm-c-list li, .cm-c-item"))
+                                .find(el => el.__vnode && el.__vnode.key == targetCommentId);
+                    
+                            if (cEl) cEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                            }, 500);
+                        }
+                    } else if (tries < 15) {
+                    window.scrollTo(0, document.body.scrollHeight);
+                } else {
+                    clearInterval(timer);
+                }
+            }, 350);
+        });
+
     </script>

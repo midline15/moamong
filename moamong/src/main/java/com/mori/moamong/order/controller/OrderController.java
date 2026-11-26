@@ -54,7 +54,7 @@ public class OrderController {
             model.addAttribute("purchaseType", "DIRECT");
         }
 
-        model.addAttribute("impCode", impCode);
+        model.addAttribute("impCode", impCode != null ? impCode.trim() : "");
 
         return "order/checkout";
     }
