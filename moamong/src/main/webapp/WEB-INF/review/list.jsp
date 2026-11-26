@@ -84,78 +84,119 @@
 					<div v-for="review in pagedList" :key="review.reviewId" class="mp-item-card">
 						<!-- 일반 리뷰 조회 -->
 						<template v-if="editReviewId !== review.reviewId">
-							<img :src="(review.imageList && review.imageList.length > 0) ? review.imageList[0].imageUrl : '/images/no-image.png'"
-							alt="리뷰 썸네일" class="mp-item-thumb">
+							<img :src="(review.imageList && review.imageList.length > 0) ? review.imageList[0].imageUrl : (review.productThumb || '/assets/images/logo.png')"
+							alt="리뷰 썸네일" class="mp-item-thumb" style="cursor:pointer;" @click="fnOpenDetail(review)">
+							<div class="mp-item-body" style="cursor:pointer;" @click="fnOpenDetail(review)">
 
-							<div class="mp-item-body">
-								<div class="mp-item-title">{{ review.productName }}</div>
-								<div class="mp-item-stars">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</div>
-								<div class="mp-item-text">{{ review.reviewContent }}</div>
+								<div class="mp-item-body">
+									<div class="mp-item-title">{{ review.productName }}</div>
+									<div class="mp-item-stars">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</div>
+									<div class="mp-item-text">{{ review.reviewContent }}</div>
 
-								<div v-if="review.imageList && review.imageList.length > 1" class="rv-img-grid">
-									<div v-for="img in review.imageList" :key="img.imageId" class="rv-img-box">
-										<img :src="img.imageUrl" alt="리뷰 이미지">
+									<div v-if="review.imageList && review.imageList.length > 1" class="rv-img-grid">
+										<div v-for="img in review.imageList" :key="img.imageId" class="rv-img-box">
+											<img :src="img.imageUrl" alt="리뷰 이미지">
+										</div>
+									</div>
+									<div class="mp-item-meta">작성일 : {{ review.createdAt }}</div>
+								</div>
+
+								<div class="mp-item-actions">
+									<button type="button" class="mp-btn mp-btn-gold" @click="fnEditMode(review)">수정</button>
+									<button type="button" class="mp-btn mp-btn-danger" @click="fnRemove(review.reviewId)">삭제</button>
+								</div>
+							</template>
+							<!-- 리뷰 수정 모드 -->
+							<div v-else style="width:100%;">
+								<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid #e3d6c1;">
+									<strong class="mp-item-title">{{ review.productName }}</strong>
+									<span class="mp-badge">수정 중</span>
+								</div>
+
+								<label class="rv-edit-label">별점</label>
+								<div>
+									<button v-for="num in 5" :key="num" type="button" class="rv-star-btn"
+									:class="{ active: editRating >= num }" @click="editRating = num">★</button>
+								</div>
+
+								<label class="rv-edit-label">리뷰 내용</label>
+								<textarea v-model="editContent" class="rv-textarea" placeholder="리뷰 내용을 입력해주세요."></textarea>
+
+								<label class="rv-edit-label">기존 등록 이미지 ({{ editImageList.length }}/3)</label>
+								<div v-if="editImageList.length > 0" class="rv-img-grid">
+									<div v-for="img in editImageList" :key="img.imageId" class="rv-img-box">
+										<img :src="img.imageUrl" alt="기존 리뷰 이미지">
+										<button type="button" class="rv-img-del" @click="fnRemoveImage(img.imageId)">×</button>
 									</div>
 								</div>
-								<div class="mp-item-meta">작성일 : {{ review.createdAt }}</div>
-							</div>
 
-							<div class="mp-item-actions">
-								<button type="button" class="mp-btn mp-btn-gold" @click="fnEditMode(review)">수정</button>
-								<button type="button" class="mp-btn mp-btn-danger" @click="fnRemove(review.reviewId)">삭제</button>
-							</div>
-						</template>
-						<!-- 리뷰 수정 모드 -->
-						<div v-else style="width:100%;">
-							<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid #e3d6c1;">
-								<strong class="mp-item-title">{{ review.productName }}</strong>
-								<span class="mp-badge">수정 중</span>
-							</div>
+								<label class="rv-edit-label">새로운 이미지 추가 ({{ editImageList.length + newFiles.length }}/3)</label>
+								<input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple @change="fnFileChange"
+								ref="fileInput" :disabled="editImageList.length + newFiles.length >= 3" style="font-size:12px;">
+								<p class="mp-item-meta">JPG, JPEG, PNG 파일만 가능하며 이미지당 최대 5MB, 총 3장까지 등록할 수 있습니다.</p>
 
-							<label class="rv-edit-label">별점</label>
-							<div>
-								<button v-for="num in 5" :key="num" type="button" class="rv-star-btn"
-								:class="{ active: editRating >= num }" @click="editRating = num">★</button>
-							</div>
-
-							<label class="rv-edit-label">리뷰 내용</label>
-							<textarea v-model="editContent" class="rv-textarea" placeholder="리뷰 내용을 입력해주세요."></textarea>
-
-							<label class="rv-edit-label">기존 등록 이미지 ({{ editImageList.length }}/3)</label>
-							<div v-if="editImageList.length > 0" class="rv-img-grid">
-								<div v-for="img in editImageList" :key="img.imageId" class="rv-img-box">
-									<img :src="img.imageUrl" alt="기존 리뷰 이미지">
-									<button type="button" class="rv-img-del" @click="fnRemoveImage(img.imageId)">×</button>
+								<div v-if="newImagePreview.length > 0" class="rv-img-grid">
+									<div v-for="(url, idx) in newImagePreview" :key="idx" class="rv-img-box">
+										<img :src="url" alt="새 이미지 미리보기">
+										<button type="button" class="rv-img-del" @click="fnRemoveNewImage(idx)">×</button>
+									</div>
 								</div>
-							</div>
 
-							<label class="rv-edit-label">새로운 이미지 추가 ({{ editImageList.length + newFiles.length }}/3)</label>
-							<input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple @change="fnFileChange"
-							ref="fileInput" :disabled="editImageList.length + newFiles.length >= 3" style="font-size:12px;">
-							<p class="mp-item-meta">JPG, JPEG, PNG 파일만 가능하며 이미지당 최대 5MB, 총 3장까지 등록할 수 있습니다.</p>
-
-							<div v-if="newImagePreview.length > 0" class="rv-img-grid">
-								<div v-for="(url, idx) in newImagePreview" :key="idx" class="rv-img-box">
-									<img :src="url" alt="새 이미지 미리보기">
-									<button type="button" class="rv-img-del" @click="fnRemoveNewImage(idx)">×</button>
+								<div class="mp-item-actions" style="justify-content:flex-end; margin-top:16px;">
+									<button type="button" class="mp-btn" @click="fnCancel">취소</button>
+									<button type="button" class="mp-btn mp-btn-gold" @click="fnUpdate(review.reviewId)">수정 완료</button>
 								</div>
-							</div>
-
-							<div class="mp-item-actions" style="justify-content:flex-end; margin-top:16px;">
-								<button type="button" class="mp-btn" @click="fnCancel">취소</button>
-								<button type="button" class="mp-btn mp-btn-gold" @click="fnUpdate(review.reviewId)">수정 완료</button>
 							</div>
 						</div>
-					</div>
 
-					<div v-if="totalPages > 1" class="mp-paging">
-						<button class="mp-page-btn" :disabled="page === 1" @click="page = 1">&laquo;</button>
-						<button class="mp-page-btn" :disabled="page === 1" @click="page--">&lsaquo;</button>
-						<button v-for="p in totalPages" :key="p" class="mp-page-btn" :class="{ active: p === page }" @click="page = p">{{ p }}</button>
-						<button class="mp-page-btn" :disabled="page === totalPages" @click="page++">&rsaquo;</button>
-						<button class="mp-page-btn" :disabled="page === totalPages" @click="page = totalPages">&raquo;</button>
+						<div v-if="totalPages > 1" class="mp-paging">
+							<button class="mp-page-btn" :disabled="page === 1" @click="page = 1">&laquo;</button>
+							<button class="mp-page-btn" :disabled="page === 1" @click="page--">&lsaquo;</button>
+							<button v-for="p in totalPages" :key="p" class="mp-page-btn" :class="{ active: p === page }" @click="page = p">{{ p }}</button>
+							<button class="mp-page-btn" :disabled="page === totalPages" @click="page++">&rsaquo;</button>
+							<button class="mp-page-btn" :disabled="page === totalPages" @click="page = totalPages">&raquo;</button>
+						</div>
+					</template>
+
+
+					<!-- 리뷰 상세 팝업 -->
+					<div v-if="detailReview" class="mp-modal-backdrop" @click.self="detailReview = null">
+						<div class="mp-modal-box" style="max-width:540px; max-height:85vh; overflow-y:auto;">
+							<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #e3d6c1; margin-bottom:14px;">
+								<strong style="font-size:17px; color:#765a36;">리뷰 상세 보기</strong>
+								<button type="button" class="mp-btn" style="padding:4px 10px;" @click="detailReview = null">✕</button>
+							</div>
+
+							<!-- 구매 상품 요약 (클릭 시 상품/패키지 상세 이동) -->
+							<div @click="fnGoProduct(detailReview)"
+							style="display:flex; align-items:center; gap:12px; padding:12px; background:#faf7f1; border:1px solid #efe7da; border-radius:8px; cursor:pointer; margin-bottom:16px;">
+							<img :src="detailReview.productThumb || '/assets/images/logo.png'"
+							style="width:54px; height:54px; border-radius:6px; object-fit:cover; background:#efe7da;">
+							<div style="flex:1; min-width:0;">
+								<div style="font-size:14px; font-weight:700; color:#29251f;">{{ detailReview.productName || '구매 상품' }}</div>
+								<div style="font-size:12px; color:#94764b; margin-top:3px;">상품 상세페이지 바로가기 &gt;</div>
+							</div>
+						</div>
+
+						<!-- 별점 · 작성일 · 내용 -->
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+							<span style="color:#c49a62; font-size:16px;">{{ '★'.repeat(detailReview.rating) }}{{ '☆'.repeat(5 - detailReview.rating) }} ({{ detailReview.rating }}점)</span>
+							<span style="font-size:12px; color:#9a8f80;">작성일 : {{ detailReview.createdAt }}</span>
+						</div>
+						<p style="font-size:14px; line-height:1.65; color:#29251f; white-space:pre-line; margin:0 0 14px;">{{ detailReview.reviewContent }}</p>
+
+						<!-- 첨부 이미지 전체 -->
+						<div v-if="detailReview.imageList && detailReview.imageList.length > 0" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+							<img v-for="img in detailReview.imageList" :key="img.imageId" :src="img.imageUrl"
+							style="width:100%; max-height:320px; object-fit:contain; border-radius:8px; border:1px solid #efe7da; background:#faf7f1;">
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:8px;">
+							<button type="button" class="mp-btn mp-btn-gold" @click="fnEditFromDetail">수정하기</button>
+							<button type="button" class="mp-btn" @click="detailReview = null">닫기</button>
+						</div>
 					</div>
-				</template>
+				</div>
 			</main>
 		</div>
 
@@ -183,7 +224,8 @@
 				writeContent: "",
 				writeFiles: [],
 				writePreview: [],
-				memberId: "${memberId}"
+				memberId: "${memberId}",
+				detailReview: null
 			};
 		},
 		computed: {
@@ -349,6 +391,21 @@
 						else { alert(data.message || "수정에 실패했습니다."); }
 					}
 				});
+			},
+			fnOpenDetail(review) {
+				this.detailReview = review;
+			},
+			fnEditFromDetail() {
+				const target = this.detailReview;
+				this.detailReview = null;
+				this.fnEditMode(target);
+			},
+			fnGoProduct(review) {
+				if (review.productId) {
+					location.href = "/product/view.do?productId=" + review.productId;
+				} else if (review.packageId) {
+					location.href = "/package/view.do?packageId=" + review.packageId;
+				}
 			},
 			fnRemove(reviewId) {
 				let self = this;
