@@ -30,7 +30,19 @@ public class CommunityService {
     private static final int MAX_IMAGE = 4; // 게시글당 최대 이미지 수
     private static final int MAX_TAG = 10; // 게시글당 최대 해시태그 수
     private static final Pattern TAG_PATTERN = Pattern.compile("#([0-9A-Za-z_가-힣]{1,30})");
-    private static final int MAX_PRODUCT = 3; // 게시글당 최대 상품 수
+    private static final int MAX_PRODUCT = 3; // 게시글당 최대 상품(단품+패키지) 수
+
+    // 상품 종류
+    private static final String TYPE_PRODUCT = "PRODUCT"; // 단품
+    private static final String TYPE_PACKAGE = "PACKAGE"; // 패키지
+
+    // 상세 페이지 주소 (종류에 따라 다름)
+    private String itemUrl(Object type, Object id) {
+        if (TYPE_PACKAGE.equals(String.valueOf(type))) {
+            return "/package/view.do?packageId=" + id;
+        }
+        return "/product/view.do?productId=" + id;
+    }
 
     // 게시글 목록 (스크롤 방식, page 번호로 이어서 조회)
     public HashMap<String, Object> getPostList(HashMap<String, Object> map) {
@@ -70,11 +82,11 @@ public class CommunityService {
                     tagMap.get(key).add(String.valueOf(tag.get("tagName")));
                 }
 
-                // 2-1) 첨부 상품을 글 번호별로 묶기 (실패해도 글 목록은 보이게)
+                // 2-1) 첨부 상품(단품/패키지)을 글 번호별로 묶기 (실패해도 글 목록은 보이게)
                 HashMap<String, List<HashMap<String, Object>>> productMap = new HashMap<String, List<HashMap<String, Object>>>();
                 try {
                     for (HashMap<String, Object> pr : communityMapper.selectPostProductList(map)) {
-                        pr.put("productUrl", "/product/view.do?productId=" + pr.get("productId"));
+                        pr.put("itemUrl", itemUrl(pr.get("itemType"), pr.get("itemId")));
                         String key = String.valueOf(pr.get("postId"));
                         if (!productMap.containsKey(key))
                             productMap.put(key, new ArrayList<HashMap<String, Object>>());
@@ -112,7 +124,7 @@ public class CommunityService {
         return resultMap;
     }
 
-    // 최근 7일 구매 상품
+    // 최근 7일 구매 상품 (단품 + 패키지)
     public HashMap<String, Object> getBuyList(long memberId) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
         try {
@@ -122,7 +134,7 @@ public class CommunityService {
 
             // 상세 페이지 주소는 서버에서 내려줌
             for (HashMap<String, Object> b : list) {
-                b.put("productUrl", "/product/view.do?productId=" + b.get("productId"));
+                b.put("itemUrl", itemUrl(b.get("itemType"), b.get("itemId")));
             }
             resultMap.put("list", list);
             resultMap.put("result", "success");
@@ -167,19 +179,19 @@ public class CommunityService {
             if (title.length() > 50)
                 title = title.substring(0, 50);
 
-            // 첨부 상품 검증: 최대 3개, 내가 최근 7일 안에 구매한 상품만
-            List<Long> productIds = parseProductIds(map);
-            if (productIds.size() > MAX_PRODUCT) {
+            // 첨부 상품 검증: 최대 3개, 내가 최근 7일 안에 구매한 단품/패키지만
+            List<String> itemKeys = parseItems(map); // "PRODUCT:19", "PACKAGE:36" 형태
+            if (itemKeys.size() > MAX_PRODUCT) {
                 resultMap.put("result", "fail");
                 resultMap.put("msg", "상품은 최대 " + MAX_PRODUCT + "개까지 선택할 수 있습니다.");
                 return resultMap;
             }
-            if (!productIds.isEmpty()) {
-                HashSet<Long> boughtIds = new HashSet<Long>();
+            if (!itemKeys.isEmpty()) {
+                HashSet<String> boughtKeys = new HashSet<String>();
                 for (HashMap<String, Object> b : communityMapper.selectBuyList(map)) {
-                    boughtIds.add(Long.valueOf(String.valueOf(b.get("productId"))));
+                    boughtKeys.add(String.valueOf(b.get("itemType")) + ":" + String.valueOf(b.get("itemId")));
                 }
-                if (!boughtIds.containsAll(productIds)) {
+                if (!boughtKeys.containsAll(itemKeys)) {
                     resultMap.put("result", "fail");
                     resultMap.put("msg", "최근 7일 안에 구매한 상품만 붙일 수 있습니다.");
                     return resultMap;
@@ -203,10 +215,12 @@ public class CommunityService {
 
             // 구매 상품 저장
             int pOrder = 1;
-            for (Long pid : productIds) {
+            for (String key : itemKeys) {
+                String[] parts = key.split(":");
                 HashMap<String, Object> pMap = new HashMap<String, Object>();
                 pMap.put("postId", map.get("postId"));
-                pMap.put("productId", pid);
+                pMap.put("itemType", parts[0]);
+                pMap.put("itemId", Long.parseLong(parts[1]));
                 pMap.put("displayOrder", pOrder++);
                 communityMapper.insertPostProduct(pMap);
             }
@@ -220,15 +234,30 @@ public class CommunityService {
         return resultMap;
     }
 
-    // 화면에서 JSON 으로 넘어온 products(상품번호 배열) 파싱, 중복 제거
-    private List<Long> parseProductIds(HashMap<String, Object> map) {
+    // 화면에서 JSON 으로 넘어온 products([{type:"PRODUCT", id:19}, ...]) 파싱, 중복 제거
+    // 결과는 "PRODUCT:19" 같은 문자열 목록
+    private List<String> parseItems(HashMap<String, Object> map) {
         String json = String.valueOf(map.getOrDefault("products", "")).trim();
         if (json.isEmpty() || "null".equals(json))
-            return new ArrayList<Long>();
+            return new ArrayList<String>();
 
-        List<Long> raw = new Gson().fromJson(json, new TypeToken<List<Long>>() {
-        }.getType());
-        return raw == null ? new ArrayList<Long>() : new ArrayList<Long>(new LinkedHashSet<Long>(raw));
+        List<HashMap<String, Object>> raw = new Gson().fromJson(json,
+                new TypeToken<List<HashMap<String, Object>>>() {
+                }.getType());
+
+        LinkedHashSet<String> keys = new LinkedHashSet<String>();
+        if (raw != null) {
+            for (HashMap<String, Object> r : raw) {
+                String type = String.valueOf(r.get("type"));
+                if (!TYPE_PRODUCT.equals(type) && !TYPE_PACKAGE.equals(type))
+                    continue;
+                Object id = r.get("id");
+                if (!(id instanceof Number))
+                    continue;
+                keys.add(type + ":" + ((Number) id).longValue());
+            }
+        }
+        return new ArrayList<String>(keys);
     }
 
     // 관리자 여부 (role 이 ADMIN 이고 활성 계정이면 true)

@@ -21,14 +21,13 @@
     </sql>
 
     <!--
-        최근 7일 구매 상품 (같은 상품은 1번만, 최신 구매순)
-        TODO: 주문/상품 테이블 이름이 확정되면 아래 이름을 실제 이름으로 교체
-          주문 테이블 ORDERS, 주문상세 ORDER_ITEM, 상품 PRODUCT, 상품이미지 PRODUCT_IMAGE
-          결제완료 상태값 'PAID', 'DELIVERED'
+        최근 7일 구매 상품 (단품 + 패키지, 같은 것은 1번만, 최신 구매순)
+        itemType: PRODUCT(단품) / PACKAGE(패키지)
     -->
-        <select id="selectBuyList" parameterType="hashmap" resultType="hashmap">
-        SELECT P.PRODUCT_ID AS productId,
-               P.PRODUCT_NAME AS productName,
+    <select id="selectBuyList" parameterType="hashmap" resultType="hashmap">
+        SELECT 'PRODUCT' AS itemType,
+               P.PRODUCT_ID AS itemId,
+               P.PRODUCT_NAME AS itemName,
                P.PRICE AS price,
                (SELECT I.IMAGE_URL
                   FROM PRODUCT_IMAGE I
@@ -43,32 +42,63 @@
           AND O.ORDERED_AT >= DATE_SUB(NOW(), INTERVAL 7 DAY)
           AND O.ORDER_STATUS = 'PAID'
         GROUP BY P.PRODUCT_ID, P.PRODUCT_NAME, P.PRICE
-        ORDER BY MAX(O.ORDERED_AT) DESC
+
+        UNION ALL
+
+        SELECT 'PACKAGE' AS itemType,
+               PK.PACKAGE_ID AS itemId,
+               PK.PACKAGE_NAME AS itemName,
+               PK.PACKAGE_PRICE AS price,
+               (SELECT PI.IMAGE_URL
+                  FROM PACKAGE_IMAGE PI
+                 WHERE PI.PACKAGE_ID = PK.PACKAGE_ID
+                   AND PI.IMAGE_TYPE = 'THUMBNAIL'
+                 LIMIT 1) AS thumbnailUrl,
+               DATE_FORMAT(MAX(O.ORDERED_AT), '%Y-%m-%d %H:%i:%s') AS orderedAt
+        FROM ORDERS O
+        JOIN ORDER_ITEM OI ON OI.ORDER_ID = O.ORDER_ID
+        JOIN PACKAGE PK ON PK.PACKAGE_ID = OI.PACKAGE_ID
+        WHERE O.MEMBER_ID = #{memberId}
+          AND O.ORDERED_AT >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+          AND O.ORDER_STATUS = 'PAID'
+        GROUP BY PK.PACKAGE_ID, PK.PACKAGE_NAME, PK.PACKAGE_PRICE
+
+        ORDER BY orderedAt DESC
     </select>
 
-    <!-- 글에 붙은 상품 등록 -->
+    <!-- 글에 붙은 상품 등록 (단품/패키지) -->
     <insert id="insertPostProduct" parameterType="hashmap">
-        INSERT INTO COMMUNITY_POST_PRODUCT (POST_ID, PRODUCT_ID, DISPLAY_ORDER)
-        VALUES (#{postId}, #{productId}, #{displayOrder})
+        INSERT INTO COMMUNITY_POST_PRODUCT (POST_ID, ITEM_TYPE, ITEM_ID, DISPLAY_ORDER)
+        VALUES (#{postId}, #{itemType}, #{itemId}, #{displayOrder})
     </insert>
 
-    <!-- 글에 붙은 상품 목록 (여러 게시글 한 번에) -->
+    <!-- 글에 붙은 상품 목록 (여러 게시글 한 번에, 단품/패키지) -->
     <select id="selectPostProductList" parameterType="hashmap" resultType="hashmap">
         SELECT CP.POST_ID AS postId,
-               P.PRODUCT_ID AS productId,
-               P.PRODUCT_NAME AS productName,
-               P.PRICE AS price,
-               (SELECT I.IMAGE_URL
-                  FROM PRODUCT_IMAGE I
-                 WHERE I.PRODUCT_ID = P.PRODUCT_ID
-                   AND I.IMAGE_TYPE = 'THUMBNAIL'
-                 LIMIT 1) AS thumbnailUrl
+               CP.ITEM_TYPE AS itemType,
+               CP.ITEM_ID AS itemId,
+               COALESCE(P.PRODUCT_NAME, PK.PACKAGE_NAME) AS itemName,
+               COALESCE(P.PRICE, PK.PACKAGE_PRICE) AS price,
+               COALESCE(
+                   (SELECT I.IMAGE_URL
+                      FROM PRODUCT_IMAGE I
+                     WHERE I.PRODUCT_ID = P.PRODUCT_ID
+                       AND I.IMAGE_TYPE = 'THUMBNAIL'
+                     LIMIT 1),
+                   (SELECT PI.IMAGE_URL
+                      FROM PACKAGE_IMAGE PI
+                     WHERE PI.PACKAGE_ID = PK.PACKAGE_ID
+                       AND PI.IMAGE_TYPE = 'THUMBNAIL'
+                     LIMIT 1)
+               ) AS thumbnailUrl
         FROM COMMUNITY_POST_PRODUCT CP
-        JOIN PRODUCT P ON P.PRODUCT_ID = CP.PRODUCT_ID
+        LEFT JOIN PRODUCT P ON CP.ITEM_TYPE = 'PRODUCT' AND P.PRODUCT_ID = CP.ITEM_ID
+        LEFT JOIN PACKAGE PK ON CP.ITEM_TYPE = 'PACKAGE' AND PK.PACKAGE_ID = CP.ITEM_ID
         WHERE CP.POST_ID IN
         <foreach collection="postIdList" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+          AND (P.PRODUCT_ID IS NOT NULL OR PK.PACKAGE_ID IS NOT NULL)
         ORDER BY CP.POST_ID, CP.DISPLAY_ORDER
     </select>
 
