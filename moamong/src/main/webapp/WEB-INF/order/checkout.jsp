@@ -343,7 +343,8 @@
                                         this.isPaying = true; // 포트원 호출 직전 중복 클릭 잠금
                                         
                                         IMP.request_pay({
-                                            pg: "html5_inicis",
+                                            pg: "html5_inicis.INIpayTest",
+                                            channelKey: "${channelKey}",
                                             pay_method: "card",
                                             merchant_uid: merchantUid,
                                             name: orderName,
