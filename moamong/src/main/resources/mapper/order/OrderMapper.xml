@@ -375,7 +375,7 @@
 			cancel_reason AS cancelReason,
 			cancel_status AS cancelStatus,
 			cancel_amount AS cancelAmount,
-			DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt
+			DATE_FORMAT(DATE_ADD(created_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS createdAt
 		FROM ORDER_CANCEL
 		WHERE order_id = #{orderId}
 		ORDER BY cancel_id DESC
@@ -390,7 +390,7 @@
 			payment_method AS payMethod,
 			payment_amount AS paidAmount,
 			payment_status AS paymentStatus,
-			DATE_FORMAT(paid_at, '%Y-%m-%d %H:%i:%s') AS paidAt
+			DATE_FORMAT(DATE_ADD(paid_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS paidAt
 		FROM PAYMENT
 		WHERE order_id = #{orderId}
 		ORDER BY payment_id DESC
@@ -408,8 +408,8 @@
 			OC.cancel_status AS status,
 			OC.cancel_amount AS refundAmount,
 			IFNULL(P.payment_method, 'CARD') AS refundMethod,
-			DATE_FORMAT(OC.created_at, '%Y-%m-%d %H:%i:%s') AS requestedAt,
-			DATE_FORMAT(OC.created_at, '%Y-%m-%d %H:%i:%s') AS processedAt,
+			DATE_FORMAT(DATE_ADD(OC.created_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS requestedAt,
+			DATE_FORMAT(DATE_ADD(OC.created_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS processedAt,
 			(
 				SELECT OI.item_name_snapshot
 				FROM ORDER_ITEM OI
@@ -538,8 +538,8 @@
 			IFNULL(RF.refund_method, 'CARD') AS refundMethod,
 			IFNULL(RF.refund_status, R.refund_status) AS refundStatus,
 			IFNULL(RF.refund_content, '') AS refundContent,
-			DATE_FORMAT(R.requested_at, '%Y-%m-%d %H:%i:%s') AS requestedAt,
-			DATE_FORMAT(IFNULL(RF.processed_at, R.processed_at), '%Y-%m-%d %H:%i:%s') AS processedAt
+			DATE_FORMAT(DATE_ADD(R.requested_at, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS requestedAt,
+			DATE_FORMAT(DATE_ADD(IFNULL(RF.processed_at, R.processed_at), INTERVAL 9 HOUR), '%Y-%m-%d %H:%i:%s') AS processedAt
 		FROM `RETURN` R
 		INNER JOIN PRODUCT PR ON R.product_id = PR.product_id
 		LEFT JOIN REFUND RF ON RF.return_id = R.return_id
