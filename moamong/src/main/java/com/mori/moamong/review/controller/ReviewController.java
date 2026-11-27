@@ -153,5 +153,54 @@ public class ReviewController {
         return new Gson().toJson(resultMap);
     }
 
+
+
+
+
+
+
+        // ==========================================
+    // 관리자 리뷰
+    // ==========================================
+
+    // 관리자 리뷰 목록 조회
+    @RequestMapping(value = "/admin/review/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String adminReviewList(@RequestParam HashMap<String, Object> map) {
+
+        HashMap<String, Object> resultMap = reviewService.getAdminReviewList(map);
+
+        return new Gson().toJson(resultMap);
+    }
+
+    // 관리자 리뷰 통계 조회
+    @RequestMapping(value = "/admin/review/stats.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String adminReviewStats() {
+
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        try {
+            resultMap.put("stats", reviewService.getAdminReviewStats());
+            resultMap.put("result", "success");
+
+        } catch (Exception e) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "관리자 리뷰 통계 조회에 실패했습니다.");
+            e.printStackTrace();
+        }
+
+        return new Gson().toJson(resultMap);
+    }
+
+    // 관리자 리뷰 상태 변경
+    @RequestMapping(value = "/admin/review/status.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String updateAdminReviewStatus(@RequestParam HashMap<String, Object> map) {
+
+        HashMap<String, Object> resultMap = reviewService.updateAdminReviewStatus(map);
+
+        return new Gson().toJson(resultMap);
+    }
     
 }
