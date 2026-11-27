@@ -3,6 +3,7 @@ package com.mori.moamong.member.controller;
 
 import java.util.HashMap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
 public class MemberController {
-	@org.springframework.beans.factory.annotation.Value("${portone.imp.code}")
-	private String impCode;
+	@Value("${portone.imp.code}") private String impCode;
 	
 	private final MemberService memberService;
 
@@ -113,13 +113,14 @@ public class MemberController {
 
 	// 회원정보 수정/탈퇴 페이지 이동
 	@RequestMapping("/member/edit.do")
-	public String editMemberPage(jakarta.servlet.http.HttpSession session) {
-		if (session.getAttribute("sessionId") == null) {
-			return "redirect:/member/login.do";
-		}
-		return "member/edit";
+	public String editMemberPage(Model model, HttpSession session) {
+	    if (session.getAttribute("sessionId") == null) {
+	        return "redirect:/member/login.do";
+	    }
+	    model.addAttribute("impCode", impCode != null ? impCode.trim() : "");
+	    return "member/edit";
 	}
-
+	
 	// 내 정보 조회 (+ 세션 권한/상태 최신화)
 	@RequestMapping(value = "/member/myinfo.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -152,6 +153,16 @@ public class MemberController {
 		return resultMap;
 	}
 
+	// 내 정보 진입 전 비밀번호 확인
+	@RequestMapping(value = "/member/verify-password.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String verifyPassword(@RequestParam("password") String password,
+	        jakarta.servlet.http.HttpSession session) {
+	    Long memberId = Long.valueOf(String.valueOf(session.getAttribute("sessionId")));
+	    HashMap<String, Object> resultMap = memberService.verifyPassword(memberId, password);
+	    return new Gson().toJson(resultMap);
+	}
+	
 	// 내 정보 수정
 	@RequestMapping(value = "/member/update-info.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody

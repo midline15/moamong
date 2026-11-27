@@ -227,6 +227,24 @@ public class MemberService {
 		return resultMap;
 	}
 
+	// 마이페이지 내 정보 진입 전 비밀번호 재확인
+	public HashMap<String, Object> verifyPassword(Long memberId, String password) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    if (password == null || password.trim().isEmpty()) {
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "비밀번호를 입력해주세요.");
+	        return resultMap;
+	    }
+	    Member member = memberMapper.selectMemberById(memberId);
+	    if (member == null || !passwordEncoder.matches(password, member.getPassword())) {
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "비밀번호가 일치하지 않습니다.");
+	        return resultMap;
+	    }
+	    resultMap.put("result", "success");
+	    return resultMap;
+	}
+	
 	// 마이페이지 내 정보 조회
 	public HashMap<String, Object> getMyInfo(Long memberId) {
 		HashMap<String, Object> resultMap = new HashMap<>();
