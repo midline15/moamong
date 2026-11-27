@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+
+@RequiredArgsConstructor 
 @Controller
 public class AdminController {
 
@@ -120,6 +121,7 @@ public class AdminController {
     public String orderlist(Model model) throws Exception {
 
         return "/admin/order/list";
+    }
     // 관리자 콘솔 - 리뷰 목록 화면
     @RequestMapping("/admin/review/list.do")
     public String reviewlist(Model model) throws Exception {
