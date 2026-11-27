@@ -77,7 +77,8 @@
                     </tr>
                     <tr>
                         <th style="text-align:left; padding:10px 0; color:#5c5346;">연락처 *</th>
-                        <td><input class="mp-input" v-model="form.recipientPhone" placeholder="010-0000-0000"></td>
+                        <td><input class="mp-input" v-model="form.recipientPhone" 
+                        @input="fnFormatPhone" maxlength="13" placeholder="010-0000-0000"></td>
                     </tr>
                     <tr>
                         <th style="text-align:left; padding:10px 0; color:#5c5346; vertical-align:top;">주소 *</th>
@@ -101,7 +102,9 @@
                 </table>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
                     <button class="mp-btn" @click="showModal = false">취소</button>
-                    <button class="mp-btn mp-btn-gold" @click="fnSave">저장</button>
+                    <button class="mp-btn mp-btn-gold" :disabled="isSaving" @click="fnSave">
+                    {{ isSaving ? '저장 중...' : '저장' }}
+                    </button>
                 </div>
             </div>
         </main>
@@ -127,6 +130,7 @@
                     postalCode: "",
                     addressDefault: "",
                     addressDetail: "",
+                    isSaving: false,
                     isDefaultBool: false
                 }
             };
@@ -192,38 +196,58 @@
                     alert("우편번호 API를 불러올 수 없어 기본 테스트 주소가 입력되었습니다.");
                 }
             },
+            fnFormatPhone() {
+              let num = this.form.recipientPhone.replace(/[^0-9]/g, "");
+              if (num.length <= 3) {
+                  this.form.recipientPhone = num;
+              } else if (num.length <= 7) {
+                  this.form.recipientPhone = num.slice(0, 3) + "-" + num.slice(3);
+              } else {
+                  this.form.recipientPhone = num.slice(0, 3) + "-" + num.slice(3, 7) + "-" + num.slice(7, 11);
+              }
+            },
             fnSave() {
-                let self = this;
-                if (!this.form.recipientName.trim()) { alert("수령인 이름을 입력해주세요."); return; }
-                if (!this.form.recipientPhone.trim()) { alert("수령인 연락처를 입력해주세요."); return; }
-                if (!this.form.postalCode || !this.form.addressDefault) { alert("주소를 검색해주세요."); return; }
-                
-                const url = this.isEdit ? "/address/update.dox" : "/address/add.dox";
-                const payload = {
-                    addressId: this.form.addressId,
-                    addressName: this.form.addressName.trim(),
-                    recipientName: this.form.recipientName.trim(),
-                    recipientPhone: this.form.recipientPhone.trim(),
-                    postalCode: this.form.postalCode,
-                    addressDefault: this.form.addressDefault,
-                    addressDetail: this.form.addressDetail.trim(),
-                    isDefault: this.form.isDefaultBool ? 1 : 0
+              if (this.isSaving) return;
+              let self = this;
+              if (!this.form.recipientName.trim()) { alert("수령인 이름을 입력해주세요."); return; }
+              if (!this.form.recipientPhone.trim()) { alert("수령인 연락처를 입력해주세요."); return; }
+              const phoneRegex = /^01[0-9]-\d{3,4}-\d{4}$/;
+              if (!phoneRegex.test(this.form.recipientPhone.trim())) {
+                  alert("올바른 휴대폰 번호 형식(010-0000-0000)을 입력해주세요.");
+                  return;
+                }
+              if (!this.form.postalCode || !this.form.addressDefault) { alert("주소를 검색해주세요."); return; }
+
+              const url = this.isEdit ? "/address/update.dox" : "/address/add.dox";
+              const payload = {
+                  addressId: this.form.addressId,
+                  addressName: this.form.addressName.trim(),
+                  recipientName: this.form.recipientName.trim(),
+                  recipientPhone: this.form.recipientPhone.trim(),
+                  postalCode: this.form.postalCode,
+                  addressDefault: this.form.addressDefault,
+                  addressDetail: this.form.addressDetail.trim(),
+                  isDefault: this.form.isDefaultBool ? 1 : 0
                 };
-                
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(payload),
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.result === "success") {
-                            alert(data.message);
-                            self.showModal = false;
-                            self.fnList();
-                        } else {
-                            alert(data.message || "저장에 실패했습니다.");
-                        }
+
+              this.isSaving = true;
+              $.ajax({
+                  url: url,
+                  type: "POST",
+                  contentType: "application/json",
+                  data: JSON.stringify(payload),
+                  dataType: "json",
+                  success: function (data) {
+                      if (data.result === "success") {
+                          alert(data.message);
+                          self.showModal = false;
+                          self.fnList();
+                      } else {
+                          alert(data.message || "저장에 실패했습니다.");
+                      }
+                    },
+                  complete: function () {
+                      self.isSaving = false;
                     }
                 });
             },

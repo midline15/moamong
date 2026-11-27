@@ -152,7 +152,7 @@
                 if (type === "ORDER" || type === "DELIVERY") {
                     return relId ? ("/order/detail.do?orderId=" + relId) : "/order/list.do";
                 }
-                if (type === "RETURN") return "/order/cancelList.do";
+                if (type === "RETURN") return "/order/cancel-list.do";
                 if (type === "INQUIRY") return "/inquiry/myList.do";
                 if (type === "REVIEW") return "/review/myReview.do";
                 if (type === "SECURITY") return "/member/edit.do";

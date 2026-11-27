@@ -31,13 +31,24 @@
                 <div v-if="tab === 'ID'">
                     <div class="auth-group">
                         <label class="auth-label">이름</label>
-                        <input type="text" class="auth-input" v-model="idForm.memberName" placeholder="가입 시 등록한 이름">
+                        <input type="text" class="auth-input" v-model="idForm.memberName" :disabled="idAuthSent" placeholder="가입 시 등록한 이름">
                     </div>
                     <div class="auth-group">
                         <label class="auth-label">이메일</label>
-                        <input type="email" class="auth-input" v-model="idForm.email" placeholder="example@email.com" @keyup.enter="fnFindId">
+                        <div style="display:flex; gap:8px;">
+                            <input type="email" class="auth-input" v-model="idForm.email" :disabled="idAuthSent" placeholder="example@email.com" style="flex:1;">
+                            <button type="button" class="auth-btn auth-btn-gold" :disabled="isSending" @click="fnSendAuthCode('ID')" style="width:auto; padding:0 14px; white-space:nowrap;">
+                                {{ isSending ? '발송중...' : (idAuthSent ? '재발송' : '인증번호 발송') }}
+                            </button>
+                        </div>
                     </div>
-                    <button class="auth-btn auth-btn-gold" @click="fnFindId">아이디 찾기</button>
+                    <div class="auth-group" v-if="idAuthSent && !idResult">
+                        <label class="auth-label">인증번호 6자리</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" class="auth-input" v-model="idAuthCode" maxlength="6" placeholder="메일로 받은 6자리 숫자" style="flex:1;" @keyup.enter="fnVerifyIdCode">
+                            <button type="button" class="auth-btn auth-btn-gold" @click="fnVerifyIdCode" style="width:auto; padding:0 16px; white-space:nowrap;">인증확인</button>
+                        </div>
+                    </div>
 
                     <div v-if="idResult" class="auth-result-card">
                         <div v-if="idResult.isSocial">
@@ -55,22 +66,32 @@
                 <div v-if="tab === 'PW'">
                     <div class="auth-group">
                         <label class="auth-label">아이디</label>
-                        <input type="text" class="auth-input" v-model="pwForm.loginId" :disabled="isVerified" placeholder="아이디 입력">
+                        <input type="text" class="auth-input" v-model="pwForm.loginId" :disabled="pwAuthSent || isVerified" placeholder="아이디 입력">
                     </div>
                     <div class="auth-group">
                         <label class="auth-label">이름</label>
-                        <input type="text" class="auth-input" v-model="pwForm.memberName" :disabled="isVerified" placeholder="이름 입력">
+                        <input type="text" class="auth-input" v-model="pwForm.memberName" :disabled="pwAuthSent || isVerified" placeholder="이름 입력">
                     </div>
                     <div class="auth-group">
                         <label class="auth-label">이메일</label>
-                        <input type="email" class="auth-input" v-model="pwForm.email" :disabled="isVerified" placeholder="가입 시 등록한 이메일">
+                        <div style="display:flex; gap:8px;">
+                            <input type="email" class="auth-input" v-model="pwForm.email" :disabled="pwAuthSent || isVerified" placeholder="가입 시 등록한 이메일" style="flex:1;">
+                            <button v-if="!isVerified" type="button" class="auth-btn auth-btn-gold" :disabled="isSending" @click="fnSendAuthCode('PW')" style="width:auto; padding:0 14px; white-space:nowrap;">
+                                {{ isSending ? '발송중...' : (pwAuthSent ? '재발송' : '인증번호 발송') }}
+                            </button>
+                        </div>
                     </div>
-
-                    <button v-if="!isVerified" class="auth-btn auth-btn-gold" @click="fnVerifyReset">본인 확인</button>
+                    <div class="auth-group" v-if="pwAuthSent && !isVerified">
+                        <label class="auth-label">인증번호 6자리</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" class="auth-input" v-model="pwAuthCode" maxlength="6" placeholder="메일로 받은 6자리 숫자" style="flex:1;" @keyup.enter="fnVerifyPwCode">
+                            <button type="button" class="auth-btn auth-btn-gold" @click="fnVerifyPwCode" style="width:auto; padding:0 16px; white-space:nowrap;">인증확인</button>
+                        </div>
+                    </div>
 
                     <div v-if="isVerified" style="margin-top:18px; padding-top:18px; border-top:1px dashed #dfd1bd;">
                         <div class="auth-group">
-                            <label class="auth-label">새 비밀번호 (4자 이상)</label>
+                            <label class="auth-label">새 비밀번호 (영문, 숫자, 특수문자 포함 8자 이상)</label>
                             <input type="password" class="auth-input" v-model="pwForm.newPwd" placeholder="새 비밀번호 입력">
                         </div>
                         <div class="auth-group">
@@ -80,6 +101,7 @@
                         <button class="auth-btn auth-btn-gold" @click="fnResetPassword">비밀번호 변경하기</button>
                     </div>
                 </div>
+
 
                 <div class="auth-links">
                     <a href="/member/login.do">로그인으로 돌아가기</a>
@@ -97,12 +119,17 @@
         data() {
             return {
                 tab: "ID",
+                isSending: false,
                 idForm: {
                     memberName: "",
                     email: ""
                 },
+                idAuthSent: false,
+                idAuthCode: "",
                 idResult: null,
                 isVerified: false,
+                pwAuthSent: false,
+                pwAuthCode: "",
                 pwForm: {
                     loginId: "",
                     memberName: "",
@@ -115,61 +142,125 @@
         methods: {
             fnSwitchTab(target) {
                 this.tab = target;
+                this.isSending = false;
+                this.idAuthSent = false;
+                this.idAuthCode = "";
                 this.idResult = null;
                 this.isVerified = false;
+                this.pwAuthSent = false;
+                this.pwAuthCode = "";
             },
-            fnFindId() {
+            fnSendAuthCode(type) {
+                if (this.isSending) return;
                 let self = this;
-                if (!this.idForm.memberName.trim()) { alert("이름을 입력해주세요."); return; }
-                if (!this.idForm.email.trim()) { alert("이메일을 입력해주세요."); return; }
+                let param = { type: type };
                 
+                if (type === "ID") {
+                    if (!this.idForm.memberName.trim() || !this.idForm.email.trim()) {
+                        alert("이름과 이메일을 모두 입력해주세요.");
+                        return;
+                    }
+                    param.memberName = this.idForm.memberName.trim();
+                    param.email = this.idForm.email.trim();
+                } else {
+                    if (!this.pwForm.loginId.trim() || !this.pwForm.memberName.trim() || !this.pwForm.email.trim()) {
+                        alert("아이디, 이름, 이메일을 모두 입력해주세요.");
+                        return;
+                    }
+                    param.loginId = this.pwForm.loginId.trim();
+                    param.memberName = this.pwForm.memberName.trim();
+                    param.email = this.pwForm.email.trim();
+                }
+                
+                this.isSending = true;
                 $.ajax({
-                    url: "/member/find-id.dox",
+                    url: "/member/send-auth-code.dox",
+                    type: "POST",
+                    data: param,
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data.message);
+                        if (data.result === "success") {
+                            if (type === "ID") {
+                                self.idAuthSent = true;
+                                self.idAuthCode = "";
+                            } else {
+                                self.pwAuthSent = true;
+                                self.pwAuthCode = "";
+                            }
+                        }
+                    },
+                    complete: function () {
+                        self.isSending = false;
+                    }
+                });
+            },
+            fnVerifyIdCode() {
+                let self = this;
+                if (!this.idAuthCode || this.idAuthCode.trim().length < 6) {
+                    alert("이메일로 발송된 6자리 인증번호를 입력해주세요.");
+                    return;
+                }
+                $.ajax({
+                    url: "/member/verify-auth-code.dox",
                     type: "POST",
                     data: {
-                        memberName: this.idForm.memberName.trim(),
-                        email: this.idForm.email.trim()
+                        email: this.idForm.email.trim(),
+                        code: this.idAuthCode.trim()
                     },
                     dataType: "json",
                     success: function (data) {
                         if (data.result === "success") {
-                            self.idResult = data;
+                            $.ajax({
+                                url: "/member/find-id.dox",
+                                type: "POST",
+                                data: {
+                                    memberName: self.idForm.memberName.trim(),
+                                    email: self.idForm.email.trim()
+                                },
+                                dataType: "json",
+                                success: function (res) {
+                                    if (res.result === "success") {
+                                        self.idResult = res;
+                                    } else {
+                                        alert(res.message || "일치하는 회원이 없습니다.");
+                                    }
+                                }
+                            });
                         } else {
-                            self.idResult = null;
-                            alert(data.message || "일치하는 회원이 없습니다.");
+                            alert(data.message || "인증번호가 일치하지 않습니다.");
                         }
                     }
                 });
             },
-            fnVerifyReset() {
+            fnVerifyPwCode() {
                 let self = this;
-                if (!this.pwForm.loginId.trim() || !this.pwForm.memberName.trim() || !this.pwForm.email.trim()) {
-                    alert("아이디, 이름, 이메일을 모두 입력해주세요.");
+                if (!this.pwAuthCode || this.pwAuthCode.trim().length < 6) {
+                    alert("이메일로 발송된 6자리 인증번호를 입력해주세요.");
                     return;
                 }
-                
                 $.ajax({
-                    url: "/member/verify-reset.dox",
+                    url: "/member/verify-auth-code.dox",
                     type: "POST",
                     data: {
-                        loginId: this.pwForm.loginId.trim(),
-                        memberName: this.pwForm.memberName.trim(),
-                        email: this.pwForm.email.trim()
+                        email: this.pwForm.email.trim(),
+                        code: this.pwAuthCode.trim()
                     },
                     dataType: "json",
                     success: function (data) {
                         if (data.result === "success") {
-                            alert(data.message);
+                            alert("이메일 인증이 완료되었습니다. 새 비밀번호를 설정해주세요.");
                             self.isVerified = true;
                         } else {
-                            alert(data.message || "본인 확인에 실패했습니다.");
+                            alert(data.message || "인증번호가 일치하지 않습니다.");
                         }
                     }
                 });
             },
             fnResetPassword() {
-                if (!this.pwForm.newPwd || this.pwForm.newPwd.trim().length < 4) {
-                    alert("새 비밀번호는 4자 이상 입력해주세요.");
+                const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                if (!this.pwForm.newPwd || !pwdRegex.test(this.pwForm.newPwd.trim())) {
+                    alert("새 비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.");
                     return;
                 }
                 if (this.pwForm.newPwd !== this.pwForm.confirmPwd) {

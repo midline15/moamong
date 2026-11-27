@@ -153,23 +153,10 @@
         if (type === "ORDER" || type === "DELIVERY") {
             return relId ? ("/order/detail.do?orderId=" + relId) : "/order/list.do";
         }
-        if (type === "RETURN") return "/order/cancelList.do";
+        if (type === "RETURN") return "/order/cancel-list.do";
         if (type === "INQUIRY") return "/inquiry/myList.do";
         if (type === "REVIEW") return "/review/myReview.do";
         if (type === "SECURITY") return "/member/edit.do";
-        return "/notification/list.do";
-    }
-
-    function getNotiTargetUrl(item) {
-        const type = item.notificationType;
-        const relId = item.relatedId;
-        if (type === "COUPON") return "/member/myCoupon.do";
-        if (type === "ORDER" || type === "DELIVERY") {
-            return relId ? ("/order/detail.do?orderId=" + relId) : "/order/list.do";
-        }
-        if (type === "RETURN") return "/order/cancelList.do";
-        if (type === "INQUIRY") return "/inquiry/myList.do";
-        if (type === "REVIEW") return "/review/myReview.do";
         return "/notification/list.do";
     }
 

@@ -313,6 +313,21 @@ public class MemberController {
 		return memberService.removeMyComment(memberId, commentId);
 	}
 
+	// 계정 찾기 이메일 인증번호 발송
+	@RequestMapping(value = "/member/send-auth-code.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String sendAuthCode(@RequestParam HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = memberService.sendAccountAuthCode(map);
+		return new Gson().toJson(resultMap);
+	}
+
+	// 계정 찾기 이메일 6자리 인증번호 확인
+	@RequestMapping(value = "/member/verify-auth-code.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String verifyAuthCode(@RequestParam("email") String email, @RequestParam("code") String code) {
+		HashMap<String, Object> resultMap = memberService.verifyAccountAuthCode(email, code);
+		return new Gson().toJson(resultMap);
+	}
 
 
 
