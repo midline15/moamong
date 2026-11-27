@@ -20,13 +20,20 @@
 
         <!-- 공통 헤더 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
-        <!-- 공통 사이드바 css -->
+
+        <!-- 헤더 햄버거 사이드바 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
-        <!-- 공통 푸터 css -->
+
+        <!-- 공통 푸터 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
-        <!-- 고객센터 공통 css (레이아웃/버튼) -->
+
+        <!-- 고객센터 본문 공통 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/notice/list.css">
-        <!-- 1:1문의 css -->
+
+        <!-- 고객센터 왼쪽 메뉴 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs-sidebar.css">
+
+        <!-- 1:1 문의 전용 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/inquiry/inquiry.css">
 
     </head>

@@ -8,12 +8,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>운영정책 관리</title>
 
+        <link rel="stylesheet" href="/css/admin/adminLayout.css">
         <link rel="stylesheet" href="/css/admin/default.css">
         <link rel="stylesheet" href="/css/policy/list.css">
 
         <style>
             .policy-container {
-                padding: 30px;
+                padding: 0;
             }
 
             .policy-container h2 {
@@ -133,31 +134,13 @@
 
     <body>
 
-        <div class="admin-container">
+        <%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-            <!-- 왼쪽 관리자 메뉴 -->
-            <aside class="sidebar">
-                <h2>관리자 메뉴</h2>
+        <div class="adm-shell">
 
-                <ul>
-                    <li onclick="location.href='/admin/member/list.do'">회원 관리</li>
-                    <li>상품조회 / 등록</li>
-                    <li>주문 관리</li>
-                    <li>배송 관리</li>
-                    <li>재고 관리</li>
-                    <li>거래처 관리</li>
-                    <li>리뷰 및 문의</li>
-                    <li>쿠폰 관리</li>
-                    <li>이벤트 관리</li>
-                    <li class="active" onclick="location.href='/admin/policy/list.do'">
-                        운영정책 관리
-                    </li>
-                    <li>매출 통계</li>
-                </ul>
-            </aside>
+            <%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
 
-            <!-- 오른쪽 콘텐츠 -->
-            <main class="main-content">
+            <main class="adm-main">
 
                 <div class="policy-container">
 

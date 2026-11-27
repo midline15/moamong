@@ -11,6 +11,7 @@
 		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 		<script src="/js/page-change.js"></script>
 
+		<link rel="stylesheet" href="/css/admin/adminLayout.css">
 		<link rel="stylesheet" href="/css/admin/coupon/add.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
@@ -31,122 +32,135 @@
 
 	<body>
 
-		<div id="app" class="container">
+		<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-			<div class="page-header">
-				<div>
-					<h2>쿠폰 수정</h2>
-					<p>등록된 쿠폰 정보를 수정할 수 있습니다.</p>
+		<div class="adm-shell">
+
+			<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
+
+			<main class="adm-main">
+
+				<div id="app">
+
+					<div class="page-header">
+						<div>
+							<h2>쿠폰 수정</h2>
+							<p>등록된 쿠폰 정보를 수정할 수 있습니다.</p>
+						</div>
+					</div>
+
+					<div class="form-container">
+
+						<!-- 기본 정보 -->
+						<div class="form-section">
+							<h3>기본 정보</h3>
+
+							<div class="form-group">
+								<label>쿠폰명 <span>*</span></label>
+								<input type="text" v-model="couponName">
+							</div>
+						</div>
+
+						<!-- 할인 설정 -->
+						<div class="form-section">
+							<h3>할인 설정</h3>
+
+							<div class="form-group">
+								<label>할인 유형 <span>*</span></label>
+								<select v-model="discountType">
+									<option value="FIXED">정액 할인</option>
+									<option value="RATE">정률 할인</option>
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label>
+									{{ discountType === 'FIXED' ? '할인 금액' : '할인율' }}
+									<span>*</span>
+								</label>
+
+								<div class="input-unit">
+									<input type="number" v-model.number="discountValue" min="1" placeholder="할인 값을 입력하세요.">
+									<span>{{ discountType === 'FIXED' ? '원' : '%' }}</span>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label>최소 주문 금액</label>
+
+								<div class="input-unit">
+									<input type="number" v-model.number="minimumOrderAmount" min="0">
+									<span>원</span>
+								</div>
+							</div>
+
+							<div class="form-group" v-if="discountType === 'RATE'">
+								<label>최대 할인 금액</label>
+
+								<div class="input-unit">
+									<input type="number" v-model.number="maximumDiscountAmount" min="0"
+										placeholder="최대 할인 금액을 입력하세요.">
+									<span>원</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- 사용 기간 설정 -->
+						<div class="form-section">
+							<h3>사용 기간 설정</h3>
+
+							<div class="date-group">
+
+								<div class="form-group">
+									<label>사용 시작일 <span>*</span></label>
+									<input type="text" id="validFrom" v-model="validFrom" placeholder="시작 날짜와 시간을 선택하세요">
+								</div>
+
+								<div class="form-group">
+									<label>사용 종료일 <span>*</span></label>
+									<input type="text" id="validUntil" v-model="validUntil" placeholder="종료 날짜와 시간을 선택하세요">
+								</div>
+
+							</div>
+						</div>
+
+						<!-- 쿠폰 미리보기 -->
+						<div class="form-section">
+							<h3>쿠폰 미리보기</h3>
+
+							<div class="preview-card">
+								<div class="preview-title">
+									{{ couponName || '쿠폰명을 입력하세요.' }}
+								</div>
+
+								<div class="preview-discount">
+									<span v-if="discountType === 'FIXED'">
+										{{ Number(discountValue || 0).toLocaleString() }}원 할인
+									</span>
+
+									<span v-else>
+										{{ discountValue || 0 }}% 할인
+									</span>
+								</div>
+
+								<p>
+									{{ Number(minimumOrderAmount || 0).toLocaleString() }}원 이상 구매 시 사용 가능
+								</p>
+							</div>
+						</div>
+
+						<!-- 버튼 -->
+						<div class="button-area">
+							<button class="btn-cancel" @click="fnCancel">취소</button>
+							<button class="btn-submit" @click="fnEdit">쿠폰 수정</button>
+						</div>
+
+					</div>
+
 				</div>
-			</div>
 
-			<div class="form-container">
+			</main>
 
-				<!-- 기본 정보 -->
-				<div class="form-section">
-					<h3>기본 정보</h3>
-
-					<div class="form-group">
-						<label>쿠폰명 <span>*</span></label>
-						<input type="text" v-model="couponName">
-					</div>
-				</div>
-
-				<!-- 할인 설정 -->
-				<div class="form-section">
-					<h3>할인 설정</h3>
-
-					<div class="form-group">
-						<label>할인 유형 <span>*</span></label>
-						<select v-model="discountType">
-							<option value="FIXED">정액 할인</option>
-							<option value="RATE">정률 할인</option>
-						</select>
-					</div>
-
-					<div class="form-group">
-						<label>
-							{{ discountType === 'FIXED' ? '할인 금액' : '할인율' }}
-							<span>*</span>
-						</label>
-
-						<div class="input-unit">
-							<input type="number" v-model.number="discountValue" min="1" placeholder="할인 값을 입력하세요.">
-							<span>{{ discountType === 'FIXED' ? '원' : '%' }}</span>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<label>최소 주문 금액</label>
-
-						<div class="input-unit">
-							<input type="number" v-model.number="minimumOrderAmount" min="0">
-							<span>원</span>
-						</div>
-					</div>
-
-					<div class="form-group" v-if="discountType === 'RATE'">
-						<label>최대 할인 금액</label>
-
-						<div class="input-unit">
-							<input type="number" v-model.number="maximumDiscountAmount" min="0"
-								placeholder="최대 할인 금액을 입력하세요.">
-							<span>원</span>
-						</div>
-					</div>
-				</div>
-
-				<!-- 사용 기간 설정 -->
-				<div class="form-section">
-					<h3>사용 기간 설정</h3>
-
-					<div class="date-group">
-
-						<div class="form-group">
-							<label>사용 시작일 <span>*</span></label>
-							<input type="text" id="validFrom" v-model="validFrom" placeholder="시작 날짜와 시간을 선택하세요">
-						</div>
-
-						<div class="form-group">
-							<label>사용 종료일 <span>*</span></label>
-							<input type="text" id="validUntil" v-model="validUntil" placeholder="종료 날짜와 시간을 선택하세요">
-						</div>
-
-					</div>
-				</div>
-
-				<!-- 쿠폰 미리보기 -->
-				<div class="form-section">
-					<h3>쿠폰 미리보기</h3>
-
-					<div class="preview-card">
-						<div class="preview-title">
-							{{ couponName || '쿠폰명을 입력하세요.' }}
-						</div>
-
-						<div class="preview-discount">
-							<span v-if="discountType === 'FIXED'">
-								{{ Number(discountValue || 0).toLocaleString() }}원 할인
-							</span>
-
-							<span v-else>
-								{{ discountValue || 0 }}% 할인
-							</span>
-						</div>
-
-						<p>
-							{{ Number(minimumOrderAmount || 0).toLocaleString() }}원 이상 구매 시 사용 가능
-						</p>
-					</div>
-				</div>
-
-				<!-- 버튼 -->
-				<div class="button-area">
-					<button class="btn-cancel" @click="fnCancel">취소</button>
-					<button class="btn-submit" @click="fnEdit">쿠폰 수정</button>
-				</div>
-
-			</div>
 		</div>
 
 		<script>

@@ -3,6 +3,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>모아몽 - 개인정보처리방침</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
@@ -16,7 +17,7 @@
 <body>
     <%@ include file="/WEB-INF/common/header.jsp"%>
 
-    <main id="app" class="info-wrap">
+    <main id="app" class="info-wrap" v-cloak>
         <nav class="info-tabs">
             <a href="/info/about.do" class="info-tab">회사소개</a>
             <a href="/info/terms.do" class="info-tab">이용약관</a>
@@ -26,6 +27,7 @@
         </nav>
 
         <div class="info-head">
+            <span class="info-eyebrow">PRIVACY POLICY</span>
             <h2>{{ title }}</h2>
             <p>고객님의 소중한 개인정보 보호를 위한 모아몽의 처리방침입니다.</p>
         </div>
@@ -36,21 +38,22 @@
     </main>
 
     <%@ include file="/WEB-INF/common/footer.jsp"%>
+
+    <script>
+        Vue.createApp({
+            data() { return { title: "개인정보처리방침", content: "방침 내용을 불러오는 중입니다..." }; },
+            mounted() {
+                $.post("/info/policies.dox", (res) => {
+                    const found = (res.list || []).find(p => p.policyType === "PRIVACY");
+                    if (found) {
+                        this.title = found.title || "개인정보처리방침";
+                        this.content = found.content || "등록된 개인정보처리방침이 없습니다.";
+                    } else {
+                        this.content = "등록된 개인정보처리방침이 없습니다.";
+                    }
+                }, "json");
+            }
+        }).mount("#app");
+    </script>
 </body>
 </html>
-<script>
-    Vue.createApp({
-        data() { return { title: "개인정보처리방침", content: "방침 내용을 불러오는 중입니다..." }; },
-        mounted() {
-            $.post("/info/policies.dox", (res) => {
-                const found = (res.list || []).find(p => p.policyType === "PRIVACY");
-                if (found) {
-                    this.title = found.title || "개인정보처리방침";
-                    this.content = found.content || "등록된 개인정보처리방침이 없습니다.";
-                } else {
-                    this.content = "등록된 개인정보처리방침이 없습니다.";
-                }
-            }, "json");
-        }
-    }).mount("#app");
-</script>

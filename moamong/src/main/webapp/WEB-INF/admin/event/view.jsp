@@ -10,34 +10,47 @@
 
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.6/purify.min.js"></script>
+			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/adminLayout.css">
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/event/view.css">
 			
 		</head>
 
 		<body>
 
-			<div class="event-wrap">
-				<h2>이벤트 상세</h2>
+			<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-				<div class="event-info">
-					<h2 id="eventTitle"></h2>
-					<div class="event-meta">
-						<span id="eventStatus"></span>
-						<span> | </span>
-						<span id="eventPeriod"></span>
+			<div class="adm-shell">
+
+				<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
+
+				<main class="adm-main">
+
+					<div class="event-wrap">
+						<h2>이벤트 상세</h2>
+
+						<div class="event-info">
+							<h2 id="eventTitle"></h2>
+							<div class="event-meta">
+								<span id="eventStatus"></span>
+								<span> | </span>
+								<span id="eventPeriod"></span>
+							</div>
+						</div>
+
+						<div id="thumbnailArea"></div>
+						<div class="event-content" id="eventContent"></div>
+
+						<div class="event-buttons">
+							<button class="btn-gray" onclick="goList()">목록</button>
+							<div>
+								<button class="btn-dark" onclick="goEdit()">수정</button>
+								<button class="btn-gray" onclick="deleteEvent()">삭제</button>
+							</div>
+						</div>
 					</div>
-				</div>
 
-				<div id="thumbnailArea"></div>
-				<div class="event-content" id="eventContent"></div>
+				</main>
 
-				<div class="event-buttons">
-					<button class="btn-gray" onclick="goList()">목록</button>
-					<div>
-						<button class="btn-dark" onclick="goEdit()">수정</button>
-						<button class="btn-gray" onclick="deleteEvent()">삭제</button>
-					</div>
-				</div>
 			</div>
 
 			<script>

@@ -1,0 +1,249 @@
+/* =========================================
+   관리자 공통 레이아웃 (헤더 · 사이드바 · 본문 틀)
+========================================= */
+:root {
+    --adm-point: #C5A477;
+    --adm-point-dark: #98764e;
+    --adm-ivory: #FBF5EB;
+    --adm-border: #EBE7DF;
+    --adm-header-h: 64px;
+    --adm-side-w: 220px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Pretendard', Arial, "Malgun Gothic", sans-serif;
+    font-size: 13px;
+    background-color: #f8f9fc;
+    color: #333;
+}
+
+/* ---------- 헤더 ---------- */
+.adm-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--adm-header-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    background: #fff;
+    border-top: 3px solid var(--adm-point);
+    border-bottom: 1px solid var(--adm-border);
+}
+
+.adm-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.adm-logo img {
+    display: block;
+    height: 34px;
+    width: auto;
+}
+
+.adm-logo-tag {
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--adm-ivory);
+    border: 1px solid var(--adm-border);
+    color: var(--adm-point-dark);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.adm-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.adm-header-link {
+    padding: 7px 14px;
+    border: 1px solid var(--adm-border);
+    border-radius: 6px;
+    background: #fff;
+    color: #777168;
+    font-size: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.adm-header-link:hover {
+    background: var(--adm-ivory);
+    border-color: var(--adm-point);
+    color: var(--adm-point-dark);
+}
+
+.adm-header-logout {
+    background: var(--adm-point);
+    border-color: var(--adm-point);
+    color: #fff;
+}
+
+.adm-header-logout:hover {
+    background: var(--adm-point-dark);
+    border-color: var(--adm-point-dark);
+    color: #fff;
+}
+
+/* ---------- 전체 틀 ---------- */
+.adm-shell {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - var(--adm-header-h));
+}
+
+/* ---------- 사이드바 ---------- */
+.adm-sidebar {
+    position: sticky;
+    top: var(--adm-header-h);
+    flex: 0 0 var(--adm-side-w);
+    width: var(--adm-side-w);
+    height: calc(100vh - var(--adm-header-h));
+    overflow-y: auto;
+    background: #fff;
+    border-right: 1px solid var(--adm-border);
+}
+
+.adm-side-title {
+    padding: 25px 22px;
+    background: var(--adm-ivory);
+    color: #39352F;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    border-bottom: 1px solid var(--adm-border);
+}
+
+.adm-side-title span {
+    display: block;
+    margin-top: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--adm-point);
+}
+
+.adm-side-menu {
+    list-style: none;
+    margin: 0;
+    padding: 10px 0 24px;
+}
+
+.adm-side-menu li {
+    margin: 0;
+    padding: 0;
+    border-left: 3px solid transparent;
+    transition: background 0.2s;
+}
+
+.adm-side-menu li a {
+    display: block;
+    padding: 12px 19px;
+    color: #777168;
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.adm-side-menu li:hover {
+    background: #FAF8F3;
+}
+
+.adm-side-menu li:hover a {
+    color: #514636;
+}
+
+.adm-side-menu li.active {
+    background: var(--adm-ivory);
+    border-left-color: var(--adm-point);
+}
+
+.adm-side-menu li.active a {
+    color: var(--adm-point-dark);
+    font-weight: 700;
+}
+
+/* 아직 페이지가 없는 메뉴 */
+.adm-side-menu li.pending a {
+    color: #bdb6aa;
+    cursor: default;
+}
+
+.adm-side-menu li.pending:hover {
+    background: transparent;
+}
+
+.adm-side-menu li.pending:hover a {
+    color: #bdb6aa;
+}
+
+/* ---------- 본문 ---------- */
+.adm-main {
+    flex: 1;
+    min-width: 0;
+    padding: 30px 32px 60px;
+}
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 900px) {
+    .adm-header {
+        padding: 0 16px;
+    }
+
+    .adm-header-link:not(.adm-header-logout) {
+        display: none;
+    }
+
+    .adm-shell {
+        flex-direction: column;
+    }
+
+    .adm-sidebar {
+        position: static;
+        flex: 0 0 auto;
+        width: 100%;
+        height: auto;
+        overflow-x: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--adm-border);
+    }
+
+    .adm-side-title {
+        display: none;
+    }
+
+    .adm-side-menu {
+        display: flex;
+        padding: 0;
+        white-space: nowrap;
+    }
+
+    .adm-side-menu li {
+        border-left: none;
+        border-bottom: 2px solid transparent;
+    }
+
+    .adm-side-menu li a {
+        padding: 13px 16px;
+    }
+
+    .adm-side-menu li.active {
+        border-bottom-color: var(--adm-point);
+    }
+
+    .adm-main {
+        padding: 18px 15px 40px;
+    }
+}

@@ -10,131 +10,145 @@
 		<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
+		<link rel="stylesheet" href="/css/admin/adminLayout.css">
 		<link rel="stylesheet" href="/css/admin/coupon/issue.css">
 	</head>
 
 	<body>
 
-		<div id="app" class="container">
+		<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-			<!-- 페이지 제목 -->
-			<div class="page-header">
-				<div>
-					<h2>쿠폰 발급</h2>
-					<p>회원에게 쿠폰을 발급할 수 있습니다.</p>
-				</div>
-				<div class="button-area">
-					<button class="btn-return" @click="fnList">목록으로</button>
-				</div>
-			</div>
+		<div class="adm-shell">
 
-			<div class="form-container">
+			<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
 
-				<!-- 쿠폰 선택 -->
-				<div class="form-section">
-					<h3>1. 발급 쿠폰 선택</h3>
+			<main class="adm-main">
 
-					<div class="form-group">
-						<label>발급할 쿠폰 <span>*</span></label>
-						<select v-model="couponId">
-							<option value="">쿠폰을 선택하세요.</option>
-							<option v-for="coupon in couponList" :key="coupon.couponId"
-								:value="String(coupon.couponId)">
-								{{ coupon.couponName }}
-								({{ coupon.discountType === 'FIXED'
-								? coupon.discountValue + '원'
-								: coupon.discountValue + '%' }})
-							</option>
-						</select>
-					</div>
-				</div>
+				<div id="app">
 
-				<!-- 발급 대상 선택 -->
-				<div class="form-section">
-					<h3>2. 발급 대상 선택</h3>
-
-					<div class="radio-group">
-						<label>
-							<input type="radio" value="ALL" v-model="issueType">
-							전체 회원 발급
-						</label>
-
-						<label>
-							<input type="radio" value="SELECT" v-model="issueType">
-							회원 선택 발급
-						</label>
-					</div>
-				</div>
-
-				<!-- 회원 검색 -->
-				<div class="form-section" v-if="issueType === 'SELECT'">
-					<h3>3. 회원 검색</h3>
-
-					<div class="search-area">
-						<input type="text" v-model="keyword" placeholder="회원 이름 또는 로그인 ID"
-							@keyup.enter="fnSearchMember">
-
-						<button class="btn-search" @click="fnSearchMember">검색</button>
+					<!-- 페이지 제목 -->
+					<div class="page-header">
+						<div>
+							<h2>쿠폰 발급</h2>
+							<p>회원에게 쿠폰을 발급할 수 있습니다.</p>
+						</div>
+						<div class="button-area">
+							<button class="btn-return" @click="fnList">목록으로</button>
+						</div>
 					</div>
 
-					<div class="table-container">
-						<table>
-							<thead>
-								<tr>
-									<th>선택</th>
-									<th>회원 번호</th>
-									<th>로그인 ID</th>
-									<th>회원 이름</th>
-								</tr>
-							</thead>
+					<div class="form-container">
 
-							<tbody>
-								<tr v-for="member in memberList" :key="member.memberId">
-									<td>
-										<input type="checkbox" :value="member.memberId" v-model="selectedMembers">
-									</td>
-									<td>{{ member.memberId }}</td>
-									<td>{{ member.loginId }}</td>
-									<td>{{ member.memberName }}</td>
-								</tr>
+						<!-- 쿠폰 선택 -->
+						<div class="form-section">
+							<h3>1. 발급 쿠폰 선택</h3>
 
-								<tr v-if="memberList.length === 0">
-									<td colspan="4">검색된 회원이 없습니다.</td>
-								</tr>
-							</tbody>
-						</table>
+							<div class="form-group">
+								<label>발급할 쿠폰 <span>*</span></label>
+								<select v-model="couponId">
+									<option value="">쿠폰을 선택하세요.</option>
+									<option v-for="coupon in couponList" :key="coupon.couponId"
+										:value="String(coupon.couponId)">
+										{{ coupon.couponName }}
+										({{ coupon.discountType === 'FIXED'
+										? coupon.discountValue + '원'
+										: coupon.discountValue + '%' }})
+									</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- 발급 대상 선택 -->
+						<div class="form-section">
+							<h3>2. 발급 대상 선택</h3>
+
+							<div class="radio-group">
+								<label>
+									<input type="radio" value="ALL" v-model="issueType">
+									전체 회원 발급
+								</label>
+
+								<label>
+									<input type="radio" value="SELECT" v-model="issueType">
+									회원 선택 발급
+								</label>
+							</div>
+						</div>
+
+						<!-- 회원 검색 -->
+						<div class="form-section" v-if="issueType === 'SELECT'">
+							<h3>3. 회원 검색</h3>
+
+							<div class="search-area">
+								<input type="text" v-model="keyword" placeholder="회원 이름 또는 로그인 ID"
+									@keyup.enter="fnSearchMember">
+
+								<button class="btn-search" @click="fnSearchMember">검색</button>
+							</div>
+
+							<div class="table-container">
+								<table>
+									<thead>
+										<tr>
+											<th>선택</th>
+											<th>회원 번호</th>
+											<th>로그인 ID</th>
+											<th>회원 이름</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr v-for="member in memberList" :key="member.memberId">
+											<td>
+												<input type="checkbox" :value="member.memberId" v-model="selectedMembers">
+											</td>
+											<td>{{ member.memberId }}</td>
+											<td>{{ member.loginId }}</td>
+											<td>{{ member.memberName }}</td>
+										</tr>
+
+										<tr v-if="memberList.length === 0">
+											<td colspan="4">검색된 회원이 없습니다.</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<p class="selected-count">
+								선택 회원: <strong>{{ selectedMembers.length }}명</strong>
+							</p>
+						</div>
+
+						<!-- 발급 정보 확인 -->
+						<div class="form-section">
+							<h3>발급 정보 확인</h3>
+
+							<div class="issue-info">
+								<p>
+									발급 대상:
+									<strong>
+										{{ issueType === 'ALL'
+										? '전체 회원'
+										: selectedMembers.length + '명' }}
+									</strong>
+								</p>
+							</div>
+						</div>
+
+						<!-- 하단 버튼 -->
+						<div class="button-area">
+							<button class="btn-cancel" @click="fnList">취소</button>
+							<button class="btn-submit" @click="fnIssueCoupon">
+								쿠폰 발급하기
+							</button>
+						</div>
+
 					</div>
 
-					<p class="selected-count">
-						선택 회원: <strong>{{ selectedMembers.length }}명</strong>
-					</p>
 				</div>
 
-				<!-- 발급 정보 확인 -->
-				<div class="form-section">
-					<h3>발급 정보 확인</h3>
+			</main>
 
-					<div class="issue-info">
-						<p>
-							발급 대상:
-							<strong>
-								{{ issueType === 'ALL'
-								? '전체 회원'
-								: selectedMembers.length + '명' }}
-							</strong>
-						</p>
-					</div>
-				</div>
-
-				<!-- 하단 버튼 -->
-				<div class="button-area">
-					<button class="btn-cancel" @click="fnList">취소</button>
-					<button class="btn-submit" @click="fnIssueCoupon">
-						쿠폰 발급하기
-					</button>
-				</div>
-
-			</div>
 		</div>
 
 		<script>

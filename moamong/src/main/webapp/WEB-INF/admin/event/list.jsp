@@ -9,49 +9,62 @@
 			<title>이벤트 관리</title>
 
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+			<link rel="stylesheet" href="<%=ctx%>/css/admin/adminLayout.css">
 			<link rel="stylesheet" href="<%=ctx%>/css/admin/event/list.css">
 		</head>
 
 		<body>
 
-			<div class="event-wrap">
+			<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-				<div class="event-header">
-					<h2>이벤트 관리</h2>
-					<button class="event-btn" onclick="location.href='<%=ctx%>/admin/event/write.do'">
-						이벤트 등록
-					</button>
-				</div>
+			<div class="adm-shell">
 
-				<div class="event-filter">
-					<button class="active" data-status="">전체</button>
-					<button data-status="ONGOING">진행중</button>
-					<button data-status="READY">예정</button>
-					<button data-status="ENDED">종료</button>
-					<button data-status="HIDDEN">숨김</button>
-				</div>
+				<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
 
-				<table class="event-table">
-					<thead>
-						<tr>
-							<th>번호</th>
-							<th>썸네일</th>
-							<th>이벤트명</th>
-							<th>시작일</th>
-							<th>종료일</th>
-							<th>상태</th>
-							<th>관리</th>
-						</tr>
-					</thead>
+				<main class="adm-main">
 
-					<tbody id="eventList">
-						<tr>
-							<td colspan="7">조회 중...</td>
-						</tr>
-					</tbody>
-				</table>
+					<div class="event-wrap">
 
-				<div class="event-pagination" id="pagination"></div>
+						<div class="event-header">
+							<h2>이벤트 관리</h2>
+							<button class="event-btn" onclick="location.href='<%=ctx%>/admin/event/write.do'">
+								이벤트 등록
+							</button>
+						</div>
+
+						<div class="event-filter">
+							<button class="active" data-status="">전체</button>
+							<button data-status="ONGOING">진행중</button>
+							<button data-status="READY">예정</button>
+							<button data-status="ENDED">종료</button>
+							<button data-status="HIDDEN">숨김</button>
+						</div>
+
+						<table class="event-table">
+							<thead>
+								<tr>
+									<th>번호</th>
+									<th>썸네일</th>
+									<th>이벤트명</th>
+									<th>시작일</th>
+									<th>종료일</th>
+									<th>상태</th>
+									<th>관리</th>
+								</tr>
+							</thead>
+
+							<tbody id="eventList">
+								<tr>
+									<td colspan="7">조회 중...</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<div class="event-pagination" id="pagination"></div>
+
+					</div>
+
+				</main>
 
 			</div>
 
