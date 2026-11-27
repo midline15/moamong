@@ -100,11 +100,11 @@
                                         <div class="cm-buy-view">
                                             <ul class="cm-buy-list"
                                                 :style="{ transform: 'translateX(-' + buyPage * 100 + '%)' }">
-                                                <li v-for="b in buyList" :key="b.productId"
+                                                <li v-for="b in buyList" :key="b.itemType + b.itemId"
                                                     :class="{ on: fnIsPicked(b) }" @click="fnPick(b)">
                                                     <div class="thumb">
-                                                        <img :src="b.thumbnailUrl" :alt="b.productName"
-                                                            draggable="false">
+                                                        <img :src="b.thumbnailUrl" :alt="b.itemName" draggable="false">
+                                                        <span class="badge" v-if="b.itemType == 'PACKAGE'">패키지</span>
                                                         <span class="check" v-if="fnIsPicked(b)">
                                                             <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
                                                                 stroke="currentColor" stroke-width="3">
@@ -112,7 +112,7 @@
                                                             </svg>
                                                         </span>
                                                     </div>
-                                                    <em>{{ b.productName }}</em>
+                                                    <em>{{ b.itemName }}</em>
                                                 </li>
                                             </ul>
                                         </div>
@@ -231,11 +231,13 @@
                                     <p class="cm-text">{{ p.postContent }}</p>
                                     <!-- 첨부된 구매 상품 -->
                                     <div class="cm-products" v-if="p.productList && p.productList.length > 0">
-                                        <a class="cm-product" v-for="b in p.productList" :key="b.productId"
-                                            :href="b.productUrl">
-                                            <img :src="b.thumbnailUrl" :alt="b.productName" draggable="false">
+                                        <a class="cm-product" v-for="b in p.productList" :key="b.itemType + b.itemId"
+                                            :href="b.itemUrl">
+                                            <img :src="b.thumbnailUrl" :alt="b.itemName" draggable="false">
                                             <div>
-                                                <strong>{{ b.productName }}</strong>
+                                                <strong><span class="cm-product-tag"
+                                                        v-if="b.itemType == 'PACKAGE'">패키지</span>{{ b.itemName
+                                                    }}</strong>
                                                 <em>{{ Number(b.price).toLocaleString() }}원</em>
                                             </div>
                                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
@@ -462,7 +464,7 @@
                     if (self.tag != "") param.tag = self.tag;
 
                     $.ajax({
-                        url: "http://localhost:8080/community/list.dox",
+                        url: "/community/list.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -557,11 +559,13 @@
                     let param = {
                         postContent: self.content,
                         images: JSON.stringify(self.imageList),
-                        products: JSON.stringify(self.pickedList.map(function (b) { return b.productId; }))
+                        products: JSON.stringify(self.pickedList.map(function (b) {
+                            return { type: b.itemType, id: b.itemId };
+                        }))
                     };
 
                     $.ajax({
-                        url: "http://localhost:8080/community/add.dox",
+                        url: "/community/add.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -598,7 +602,7 @@
                     };
 
                     $.ajax({
-                        url: "http://localhost:8080/community/delete.dox",
+                        url: "/community/delete.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -629,7 +633,7 @@
                     };
 
                     $.ajax({
-                        url: "http://localhost:8080/community/like.dox",
+                        url: "/community/like.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -664,7 +668,7 @@
                     p.cLoading = true;
 
                     $.ajax({
-                        url: "http://localhost:8080/community/comment-list.dox",
+                        url: "/community/comment-list.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -719,7 +723,7 @@
                     if (p.replyTo) param.parentCommentId = p.replyTo.id;
 
                     $.ajax({
-                        url: "http://localhost:8080/community/comment-add.dox",
+                        url: "/community/comment-add.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -752,7 +756,7 @@
                     };
 
                     $.ajax({
-                        url: "http://localhost:8080/community/comment-delete.dox",
+                        url: "/community/comment-delete.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
@@ -792,7 +796,7 @@
                         formData.append("type", "community");
 
                         $.ajax({
-                            url: "http://localhost:8080/common/image-upload.dox",
+                            url: "/common/image-upload.dox",
                             dataType: "json",
                             type: "POST",
                             data: formData,
@@ -820,7 +824,7 @@
                 fnImageDelete: function (urls) {
                     if (!urls || urls.length == 0) return;
                     $.ajax({
-                        url: "http://localhost:8080/common/image-delete.dox",
+                        url: "/common/image-delete.dox",
                         dataType: "json",
                         type: "POST",
                         data: { urls: JSON.stringify(urls) }
@@ -861,7 +865,7 @@
                     }
                 },
 
-                               // 최근 7일 구매 상품 조회
+                // 최근 7일 구매 상품 조회
                 fnBuyList: function () {
                     let self = this;
                     self.buyLoading = true;
@@ -869,7 +873,7 @@
                     self.buyPage = 0;
 
                     $.ajax({
-                        url: "http://localhost:8080/community/buy-list.dox",
+                        url: "/community/buy-list.dox",
                         dataType: "json",
                         type: "POST",
                         data: {},
@@ -893,16 +897,20 @@
                     self.buyPage = Math.min(Math.max(self.buyPage + step, 0), self.buyLastPage);
                 },
 
-                // 선택 여부
+                // 선택 여부 (종류 + 번호가 같아야 같은 상품)
                 fnIsPicked: function (b) {
-                    return this.pickedList.some(function (x) { return x.productId == b.productId; });
+                    return this.pickedList.some(function (x) {
+                        return x.itemType == b.itemType && x.itemId == b.itemId;
+                    });
                 },
 
                 // 상품 선택 / 해제 (최대 3개)
                 fnPick: function (b) {
                     let self = this;
                     if (self.fnIsPicked(b)) {
-                        self.pickedList = self.pickedList.filter(function (x) { return x.productId != b.productId; });
+                        self.pickedList = self.pickedList.filter(function (x) {
+                            return !(x.itemType == b.itemType && x.itemId == b.itemId);
+                        });
                         return;
                     }
                     if (self.pickedList.length >= 3) {
@@ -984,7 +992,7 @@
                     if (self.imageList.length == 0) return;
                     let form = new FormData();
                     form.append("urls", JSON.stringify(self.imageList.map(function (img) { return img.imageUrl; })));
-                    navigator.sendBeacon("http://localhost:8080/common/image-delete.dox", form);
+                    navigator.sendBeacon("/common/image-delete.dox", form);
                 });
             }
 

@@ -68,7 +68,14 @@
                     <h3 style="font-size:15px; margin-bottom:12px; color:#765a36;">상세정보</h3>
                     <table style="width:100%; border-collapse:collapse; font-size:13px;">
                         <tr><th style="width:130px; text-align:left; padding:7px 0; color:#85817b;">구분 / 상태</th><td>{{ detail.claimType === 'CANCEL' ? '주문 즉시 취소' : '반품/환불' }} · <strong>{{ detail.statusText }}</strong></td></tr>
-                        <tr><th style="text-align:left; padding:7px 0; color:#85817b;">주문번호</th><td>{{ detail.order.orderNumber }}</td></tr>
+                        <tr><th style="text-align:left; padding:7px 0; color:#85817b;">주문번호</th>
+                            <td>{{ detail.order.orderNumber }}
+                            <a :href="'/order/detail.do?orderId=' + detail.order.orderId"
+                                style="margin-left:8px; font-size:12px; color:#94764b; font-weight:700; text-decoration:underline;">
+                                주문 상세보기 &gt;
+                            </a>
+                            </td>
+                        </tr>
                         <tr><th style="text-align:left; padding:7px 0; color:#85817b;">처리완료일시</th><td>{{ detail.processedAt || '-' }}</td></tr>
                         <tr><th style="text-align:left; padding:7px 0; color:#85817b;">사유</th><td>{{ detail.reasonText }}</td></tr>
                     </table>

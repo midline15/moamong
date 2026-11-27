@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mori.moamong.dto.Member;
 import com.mori.moamong.member.mapper.MemberMapper;
+import com.mori.moamong.notification.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +21,47 @@ public class MemberService {
 	private final MemberMapper memberMapper;
 	private final HttpSession session;
 	private final PasswordEncoder passwordEncoder;
+	private final NotificationService notificationService;
+
+	@org.springframework.beans.factory.annotation.Value("${spring.mail.host}")
+	private String mailHost;
+
+	@org.springframework.beans.factory.annotation.Value("${spring.mail.port}")
+	private int mailPort;
+
+	@org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+	private String mailUsername;
+
+	@org.springframework.beans.factory.annotation.Value("${spring.mail.password}")
+	private String mailPassword;
+
 
 	public List<Map<String, Object>> findAll() {
 		return memberMapper.findAll();
 	}
 	
-	
 
-	// 멤버 조회
+	// 멤버 조회 (로그인 5회 연속 실패 시 1분 잠금 방어 포함)
 	public HashMap<String, Object> login(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap();
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-		// 빈 값 검증
+		// 1. 로그인 잠금 상태 확인 (5회 연속 실패 시 1분간 차단)
+		Long lockUntil = (Long) session.getAttribute("loginLockUntil");
+		if (lockUntil != null) {
+			long now = System.currentTimeMillis();
+			if (now < lockUntil) {
+				long remainSec = (lockUntil - now + 999) / 1000;
+				resultMap.put("loginFlg", false);
+				resultMap.put("message", "로그인 5회 실패로 1분간 로그인이 제한됩니다. (" + remainSec + "초 후 다시 시도해주세요.)");
+				resultMap.put("result", "fail");
+				return resultMap;
+			} else {
+				session.removeAttribute("loginLockUntil");
+				session.removeAttribute("loginFailCount");
+			}
+		}
+
+		// 2. 빈 값 검증
 		String memberId = (String) map.get("memberId");
 		String pwd = (String) map.get("pwd");
 
@@ -67,6 +97,10 @@ public class MemberService {
 
 				boolean login = passwordEncoder.matches((String) map.get("pwd"), member.getPassword());
 				if (login) {
+					// 정상 로그인 시 실패 카운트 및 잠금 초기화
+					session.removeAttribute("loginFailCount");
+					session.removeAttribute("loginLockUntil");
+
 					// 휴면 계정(INACTIVE)인 경우 세션 보류 후 휴면 해제 안내 플래그 반환
 					if ("INACTIVE".equals(member.getStatus())) {
 						resultMap.put("loginFlg", false);
@@ -77,7 +111,7 @@ public class MemberService {
 						return resultMap;
 					}
 
-					// [추가] 정상 로그인 시 최종 로그인 일시 갱신
+					// 정상 로그인 시 최종 로그인 일시 갱신
 					memberMapper.updateLastLoginAt(member.getMemberId());
 
 					session.setAttribute("sessionId", member.getMemberId());
@@ -89,16 +123,37 @@ public class MemberService {
 					resultMap.put("loginFlg", true);
 					resultMap.put("message", member.getMemberName() + "님 환영합니다.");
 				} else {
-					resultMap.put("loginFlg", false);
-					resultMap.put("message", "비밀번호가 일치하지 않습니다.");
+					int failCount = session.getAttribute("loginFailCount") != null
+							? (Integer) session.getAttribute("loginFailCount") + 1
+							: 1;
+					session.setAttribute("loginFailCount", failCount);
+
+					if (failCount >= 5) {
+						session.setAttribute("loginLockUntil", System.currentTimeMillis() + 60_000L);
+						resultMap.put("loginFlg", false);
+						resultMap.put("message", "로그인 5회 연속 실패로 1분간 로그인이 제한됩니다.");
+					} else {
+						resultMap.put("loginFlg", false);
+						resultMap.put("message", "비밀번호가 일치하지 않습니다. (실패 " + failCount + "/5회)");
+					}
 				}
 			} else {
-				resultMap.put("loginFlg", false);
-				resultMap.put("message", "아이디가 존재하지 않습니다.");
+				int failCount = session.getAttribute("loginFailCount") != null
+						? (Integer) session.getAttribute("loginFailCount") + 1
+						: 1;
+				session.setAttribute("loginFailCount", failCount);
+
+				if (failCount >= 5) {
+					session.setAttribute("loginLockUntil", System.currentTimeMillis() + 60_000L);
+					resultMap.put("loginFlg", false);
+					resultMap.put("message", "로그인 5회 연속 실패로 1분간 로그인이 제한됩니다.");
+				} else {
+					resultMap.put("loginFlg", false);
+					resultMap.put("message", "아이디가 존재하지 않습니다. (실패 " + failCount + "/5회)");
+				}
 			}
 			resultMap.put("result", "success");
 		} catch (Exception e) {
-			// TODO: handle exception
 			resultMap.put("result", "fail");
 			resultMap.put("message", "오류발생!");
 			System.out.println(e.getMessage());
@@ -106,6 +161,7 @@ public class MemberService {
 
 		return resultMap;
 	}
+
 
 	// 회원가입용 활성 약관 목록 조회 (POLICY 테이블 연동)
 	public HashMap<String, Object> getJoinPolicies() {
@@ -227,6 +283,24 @@ public class MemberService {
 		return resultMap;
 	}
 
+	// 마이페이지 내 정보 진입 전 비밀번호 재확인
+	public HashMap<String, Object> verifyPassword(Long memberId, String password) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    if (password == null || password.trim().isEmpty()) {
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "비밀번호를 입력해주세요.");
+	        return resultMap;
+	    }
+	    Member member = memberMapper.selectMemberById(memberId);
+	    if (member == null || !passwordEncoder.matches(password, member.getPassword())) {
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "비밀번호가 일치하지 않습니다.");
+	        return resultMap;
+	    }
+	    resultMap.put("result", "success");
+	    return resultMap;
+	}
+	
 	// 마이페이지 내 정보 조회
 	public HashMap<String, Object> getMyInfo(Long memberId) {
 		HashMap<String, Object> resultMap = new HashMap<>();
@@ -343,6 +417,15 @@ public class MemberService {
 			if (res > 0) {
 				resultMap.put("result", "success");
 				resultMap.put("message", "비밀번호가 변경되었습니다.");
+				
+				notificationService.sendNotification(
+				        memberId,
+				        "SECURITY",
+				        "비밀번호가 변경되었습니다.",
+				        "회원님의 계정 비밀번호가 안전하게 변경되었습니다. 본인이 아닌 경우 즉시 확인해주세요.",
+				        memberId
+				);
+
 			} else {
 				resultMap.put("result", "fail");
 				resultMap.put("message", "비밀번호 변경에 실패했습니다.");
@@ -392,6 +475,100 @@ public class MemberService {
 		return resultMap;
 	}
 
+	// 이메일 인증번호 발송 (아이디 찾기 / 비밀번호 재설정 공용)
+	public HashMap<String, Object> sendAccountAuthCode(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		String type = String.valueOf(map.getOrDefault("type", "ID"));
+		String email = String.valueOf(map.getOrDefault("email", "")).trim();
+
+		HashMap<String, Object> check = "PW".equals(type) ? verifyMemberForReset(map) : findLoginId(map);
+		if (!"success".equals(check.get("result"))) {
+			return check;
+		}
+
+		try {
+			String code = String.format("%06d", new java.security.SecureRandom().nextInt(1000000));
+
+			java.util.Properties props = new java.util.Properties();
+			props.put("mail.smtp.host", mailHost);
+			props.put("mail.smtp.port", String.valueOf(mailPort));
+			props.put("mail.smtp.auth", "true");
+			if (mailPort == 465) {
+				props.put("mail.smtp.ssl.enable", "true");
+				props.put("mail.smtp.ssl.trust", mailHost);
+			} else {
+				props.put("mail.smtp.starttls.enable", "true");
+			}
+
+			jakarta.mail.Session mailSession = jakarta.mail.Session.getInstance(props, new jakarta.mail.Authenticator() {
+				@Override
+				protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+					return new jakarta.mail.PasswordAuthentication(mailUsername, mailPassword);
+				}
+			});
+
+			jakarta.mail.internet.MimeMessage message = new jakarta.mail.internet.MimeMessage(mailSession);
+			message.setFrom(new jakarta.mail.internet.InternetAddress(mailUsername, "모아몽 (MOAMONG)", "UTF-8"));
+			message.setRecipients(jakarta.mail.Message.RecipientType.TO, jakarta.mail.internet.InternetAddress.parse(email));
+			message.setSubject("[모아몽] 계정 찾기 이메일 인증번호 안내", "UTF-8");
+			message.setContent(
+					"<div style='font-family:sans-serif; padding:24px; border:1px solid #e3d6c1; border-radius:8px; max-width:480px;'>"
+					+ "<h2 style='color:#765a36; margin:0 0 12px;'>모아몽 이메일 본인인증</h2>"
+					+ "<p style='color:#5c5346; font-size:14px;'>아래 6자리 인증번호를 화면에 입력해주세요. (유효시간 3분)</p>"
+					+ "<div style='font-size:28px; font-weight:700; letter-spacing:6px; color:#765a36; background:#faf7f1; padding:14px; text-align:center; border-radius:6px; margin:16px 0;'>"
+					+ code + "</div>"
+					+ "<p style='color:#85817b; font-size:12px;'>본인이 요청하지 않은 경우 이 메일을 무시하셔도 됩니다.</p>"
+					+ "</div>", "text/html; charset=UTF-8");
+
+			jakarta.mail.Transport.send(message);
+
+			session.setAttribute("emailAuthCode", code);
+			session.setAttribute("emailAuthTarget", email);
+			session.setAttribute("emailAuthExpire", System.currentTimeMillis() + 180_000L);
+			session.removeAttribute("emailAuthVerified");
+
+			resultMap.put("result", "success");
+			resultMap.put("message", "입력하신 이메일로 6자리 인증번호가 발송되었습니다.");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "이메일 발송 중 오류가 발생했습니다. 메일 설정을 확인해주세요.");
+		}
+		return resultMap;
+	}
+
+
+	// 이메일 6자리 인증번호 검증
+	public HashMap<String, Object> verifyAccountAuthCode(String email, String code) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		String savedCode = (String) session.getAttribute("emailAuthCode");
+		String savedEmail = (String) session.getAttribute("emailAuthTarget");
+		Long expireAt = (Long) session.getAttribute("emailAuthExpire");
+
+		if (savedCode == null || savedEmail == null || expireAt == null) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "먼저 인증번호 발송을 진행해주세요.");
+			return resultMap;
+		}
+		if (System.currentTimeMillis() > expireAt) {
+			session.removeAttribute("emailAuthCode");
+			resultMap.put("result", "fail");
+			resultMap.put("message", "인증번호 유효시간(3분)이 만료되었습니다. 다시 발송해주세요.");
+			return resultMap;
+		}
+		if (!savedEmail.equals(email.trim()) || !savedCode.equals(code.trim())) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "인증번호가 일치하지 않습니다.");
+			return resultMap;
+		}
+
+		session.setAttribute("emailAuthVerified", savedEmail);
+		session.removeAttribute("emailAuthCode");
+		resultMap.put("result", "success");
+		resultMap.put("message", "이메일 인증이 완료되었습니다.");
+		return resultMap;
+	}
+	
 	// 아이디 찾기 (이름 + 이메일)
 	public HashMap<String, Object> findLoginId(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
@@ -496,6 +673,12 @@ public class MemberService {
 				resultMap.put("result", "fail");
 				resultMap.put("message", "새 비밀번호는 4자 이상 입력해주세요.");
 				return resultMap;
+			}
+			
+			if (newPwd == null || !newPwd.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$")) {
+			    resultMap.put("result", "fail");
+			    resultMap.put("message", "새 비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.");
+			    return resultMap;
 			}
 
 			// 재검증 (직접 API 호출 악용 방지)

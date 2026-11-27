@@ -111,6 +111,12 @@ public class OrderController {
         }
 
         try {
+        	Object directPurchase = session.getAttribute("directPurchase");
+            if (directPurchase != null) {
+                payload.put("directPurchase", directPurchase);
+            }
+        	
+        	
             HashMap<String, Object> result = orderService.createOrder(memberId, payload);
 
             // 주문 성공 시 바로 구매 세션 정보 삭제

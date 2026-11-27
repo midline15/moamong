@@ -1,69 +1,148 @@
-/* 마이페이지 2단 공통 레이아웃 */
+/* =========================================
+   마이페이지 공통 (레이아웃 · 사이드바 · 카드 · 버튼 · 모달)
+========================================= */
+:root {
+    --mp-point: #C5A477;
+    --mp-point-dark: #94764b;
+    --mp-ivory: #FBF5EB;
+    --mp-ivory-deep: #efe7da;
+    --mp-text: #39352F;
+    --mp-sub-text: #888176;
+    --mp-border: #EBE7DF;
+    --mp-border-deep: #dfd1bd;
+}
+
 .mp-wrap {
     max-width: 1200px;
     margin: 24px auto 80px;
     padding: 0 20px;
     display: flex;
     align-items: flex-start;
-    gap: 44px;
+    gap: 40px;
     font-family: 'Pretendard', sans-serif;
-    color: #29251f;
+    color: var(--mp-text);
 }
 
-/* 좌측 사이드바 */
-.mp-sidebar {
-    width: 230px;
-    flex-shrink: 0;
-    background: #faf7f1;
-    min-height: 520px;
+/* =========================================
+   좌측 사이드바
+   구조: aside.mp-sidebar > div.mp-side-title + ul.mp-side-menu > li(.active) > a
+========================================= */
+.mp-wrap .mp-sidebar {
+    display: block;
+    width: 200px;
+    min-width: 200px;
+    flex: 0 0 200px;
+    align-self: flex-start;
+    box-sizing: border-box;
+    background: #fff;
+    min-height: auto;
+    border: 1px solid var(--mp-border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
 }
 
-.mp-side-title {
-    height: 82px;
-    background: #dfd1bd;
-    color: #765a36;
+.mp-wrap .mp-side-title {
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 25px 20px;
+    background: var(--mp-ivory);
+    color: var(--mp-text);
     font-size: 20px;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    letter-spacing: -0.8px;
+    text-align: left;
+    border-top: 2px solid var(--mp-point);
+    box-sizing: border-box;
 }
 
-.mp-side-menu {
-    list-style: none;
-    padding: 12px 0;
-    margin: 0;
-}
-
-.mp-side-menu li a {
+/* JSP에 <span>MY PAGE</span>를 넣었을 때만 적용 */
+.mp-wrap .mp-side-title span {
     display: block;
-    padding: 12px 26px;
-    font-size: 13px;
-    color: #5c5346;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
+    margin-top: 5px;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    color: var(--mp-point);
 }
 
-.mp-side-menu li a:hover,
-.mp-side-menu li.active a {
-    background: #efe7da;
-    color: #29251f;
+.mp-wrap .mp-side-menu {
+    display: block;
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+    background: #fff;
+    border-top: 1px solid var(--mp-border);
+    box-sizing: border-box;
+}
+
+.mp-wrap .mp-side-menu li {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    border: none;
+    box-sizing: border-box;
+    transition: background 0.2s ease;
+}
+
+.mp-wrap .mp-side-menu li a {
+    display: block;
+    width: 100%;
+    padding: 13px 15px;
+    background: transparent;
+    color: #777168;
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.mp-wrap .mp-side-menu li.active {
+    background: var(--mp-ivory);
+    border-left: 3px solid var(--mp-point);
+}
+
+.mp-wrap .mp-side-menu li.active a {
+    padding-left: 12px;             /* 왼쪽 바 3px 보정 (15 - 3) */
+    background: transparent;
+    color: #514636;
     font-weight: 700;
 }
 
-/* 우측 본문 영역 */
+.mp-wrap .mp-side-menu li:hover { background: #FAF8F3; }
+.mp-wrap .mp-side-menu li.active:hover { background: var(--mp-ivory); }
+
+.mp-wrap .mp-side-menu li:hover a {
+    background: transparent;
+    color: #514636;
+}
+
+.mp-wrap .mp-side-menu li a:focus-visible {
+    outline: 2px solid var(--mp-point);
+    outline-offset: -2px;
+}
+
+/* =========================================
+   우측 본문 영역
+========================================= */
 .mp-content,
 .mp-main {
     flex: 1;
     min-width: 0;
+    width: 100%;                    /* 내역이 0건이어도 쪼그라들지 않게 */
 }
 
 .mp-head {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 26px 0 18px;
-    border-bottom: 1px solid #e3d6c1;
+    padding: 22px 0 16px;
+    border-bottom: 2px solid var(--mp-text);
     margin-bottom: 24px;
 }
 
@@ -71,36 +150,56 @@
     margin: 0;
     font-size: 22px;
     font-weight: 700;
-    color: #29251f;
+    letter-spacing: -0.6px;
+    color: var(--mp-text);
 }
 
 .mp-breadcrumb {
     font-size: 12px;
-    color: #9a8f80;
+    color: var(--mp-sub-text);
 }
 
-/* 공통 아이보리 카드 · 입력창 · 골드 버튼 */
+/* =========================================
+   공통 카드 · 입력창 · 버튼
+========================================= */
 .mp-card {
-    background: #faf7f1;
-    border: 1px solid #efe7da;
-    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--mp-border);
+    border-radius: 12px;
     padding: 22px 24px;
     margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(60, 45, 25, 0.04);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+/* 클릭 가능한 카드(마이페이지 홈 요약 카드 등)에 반응 */
+.mp-card[style*="cursor:pointer"]:hover {
+    border-color: var(--mp-point);
+    box-shadow: 0 6px 16px rgba(118, 90, 54, 0.12);
+    transform: translateY(-2px);
 }
 
 .mp-input {
     width: 100%;
     max-width: 380px;
     padding: 10px 12px;
-    border: 1px solid #e3d6c1;
+    border: 1px solid var(--mp-border-deep);
     border-radius: 6px;
     background: #fff;
     font-size: 13px;
-    color: #29251f;
+    color: var(--mp-text);
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mp-input:focus {
+    outline: none;
+    border-color: var(--mp-point);
+    box-shadow: 0 0 0 3px rgba(197, 164, 119, 0.22);
 }
 
 .mp-input[readonly] {
-    background: #f3ede2;
+    background: #f6f1e8;
     color: #85817b;
 }
 
@@ -109,23 +208,33 @@
     align-items: center;
     justify-content: center;
     padding: 8px 18px;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     border: 1px solid #d5c4aa;
     background: #fff;
     color: #765a36;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
 }
 
+.mp-btn:hover {
+    background: var(--mp-ivory);
+    border-color: var(--mp-point);
+}
+
+.mp-btn:active { transform: scale(0.97); }
+
 .mp-btn-gold {
-    background: #c49a62;
-    border-color: #c49a62;
+    background: var(--mp-point);
+    border-color: var(--mp-point);
     color: #fff;
 }
 
 .mp-btn-gold:hover {
-    background: #94764b;
+    background: var(--mp-point-dark);
+    border-color: var(--mp-point-dark);
+    color: #fff;
 }
 
 .mp-btn-danger {
@@ -134,7 +243,15 @@
     color: #fff;
 }
 
-/* 공통 모달 */
+.mp-btn-danger:hover {
+    background: #a37751;
+    border-color: #a37751;
+    color: #fff;
+}
+
+/* =========================================
+   공통 모달
+========================================= */
 .mp-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -147,22 +264,133 @@
 
 .mp-modal-box {
     background: #fffdf9;
-    border: 1px solid #e3d6c1;
+    border: 1px solid var(--mp-border-deep);
+    border-top: 3px solid var(--mp-point);
     width: 92%;
     max-width: 460px;
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 8px 28px rgba(60, 45, 25, 0.18);
+    box-shadow: 0 12px 32px rgba(60, 45, 25, 0.2);
 }
 
+/* =========================================
+   모바일 반응형
+========================================= */
 @media (max-width: 860px) {
     .mp-wrap {
         flex-direction: column;
         gap: 20px;
     }
-    .mp-sidebar {
+
+    .mp-wrap .mp-sidebar {
         width: 100%;
-        min-height: auto;
+        min-width: 0;
+        flex: 0 0 auto;
     }
+
+    .mp-wrap .mp-side-title { padding: 20px 15px; }
+
+    .mp-wrap .mp-side-menu {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .mp-wrap .mp-side-menu li {
+        flex: 1 1 50%;
+        width: 50%;
+    }
+
+    /* 메뉴가 9개(홀수)라서 마지막 항목은 한 줄 전체 사용 */
+    .mp-wrap .mp-side-menu li:last-child:nth-child(odd) {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .mp-wrap .mp-side-menu li a {
+        padding: 12px 8px;
+        text-align: center;
+    }
+
+    .mp-wrap .mp-side-menu li.active {
+        border-left: none;
+        border-bottom: 2px solid var(--mp-point);
+    }
+
+    .mp-wrap .mp-side-menu li.active a { padding-left: 8px; }
+
+    .mp-head { padding-top: 8px; }
+    .mp-card { padding: 18px 16px; }
 }
 
+/* =========================================
+   작성글 관리 / 댓글 관리 글자 · 하트 색상
+   (JSP 인라인 스타일을 !important로 덮어씀)
+========================================= */
+:root {
+    --mp-heart: #C98B6B;            /* 하트 색 (테라코타 로즈) */
+    --mp-title-text: #514636;       /* 게시글 제목/내용 */
+    --mp-gold-text: #A8834F;        /* 골드 글자 */
+    --mp-meta-text: #9a8f80;        /* 날짜 등 보조 글자 */
+}
+
+/* 총 N건 */
+.mp-head > span[style*="color:#85817b"] {
+    color: var(--mp-gold-text) !important;
+}
+
+.mp-head > span[style*="color:#85817b"] strong {
+    color: #765a36;
+    font-size: 1.15em;
+}
+
+/* 날짜 */
+.mp-card span[style*="font-size:12px"][style*="color:#85817b"] {
+    color: var(--mp-meta-text) !important;
+}
+
+/* 게시글/댓글 내용(제목 줄) */
+.mp-card div[style*="font-size:14px"][style*="font-weight:600"] {
+    color: var(--mp-title-text) !important;
+}
+
+.mp-card:hover div[style*="font-size:14px"][style*="font-weight:600"] {
+    color: var(--mp-gold-text) !important;
+}
+
+/* 좋아요 · 댓글 수 줄 (작성글 관리) */
+.mp-card div[style*="font-size:12px"][style*="margin-top:6px"] {
+    color: var(--mp-gold-text) !important;
+    font-weight: 600;
+}
+
+/* 이 줄 맨 앞의 ♥ 만 색 변경 (JSP 수정 없이 첫 글자만 선택) */
+.mp-card div[style*="font-size:12px"][style*="margin-top:6px"]::first-letter {
+    color: var(--mp-heart);
+    font-size: 14px;
+}
+
+/* 원글 미리보기 박스 (댓글 관리) */
+.mp-card div[style*="background:#faf7f1"] {
+    color: #8a7a62 !important;
+    background: #FBF5EB !important;
+    border-left: 3px solid #C5A477;
+    border-radius: 0 6px 6px 0 !important;
+}
+
+/* 비어 있을 때 안내 문구 */
+.mp-card[style*="text-align:center"][style*="color:#85817b"] {
+    color: var(--mp-gold-text) !important;
+}
+
+/* STORY / 댓글 / 답글 뱃지 (mp-badge 는 지금 CSS에 정의가 없었음) */
+.mp-badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #FBF5EB;
+    color: var(--mp-gold-text);
+    border: 1px solid #EBE7DF;
+}
+.mp-heart { color: var(--mp-heart); font-size: 14px; }

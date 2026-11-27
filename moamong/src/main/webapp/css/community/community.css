@@ -1196,6 +1196,33 @@
     }
 }
 
+/* 패키지 구분 라벨 */
+.cm-buy-list .badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    color: #fff;
+    background: var(--cm-4);
+    border-radius: 999px;
+}
+
+.cm-product-tag {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 0 7px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 17px;
+    color: var(--cm-4d);
+    background: #fff;
+    border-radius: 999px;
+    vertical-align: 1px;
+}
+
 /* =========================================
    구매 상품 선택 패널 / 글 안의 상품 칩
 ========================================= */

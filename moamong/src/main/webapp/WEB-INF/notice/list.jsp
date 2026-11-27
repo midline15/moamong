@@ -24,8 +24,11 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
         <!-- 공통 푸터 css -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
-        <!-- 공지사항 css -->
+        <!-- 고객센터 본문 공통 CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/notice/list.css">
+
+        <!-- 고객센터 왼쪽 메뉴 CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs-sidebar.css">
 
     </head>
 
@@ -40,76 +43,77 @@
                 <div id="app">
                     <div class="cs-wrap">
 
-                        <!-- 좌측 고객센터 메뉴 -->
-                        <%@ include file="/WEB-INF/common/cs-side.jsp" %>
+                        <!-- 좌측 고객센터 메뉴 (공지사항 활성) -->
+                        <% request.setAttribute("csMenu", "notice" ); %>
+                            <%@ include file="/WEB-INF/common/cs-side.jsp" %>
 
-                            <!-- 우측 본문 -->
-                            <section class="cs-content">
+                                <!-- 우측 본문 -->
+                                <section class="cs-content">
 
-                                <!-- 제목 / 경로 -->
-                                <div class="cs-title-area">
-                                    <h2>공지사항</h2>
-                                    <div class="cs-breadcrumb">고객센터 &gt; 공지사항</div>
-                                </div>
+                                    <!-- 제목 / 경로 -->
+                                    <div class="cs-title-area">
+                                        <h2>공지사항</h2>
+                                        <div class="cs-breadcrumb">고객센터 &gt; 공지사항</div>
+                                    </div>
 
-                                <!-- 검색 -->
+                                    <!-- 검색 -->
 
-                                <div class="cs-search">
-                                    <input type="text" v-model="keyword" placeholder="검색어를 입력하세요"
-                                        @keyup.enter="fnSearch">
-                                    <button type="button" @click="fnSearch">🔍︎</button>
-                                </div>
+                                    <div class="cs-search">
+                                        <input type="text" v-model="keyword" placeholder="검색어를 입력하세요"
+                                            @keyup.enter="fnSearch">
+                                        <button type="button" @click="fnSearch">🔍︎</button>
+                                    </div>
 
 
-                                <!-- 목록 -->
-                                <table class="cs-table">
-                                    <colgroup>
-                                        <col style="width: 10%">
-                                        <col style="width: 60%">
-                                        <col style="width: 15%">
-                                        <col style="width: 15%">
-                                    </colgroup>
-                                    <thead>
-                                        <tr>
-                                            <th>구분</th>
-                                            <th>제목</th>
-                                            <th>작성일</th>
-                                            <th>조회수</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-if="noticeList.length == 0">
-                                            <td colspan="4" class="empty">등록된 공지사항이 없습니다.</td>
-                                        </tr>
-                                        <tr v-for="item in noticeList" :key="item.noticeId"
-                                            :class="{ pinned: item.isPinned }">
-                                            <td>{{ item.isPinned ? '공지' : '일반' }}</td>
-                                            <td class="title">
-                                                <a href="javascript:;" @click="fnView(item.noticeId)">{{
-                                                    item.noticeTitle }}</a>
-                                            </td>
-                                            <td>{{ item.createdAt ? item.createdAt.substring(0, 10) : '' }}</td>
-                                            <td>{{ item.viewCount }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                    <!-- 목록 -->
+                                    <table class="cs-table">
+                                        <colgroup>
+                                            <col style="width: 10%">
+                                            <col style="width: 60%">
+                                            <col style="width: 15%">
+                                            <col style="width: 15%">
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>구분</th>
+                                                <th>제목</th>
+                                                <th>작성일</th>
+                                                <th>조회수</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-if="noticeList.length == 0">
+                                                <td colspan="4" class="empty">등록된 공지사항이 없습니다.</td>
+                                            </tr>
+                                            <tr v-for="item in noticeList" :key="item.noticeId"
+                                                :class="{ pinned: item.isPinned }">
+                                                <td>{{ item.isPinned ? '공지' : '일반' }}</td>
+                                                <td class="title">
+                                                    <a href="javascript:;" @click="fnView(item.noticeId)">{{
+                                                        item.noticeTitle }}</a>
+                                                </td>
+                                                <td>{{ item.createdAt ? item.createdAt.substring(0, 10) : '' }}</td>
+                                                <td>{{ item.viewCount }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
-                                <!-- 페이징 -->
-                                <div class="cs-paging" v-if="totalPage > 0">
-                                    <a href="javascript:;" @click="fnPage(1)">&laquo;</a>
-                                    <a href="javascript:;" @click="fnPage(page - 1)">&lsaquo;</a>
-                                    <a href="javascript:;" v-for="p in pageList" :key="p" :class="{ on: p == page }"
-                                        @click="fnPage(p)">{{ p }}</a>
-                                    <a href="javascript:;" @click="fnPage(page + 1)">&rsaquo;</a>
-                                    <a href="javascript:;" @click="fnPage(totalPage)">&raquo;</a>
-                                </div>
+                                    <!-- 페이징 -->
+                                    <div class="cs-paging" v-if="totalPage > 0">
+                                        <a href="javascript:;" @click="fnPage(1)">&laquo;</a>
+                                        <a href="javascript:;" @click="fnPage(page - 1)">&lsaquo;</a>
+                                        <a href="javascript:;" v-for="p in pageList" :key="p" :class="{ on: p == page }"
+                                            @click="fnPage(p)">{{ p }}</a>
+                                        <a href="javascript:;" @click="fnPage(page + 1)">&rsaquo;</a>
+                                        <a href="javascript:;" @click="fnPage(totalPage)">&raquo;</a>
+                                    </div>
 
-                                <!-- 버튼 영역 (TODO: 관리자만 보이게) -->
-                                <div class="cs-btn-area right" v-if="isAdmin">
-                                    <button type="button" class="cs-btn primary" @click="fnWrite">글쓰기</button>
-                                </div>
+                                    <!-- 버튼 영역 (TODO: 관리자만 보이게) -->
+                                    <div class="cs-btn-area right" v-if="isAdmin">
+                                        <button type="button" class="cs-btn primary" @click="fnWrite">글쓰기</button>
+                                    </div>
 
-                            </section>
+                                </section>
                     </div>
                 </div>
 

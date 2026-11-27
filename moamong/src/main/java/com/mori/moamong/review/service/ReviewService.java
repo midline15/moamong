@@ -554,4 +554,124 @@ public class ReviewService {
         return resultMap;
     }
 
+
+
+
+
+
+
+
+
+
+
+    // ==========================================
+    // 관리자 리뷰
+    // ==========================================
+
+    // 관리자 리뷰 목록 조회
+    public HashMap<String, Object> getAdminReviewList(HashMap<String, Object> map) {
+
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        try {
+
+            // 페이지 번호 및 조회 개수 설정
+            int page = map.get("page") == null ? 1
+                    : Integer.parseInt(map.get("page").toString());
+
+            int limit = 10;
+            int offset = (page - 1) * limit;
+
+            map.put("limit", limit);
+            map.put("offset", offset);
+
+            // 관리자 리뷰 목록 조회
+            List<HashMap<String, Object>> list =
+                    reviewMapper.selectAdminReviewList(map);
+
+            // 리뷰 이미지 조회 및 연결
+            if (list != null && !list.isEmpty()) {
+
+                List<Long> reviewIds = new ArrayList<>();
+
+                for (HashMap<String, Object> review : list) {
+                    reviewIds.add(Long.parseLong(
+                            review.get("reviewId").toString()));
+                }
+
+                HashMap<String, Object> imageMap = new HashMap<>();
+                imageMap.put("reviewIds", reviewIds);
+
+                List<ReviewImage> imageList =
+                        reviewMapper.selectReviewImageList(imageMap);
+
+                for (HashMap<String, Object> review : list) {
+
+                    Long reviewId = Long.parseLong(
+                            review.get("reviewId").toString());
+
+                    List<ReviewImage> reviewImageList = new ArrayList<>();
+
+                    for (ReviewImage image : imageList) {
+                        if (reviewId.equals(image.getReviewId())) {
+                            reviewImageList.add(image);
+                        }
+                    }
+
+                    review.put("imageList", reviewImageList);
+                }
+            }
+
+            // 전체 리뷰 개수 조회
+            int count = reviewMapper.selectAdminReviewCount(map);
+
+            resultMap.put("list", list);
+            resultMap.put("count", count);
+            resultMap.put("result", "success");
+
+        } catch (Exception e) {
+
+            resultMap.put("result", "fail");
+            resultMap.put("message", "관리자 리뷰 목록 조회에 실패했습니다.");
+
+            e.printStackTrace();
+        }
+
+        return resultMap;
+    }
+
+    // 관리자 리뷰 통계 조회
+    public HashMap<String, Object> getAdminReviewStats() {
+
+        return reviewMapper.selectAdminReviewStats();
+    }
+
+    // 관리자 리뷰 상태 변경
+    @Transactional(rollbackFor = Exception.class)
+    public HashMap<String, Object> updateAdminReviewStatus(HashMap<String, Object> map) {
+
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        try {
+
+            int updateCnt = reviewMapper.updateAdminReviewStatus(map);
+
+            if (updateCnt > 0) {
+                resultMap.put("result", "success");
+                resultMap.put("message", "리뷰 상태가 변경되었습니다.");
+            } else {
+                resultMap.put("result", "fail");
+                resultMap.put("message", "상태를 변경할 리뷰가 없습니다.");
+            }
+
+        } catch (Exception e) {
+
+            resultMap.put("result", "fail");
+            resultMap.put("message", "리뷰 상태 변경에 실패했습니다.");
+
+            e.printStackTrace();
+        }
+
+        return resultMap;
+    }
 }

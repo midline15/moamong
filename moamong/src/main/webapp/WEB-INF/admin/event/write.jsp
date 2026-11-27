@@ -11,60 +11,73 @@
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 			<link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
 			<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/adminLayout.css">
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/event/write.css">
 			
 		</head>
 
 		<body>
 
-			<div class="event-wrap">
-				<h2 id="pageTitle">이벤트 등록</h2>
+			<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-				<div class="event-form">
-					<div class="form-row">
-						<label>이벤트 제목</label>
-						<input type="text" id="eventTitle" placeholder="이벤트 제목 입력">
+			<div class="adm-shell">
+
+				<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
+
+				<main class="adm-main">
+
+					<div class="event-wrap">
+						<h2 id="pageTitle">이벤트 등록</h2>
+
+						<div class="event-form">
+							<div class="form-row">
+								<label>이벤트 제목</label>
+								<input type="text" id="eventTitle" placeholder="이벤트 제목 입력">
+							</div>
+
+							<div class="form-row">
+								<label>이벤트 상태</label>
+								<select id="eventStatus">
+									<option value="READY">예정</option>
+									<option value="ONGOING">진행중</option>
+									<option value="ENDED">종료</option>
+									<option value="HIDDEN">숨김</option>
+								</select>
+							</div>
+
+							<div class="form-row">
+								<label>시작일</label>
+								<input type="datetime-local" id="startedAt">
+							</div>
+
+							<div class="form-row">
+								<label>종료일</label>
+								<input type="datetime-local" id="endedAt">
+							</div>
+
+							<div class="form-row">
+								<label>썸네일 이미지</label>
+								<input type="file" id="thumbnailFile" accept="image/*">
+								<img id="thumbnailPreview" class="thumbnail-preview" style="display:none;">
+								<button type="button" id="removeThumbnail" style="display:none;">
+									썸네일 삭제
+								</button>
+							</div>
+
+							<div class="form-row">
+								<label>이벤트 내용</label>
+								<div id="summernote"></div>
+							</div>
+
+							<div class="event-buttons">
+								<button class="btn-gray" type="button" onclick="goList()">취소</button>
+								<button class="btn-dark" type="button" onclick="saveEvent()">저장</button>
+							</div>
+						</div>
 					</div>
 
-					<div class="form-row">
-						<label>이벤트 상태</label>
-						<select id="eventStatus">
-							<option value="READY">예정</option>
-							<option value="ONGOING">진행중</option>
-							<option value="ENDED">종료</option>
-							<option value="HIDDEN">숨김</option>
-						</select>
-					</div>
+				</main>
 
-					<div class="form-row">
-						<label>시작일</label>
-						<input type="datetime-local" id="startedAt">
-					</div>
-
-					<div class="form-row">
-						<label>종료일</label>
-						<input type="datetime-local" id="endedAt">
-					</div>
-
-					<div class="form-row">
-						<label>썸네일 이미지</label>
-						<input type="file" id="thumbnailFile" accept="image/*">
-						<img id="thumbnailPreview" class="thumbnail-preview" style="display:none;">
-						<button type="button" id="removeThumbnail" style="display:none;">
-							썸네일 삭제
-						</button>
-					</div>
-
-					<div class="form-row">
-						<label>이벤트 내용</label>
-						<div id="summernote"></div>
-					</div>
-
-					<div class="event-buttons">
-						<button class="btn-gray" type="button" onclick="goList()">취소</button>
-						<button class="btn-dark" type="button" onclick="saveEvent()">저장</button>
-					</div>
-				</div>
 			</div>
 
 			<script>

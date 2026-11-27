@@ -65,6 +65,18 @@
                     </table>
                 </div>
 
+                <!-- 2-1. 카톡/문자용 선물 도착 안내 메시지 자동 생성 & 복사 카드 -->
+                <div v-if="order.orderStatus !== 'CANCELED'" class="mp-card" style="background:#faf7f1; border:1px solid #e3d6c1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="font-size:15px; margin:0; color:#765a36;">🎁 선물 받는 분께 보낼 도착 안내 메시지</h3>
+                        <button type="button" class="mp-btn mp-btn-gold" @click="fnCopyGiftMessage">
+                            {{ copiedGiftMsg ? '복사 완료!' : '카톡/문자 메시지 복사' }}
+                        </button>
+                    </div>
+                    <pre style="margin:0; padding:12px 14px; background:#fffdf9; border:1px solid #e9dfd1; border-radius:8px; font-family:inherit; font-size:13px; color:#5c5346; line-height:1.65; white-space:pre-wrap;">{{ giftNoticeText }}</pre>
+                </div>
+
+
                 <!-- 3. 결제정보 상세 -->
                 <div class="mp-card">
                     <h3 style="font-size:15px; margin-bottom:12px; color:#765a36;">결제정보</h3>
@@ -101,7 +113,9 @@
                     </div>
                     <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
                         <button class="mp-btn" @click="showCancelModal = false">닫기</button>
-                        <button class="mp-btn mp-btn-danger" @click="fnConfirmCancel">취소 확정</button>
+                        <button class="mp-btn mp-btn-danger" :disabled="isCanceling" @click="fnConfirmCancel">
+                            {{ isCanceling ? '처리 중...' : '취소 확정' }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -125,9 +139,25 @@
                 showCancelModal: false,
                 cancelReasons: ["단순 변심", "옵션 / 수량 선택 실수", "배송지 입력 오류", "다른 상품으로 재주문 예정", "기타 (직접 입력)"],
                 selectedReason: "단순 변심",
+                isCanceling: false,
+                copiedGiftMsg: false,
                 customReason: ""
             };
         },
+
+        computed: {
+            giftNoticeText() {
+                if (!this.order) return "";
+                const receiver = this.order.recipientName || "소중한 분";
+                const firstItem = this.items.length > 0 ? this.items[0].itemNameSnapshot : "모아몽 선물 세트";
+                const extraCount = this.items.length > 1 ? (" 외 " + (this.items.length - 1) + "건") : "";
+                return "[모아몽 선물 안내]\n"
+                    + receiver + "님께 마음을 담은 선물(" + firstItem + extraCount + ")을 보내드렸어요 🎁\n\n"
+                    + "배송 상태: " + this.statusText(this.order.orderStatus) + " (주문번호: " + this.order.orderNumber + ")\n"
+                    + "예쁘게 받아보시고 행복한 하루 보내세요!";
+            }
+        },
+
         methods: {
             fnGoMain() { location.href = "/"; },
             fnGoMypage() { location.href = "/member/mypage.do"; },
@@ -162,11 +192,17 @@
                     }
                 });
             },
-            fnOpenCancelModal() { this.selectedReason = "단순 변심"; this.customReason = ""; this.showCancelModal = true; },
+            fnOpenCancelModal() { 
+                this.selectedReason = "단순 변심"; 
+                this.customReason = ""; 
+                this.showCancelModal = true; 
+            },
             fnConfirmCancel() {
+                if (this.isCanceling) return;
                 let self = this;
                 let reason = this.selectedReason === "기타 (직접 입력)" ? ("기타: " + this.customReason.trim()) : this.selectedReason;
                 if (this.selectedReason === "기타 (직접 입력)" && !this.customReason.trim()) { alert("취소 사유를 입력해주세요."); return; }
+                this.isCanceling = true;
                 $.ajax({
                     url: "/order/cancel.dox",
                     type: "POST",
@@ -175,9 +211,24 @@
                     success: function (data) {
                         alert(data.message);
                         if (data.result === "success") { self.showCancelModal = false; self.fnDetail(); }
+                    },
+                    complete: function () {
+                        self.isCanceling = false;
                     }
                 });
+            },
+
+            fnCopyGiftMessage() {
+                let self = this;
+                if (!this.giftNoticeText) return;
+                navigator.clipboard.writeText(this.giftNoticeText).then(function () {
+                    self.copiedGiftMsg = true;
+                    setTimeout(function () { self.copiedGiftMsg = false; }, 2000);
+                }).catch(function () {
+                    alert("메시지 복사에 실패했습니다. 직접 드래그하여 복사해주세요.");
+                });
             }
+
         },
         mounted() { this.fnDetail(); }
     });

@@ -9,9 +9,6 @@
     min-width: 0;
 }
 
-#app * {
-    box-sizing: border-box;
-}
 
 .content-area {
     width: 100%;

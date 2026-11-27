@@ -44,7 +44,7 @@
                             {{ item.postStatus === 'HIDDEN' ? '관리자에 의해 숨김 처리된 게시글입니다.' : item.postContent }}
                         </div>
                         <div style="font-size:12px; color:#85817b; margin-top:6px;">
-                            ♥ 좋아요 {{ item.likeCnt }} · 💬 댓글 {{ item.commentCnt }}
+                           <span class="mp-heart">♥</span> 좋아요 {{ item.likeCnt }} · 💬 댓글 {{ item.commentCnt }}
                         </div>
                     </div>
 

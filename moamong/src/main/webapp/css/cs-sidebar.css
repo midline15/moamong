@@ -1,0 +1,186 @@
+
+/* =========================================
+   고객센터 공통 왼쪽 사이드바
+   공지사항 / 1:1 문의 / FAQ
+========================================= */
+
+:root {
+    --cs-point: #C5A477;
+    --cs-ivory: #FBF5EB;
+    --cs-text: #39352F;
+    --cs-sub-text: #888176;
+    --cs-border: #EBE7DF;
+}
+
+/* 사이드바 전체 */
+.cs-side {
+    display: block;
+    width: 200px;
+    min-width: 200px;
+    flex: 0 0 200px;
+    align-self: flex-start;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+/* 사이드바 제목 */
+.cs-side .cs-side-title {
+    display: block;
+    width: 100%;
+    padding: 25px 20px;
+    background: var(--cs-ivory);
+    color: var(--cs-text);
+    text-align: left;
+    border-top: 2px solid var(--cs-point);
+    box-sizing: border-box;
+}
+
+.cs-side .cs-side-title strong {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+}
+
+.cs-side .cs-side-title span {
+    display: block;
+    margin-top: 5px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--cs-point);
+}
+
+/* 메뉴 목록 */
+.cs-side .cs-menu {
+    display: block;
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+    background: #fff;
+    border-top: 1px solid var(--cs-border);
+    border-bottom: 1px solid var(--cs-border);
+    box-sizing: border-box;
+}
+
+.cs-side .cs-menu li {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    border: none;
+    font-size: 12px;
+    box-sizing: border-box;
+    transition: background 0.2s ease;
+}
+
+/* 메뉴 링크 */
+.cs-side .cs-menu li a {
+    display: block;
+    width: 100%;
+    padding: 13px 15px;
+    color: #777168;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 400;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* 현재 선택된 메뉴 */
+.cs-side .cs-menu li.active {
+    background: var(--cs-ivory);
+    border-left: 3px solid var(--cs-point);
+}
+
+.cs-side .cs-menu li.active a {
+    padding-left: 17px;
+    color: #514636;
+    font-weight: 600;
+}
+
+/* 마우스 호버 */
+.cs-side .cs-menu li:hover {
+    background: #FAF8F3;
+}
+
+.cs-side .cs-menu li:hover a {
+    color: #514636;
+}
+
+/* 키보드 포커스 */
+.cs-side .cs-menu li a:focus-visible {
+    outline: 2px solid var(--cs-point);
+    outline-offset: -2px;
+}
+
+/* 고객센터 전화번호 */
+.cs-side .cs-tel {
+    display: block;
+    width: 100%;
+    padding: 20px 15px;
+    background: #fff;
+    color: var(--cs-text);
+    text-align: left;
+    border-top: 1px solid var(--cs-border);
+    box-sizing: border-box;
+}
+
+.cs-side .cs-tel p {
+    margin: 0 0 8px;
+    font-size: 11px;
+    color: var(--cs-sub-text);
+}
+
+.cs-side .cs-tel strong {
+    font-size: 18px;
+    font-weight: 700;
+    color: #514636;
+    letter-spacing: 0.3px;
+}
+
+/* =========================================
+   모바일 반응형
+========================================= */
+
+@media (max-width: 768px) {
+
+    .cs-side {
+        width: 100%;
+        min-width: 0;
+        flex: 0 0 100%;
+    }
+
+    .cs-side .cs-side-title {
+        padding: 20px 15px;
+    }
+
+    .cs-side .cs-menu {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .cs-side .cs-menu li {
+        flex: 1 1 50%;
+        width: 50%;
+    }
+
+    .cs-side .cs-menu li a {
+        padding: 12px 8px;
+        text-align: center;
+    }
+
+    .cs-side .cs-menu li.active {
+        border-left: none;
+        border-bottom: 2px solid var(--cs-point);
+    }
+
+    .cs-side .cs-menu li.active a {
+        padding-left: 8px;
+    }
+
+    .cs-side .cs-tel {
+        padding: 15px;
+    }
+}

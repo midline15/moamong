@@ -15,7 +15,7 @@ import com.mori.moamong.member.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
-@RequiredArgsConstructor // 👈 1. 생성자 자동 주입 어노테이션 추가
+@RequiredArgsConstructor // 1. 생성자 자동 주입 어노테이션 추가
 public class SecurityConfig {
 
 	// 2. 소셜 로그인 처리 서비스 주입

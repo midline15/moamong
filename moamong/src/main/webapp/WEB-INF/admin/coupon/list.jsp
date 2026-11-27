@@ -16,183 +16,198 @@
 		<!-- 프로젝트 공통 JS -->
 		<script src="/js/page-change.js"></script>
 
+		<!-- 관리자 공통 레이아웃 CSS -->
+		<link rel="stylesheet" href="/css/admin/adminLayout.css">
+
 		<!-- 쿠폰 목록 CSS -->
 		<link rel="stylesheet" href="/css/admin/coupon/list.css">
 	</head>
 
 	<body>
 
-		<div id="app">
+		<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-			<!-- 페이지 제목 -->
-			<div class="page-header">
-				<div>
-					<h2>쿠폰 관리</h2>
-					<p>등록된 쿠폰을 확인하고 관리할 수 있습니다.</p>
+		<div class="adm-shell">
+
+			<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
+
+			<main class="adm-main">
+
+				<div id="app">
+
+					<!-- 페이지 제목 -->
+					<div class="page-header">
+						<div>
+							<h2>쿠폰 관리</h2>
+							<p>등록된 쿠폰을 확인하고 관리할 수 있습니다.</p>
+						</div>
+
+						<div class="header-buttons">
+							<button class="btn-primary" @click="fnAdd">
+								+ 쿠폰 등록
+							</button>
+
+							<button class="btn-primary" @click="fnIssue">
+								쿠폰 발급
+							</button>
+						</div>
+					</div>
+
+					<!-- 쿠폰 요약 정보 -->
+					<div class="summary">
+						<div class="summary-item">
+							<span>전체 쿠폰</span>
+							<strong>{{ totalCount }}</strong>
+						</div>
+
+						<div class="summary-item">
+							<span>사용 가능</span>
+							<strong>{{ activeCount }}</strong>
+						</div>
+
+
+						<div class="summary-item">
+							<span>기간 만료</span>
+							<strong>{{ expiredCount }}</strong>
+						</div>
+					</div>
+
+					<!-- 검색 영역 -->
+					<div class="search-area">
+						<div class="search-box">
+
+							<select v-model="searchType">
+								<option value="couponName">쿠폰명</option>
+							</select>
+
+							<input type="text" v-model="keyword" placeholder="검색어를 입력하세요." @keyup.enter="fnSearch">
+
+							<button class="btn-search" @click="fnSearch">
+								검색
+							</button>
+
+							<button class="btn-reset" @click="fnReset">
+								초기화
+							</button>
+
+						</div>
+					</div>
+
+					<!-- 쿠폰 목록 -->
+					<div class="table-wrap">
+						<table>
+							<thead>
+								<tr>
+									<th>번호</th>
+									<th>쿠폰명</th>
+									<th>할인 유형</th>
+									<th>할인 혜택</th>
+									<th>최소 주문 금액</th>
+									<th>최대 할인 금액</th>
+									<th>사용 시작일</th>
+									<th>사용 종료일</th>
+									<th>발급 건수</th>
+									<th>사용 건수</th>
+									<th>미사용 건수</th>
+									<th>관리</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr v-for="coupon in filteredCoupons" :key="coupon.couponId">
+									<td>{{ coupon.couponId }}</td>
+
+									<td class="coupon-name">
+										{{ coupon.couponName || '-' }}
+									</td>
+
+									<td>
+										<span class="type-badge" :class="fnDiscountClass(coupon.discountType)">
+											{{ fnDiscountType(coupon.discountType) }}
+										</span>
+									</td>
+
+									<td class="discount-value">
+										<span v-if="coupon.discountType === 'FIXED'">
+											{{ fnNumber(coupon.discountValue) }}원
+										</span>
+
+										<span v-else-if="coupon.discountType === 'RATE'">
+											{{ coupon.discountValue }}%
+										</span>
+
+										<span v-else>
+											-
+										</span>
+									</td>
+
+									<td>
+										{{ fnNumber(coupon.minimumOrderAmount) }}원
+									</td>
+
+									<td>
+										<span v-if="coupon.maximumDiscountAmount != null">
+											{{ fnNumber(coupon.maximumDiscountAmount) }}원
+										</span>
+
+										<span v-else>
+											-
+										</span>
+									</td>
+
+									<td>
+										{{ fnDate(coupon.validFrom) }}
+									</td>
+
+									<td>
+										{{ fnDate(coupon.validUntil) }}
+									</td>
+
+									<td>{{ fnNumber(coupon.issuedCount) }}건</td>
+
+									<td>{{ fnNumber(coupon.usedCount) }}건</td>
+
+									<td>{{ fnNumber(coupon.availableCount) }}건</td>
+
+									<td>
+										<template v-if="Number(coupon.issuedCount || 0) === 0">
+											<button class="btn-edit" @click="fnEdit(coupon.couponId)">
+												수정
+											</button>
+
+											<button class="btn-delete" @click="fnRemove(coupon.couponId)">
+												삭제
+											</button>
+										</template>
+
+										<template v-else>
+											<button class="btn-submit" @click="fnView(coupon.couponId)">
+												회수 관리
+											</button>
+										</template>
+									</td>
+								</tr>
+
+								<!-- 검색 결과가 없는 경우 -->
+								<tr v-if="filteredCoupons.length === 0">
+									<td colspan="12" class="empty">
+										등록된 쿠폰이 없습니다.
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- 목록 하단 -->
+					<div class="list-footer">
+						<span>
+							총 {{ filteredCoupons.length }}개의 쿠폰
+						</span>
+					</div>
+
 				</div>
 
-				<div class="header-buttons">
-					<button class="btn-primary" @click="fnAdd">
-						+ 쿠폰 등록
-					</button>
-
-					<button class="btn-primary" @click="fnIssue">
-						쿠폰 발급
-					</button>
-				</div>
-			</div>
-
-			<!-- 쿠폰 요약 정보 -->
-			<div class="summary">
-				<div class="summary-item">
-					<span>전체 쿠폰</span>
-					<strong>{{ totalCount }}</strong>
-				</div>
-
-				<div class="summary-item">
-					<span>사용 가능</span>
-					<strong>{{ activeCount }}</strong>
-				</div>
-
-
-				<div class="summary-item">
-					<span>기간 만료</span>
-					<strong>{{ expiredCount }}</strong>
-				</div>
-			</div>
-
-			<!-- 검색 영역 -->
-			<div class="search-area">
-				<div class="search-box">
-
-					<select v-model="searchType">
-						<option value="couponName">쿠폰명</option>
-					</select>
-
-					<input type="text" v-model="keyword" placeholder="검색어를 입력하세요." @keyup.enter="fnSearch">
-
-					<button class="btn-search" @click="fnSearch">
-						검색
-					</button>
-
-					<button class="btn-reset" @click="fnReset">
-						초기화
-					</button>
-
-				</div>
-			</div>
-
-			<!-- 쿠폰 목록 -->
-			<div class="table-wrap">
-				<table>
-					<thead>
-						<tr>
-							<th>번호</th>
-							<th>쿠폰명</th>
-							<th>할인 유형</th>
-							<th>할인 혜택</th>
-							<th>최소 주문 금액</th>
-							<th>최대 할인 금액</th>
-							<th>사용 시작일</th>
-							<th>사용 종료일</th>
-							<th>발급 건수</th>
-							<th>사용 건수</th>
-							<th>미사용 건수</th>
-							<th>관리</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						<tr v-for="coupon in filteredCoupons" :key="coupon.couponId">
-							<td>{{ coupon.couponId }}</td>
-
-							<td class="coupon-name">
-								{{ coupon.couponName || '-' }}
-							</td>
-
-							<td>
-								<span class="type-badge" :class="fnDiscountClass(coupon.discountType)">
-									{{ fnDiscountType(coupon.discountType) }}
-								</span>
-							</td>
-
-							<td class="discount-value">
-								<span v-if="coupon.discountType === 'FIXED'">
-									{{ fnNumber(coupon.discountValue) }}원
-								</span>
-
-								<span v-else-if="coupon.discountType === 'RATE'">
-									{{ coupon.discountValue }}%
-								</span>
-
-								<span v-else>
-									-
-								</span>
-							</td>
-
-							<td>
-								{{ fnNumber(coupon.minimumOrderAmount) }}원
-							</td>
-
-							<td>
-								<span v-if="coupon.maximumDiscountAmount != null">
-									{{ fnNumber(coupon.maximumDiscountAmount) }}원
-								</span>
-
-								<span v-else>
-									-
-								</span>
-							</td>
-
-							<td>
-								{{ fnDate(coupon.validFrom) }}
-							</td>
-
-							<td>
-								{{ fnDate(coupon.validUntil) }}
-							</td>
-
-							<td>{{ fnNumber(coupon.issuedCount) }}건</td>
-
-							<td>{{ fnNumber(coupon.usedCount) }}건</td>
-
-							<td>{{ fnNumber(coupon.availableCount) }}건</td>
-
-							<td>
-								<template v-if="Number(coupon.issuedCount || 0) === 0">
-									<button class="btn-edit" @click="fnEdit(coupon.couponId)">
-										수정
-									</button>
-
-									<button class="btn-delete" @click="fnRemove(coupon.couponId)">
-										삭제
-									</button>
-								</template>
-
-								<template v-else>
-									<button class="btn-submit" @click="fnView(coupon.couponId)">
-										회수 관리
-									</button>
-								</template>
-							</td>
-						</tr>
-
-						<!-- 검색 결과가 없는 경우 -->
-						<tr v-if="filteredCoupons.length === 0">
-							<td colspan="12" class="empty">
-								등록된 쿠폰이 없습니다.
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-
-			<!-- 목록 하단 -->
-			<div class="list-footer">
-				<span>
-					총 {{ filteredCoupons.length }}개의 쿠폰
-				</span>
-			</div>
+			</main>
 
 		</div>
 

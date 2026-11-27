@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.google.gson.Gson;
 import com.mori.moamong.event.service.EventService;
 
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -24,13 +23,15 @@ import lombok.RequiredArgsConstructor;
 public class EventController {
     private final EventService eventService;
 
-    // TODO: 로그인 기능 붙이면 false 로 바꾸기 (true 이면 누구나 관리자 취급)
-    private static final boolean DEV_MODE = true;
-
-    // 관리자 여부 (TODO: 실제 로그인 세션 키로 교체)
+    // 관리자 여부: 로그인 세션에 role 값 ADMIN이 있으면 관리자
     private boolean isAdmin(HttpSession session) {
-        if (DEV_MODE) return true;
-        return session.getAttribute("adminId") != null;
+        java.util.Enumeration<String> names = session.getAttributeNames();
+        while (names.hasMoreElements()) {
+            Object v = session.getAttribute(names.nextElement());
+            if (v != null && "ADMIN".equals(String.valueOf(v).trim()))
+                return true;
+        }
+        return false;
     }
 
     // 이벤트 목록 페이지
@@ -42,7 +43,8 @@ public class EventController {
 
     // 이벤트 상세 페이지
     @RequestMapping("/event/view.do")
-    public String view(Model model, HttpSession session, @RequestParam(required = false) Long eventId) throws Exception {
+    public String view(Model model, HttpSession session, @RequestParam(required = false) Long eventId)
+            throws Exception {
         model.addAttribute("eventId", eventId);
         model.addAttribute("isAdmin", isAdmin(session));
         return "/event/view";
@@ -50,7 +52,8 @@ public class EventController {
 
     // 이벤트 등록/수정 페이지 (관리자만, eventId 있으면 수정)
     @RequestMapping("/event/write.do")
-    public String write(Model model, HttpSession session, @RequestParam(required = false) Long eventId) throws Exception {
+    public String write(Model model, HttpSession session, @RequestParam(required = false) Long eventId)
+            throws Exception {
         if (!isAdmin(session)) {
             return "redirect:/event/list.do";
         }
@@ -130,8 +133,8 @@ public class EventController {
 
         return new Gson().toJson(resultMap);
     }
-    
-        // 메인 슬라이더용 이벤트 목록 (공개)
+
+    // 메인 슬라이더용 이벤트 목록 (공개)
     @RequestMapping(value = "/event/main-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String mainList(Model model) throws Exception {
@@ -139,6 +142,5 @@ public class EventController {
 
         return new Gson().toJson(resultMap);
     }
-
 
 }
