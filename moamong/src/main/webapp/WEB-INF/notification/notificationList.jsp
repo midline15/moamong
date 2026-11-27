@@ -121,6 +121,7 @@
                     ORDER: "주문", 
                     DELIVERY: "배송 정보", 
                     RETURN: "반품", 
+                    SECURITY: "보안",
                     INQUIRY: "고객센터" 
                 }[t] || t; 
             },
@@ -154,6 +155,7 @@
                 if (type === "RETURN") return "/order/cancelList.do";
                 if (type === "INQUIRY") return "/inquiry/myList.do";
                 if (type === "REVIEW") return "/review/myReview.do";
+                if (type === "SECURITY") return "/member/edit.do";
                 return null;
             },
             fnReadOne(item) {

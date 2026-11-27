@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mori.moamong.dto.Member;
 import com.mori.moamong.member.mapper.MemberMapper;
+import com.mori.moamong.notification.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class MemberService {
 	private final MemberMapper memberMapper;
 	private final HttpSession session;
 	private final PasswordEncoder passwordEncoder;
+	private final NotificationService notificationService;
 
 	public List<Map<String, Object>> findAll() {
 		return memberMapper.findAll();
@@ -361,6 +363,15 @@ public class MemberService {
 			if (res > 0) {
 				resultMap.put("result", "success");
 				resultMap.put("message", "비밀번호가 변경되었습니다.");
+				
+				notificationService.sendNotification(
+				        memberId,
+				        "SECURITY",
+				        "비밀번호가 변경되었습니다.",
+				        "회원님의 계정 비밀번호가 안전하게 변경되었습니다. 본인이 아닌 경우 즉시 확인해주세요.",
+				        memberId
+				);
+
 			} else {
 				resultMap.put("result", "fail");
 				resultMap.put("message", "비밀번호 변경에 실패했습니다.");
