@@ -44,11 +44,31 @@ public interface ReviewMapper {
 
     // 리뷰 전체 개수 조회
     int selectReviewCount(HashMap<String, Object> map);
-    
+
     // 주문 상품 조회
     List<HashMap<String, Object>> selectReviewableOrderItems(HashMap<String, Object> map);
-    
+
     // 리뷰 작성
     int insertReview(HashMap<String, Object> map);
+
+
+
+    // ==========================================
+    // 관리자 리뷰
+    // ==========================================
+
+    // 관리자 리뷰 목록 조회
+    List<HashMap<String, Object>> selectAdminReviewList(HashMap<String, Object> map);
+
+    // 관리자 리뷰 전체 개수 조회
+    int selectAdminReviewCount(HashMap<String, Object> map);
+
+    // 관리자 리뷰 통계 조회
+    HashMap<String, Object> selectAdminReviewStats(HashMap<String, Object> map);
+
+    // 관리자 리뷰 상태 변경
+    int updateAdminReviewStatus(HashMap<String, Object> map);
+
+    HashMap<String, Object> selectAdminReviewStats();
 
 }

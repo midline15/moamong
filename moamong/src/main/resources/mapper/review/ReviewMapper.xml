@@ -295,6 +295,215 @@
         )
     </insert>
 
+
+
+
+
+    <!-- ========================================== -->
+    <!-- 관리자 리뷰 -->
+    <!-- ========================================== -->
+
+    <!-- 관리자 리뷰 목록 조회 -->
+    <select id="selectAdminReviewList"
+        parameterType="hashmap"
+        resultType="hashmap">
+
+        SELECT
+            R.REVIEW_ID AS reviewId,
+            R.MEMBER_ID AS memberId,
+            M.MEMBER_NAME AS memberName,
+            R.PRODUCT_ID AS productId,
+            R.PACKAGE_ID AS packageId,
+            R.RATING AS rating,
+            R.REVIEW_CONTENT AS reviewContent,
+            R.REVIEW_STATUS AS reviewStatus,
+            DATE_FORMAT(DATE_ADD(R.CREATED_AT, INTERVAL 9 HOUR), '%Y-%m-%d %H:%i') AS createdAt,
+
+            COALESCE(OI.ITEM_NAME_SNAPSHOT, P.PRODUCT_NAME, PK.PACKAGE_NAME) AS productName,
+
+            CASE
+                WHEN R.PRODUCT_ID IS NOT NULL THEN 'PRODUCT'
+                ELSE 'PACKAGE'
+            END AS reviewType,
+
+            CASE
+                WHEN R.PRODUCT_ID IS NOT NULL THEN (
+                    SELECT PI.IMAGE_URL
+                    FROM PRODUCT_IMAGE PI
+                    WHERE PI.PRODUCT_ID = R.PRODUCT_ID
+                      AND PI.IMAGE_TYPE = 'THUMBNAIL'
+                    ORDER BY PI.DISPLAY_ORDER ASC, PI.IMAGE_ID ASC
+                    LIMIT 1
+                )
+                ELSE (
+                    SELECT PKI.IMAGE_URL
+                    FROM PACKAGE_IMAGE PKI
+                    WHERE PKI.PACKAGE_ID = R.PACKAGE_ID
+                      AND PKI.IMAGE_TYPE = 'THUMBNAIL'
+                    ORDER BY PKI.DISPLAY_ORDER ASC, PKI.IMAGE_ID ASC
+                    LIMIT 1
+                )
+            END AS productThumb
+
+        FROM REVIEW R
+        JOIN MEMBER M ON R.MEMBER_ID = M.MEMBER_ID
+        LEFT JOIN ORDER_ITEM OI ON R.ORDER_ITEM_ID = OI.ORDER_ITEM_ID
+        LEFT JOIN PRODUCT P ON R.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN PACKAGE PK ON R.PACKAGE_ID = PK.PACKAGE_ID
+
+        <where>
+            <choose>
+                <when test="reviewStatus != null and reviewStatus != ''">
+                    AND R.REVIEW_STATUS = #{reviewStatus}
+                </when>
+                <otherwise>
+                    AND R.REVIEW_STATUS != 'DELETE'
+                </otherwise>
+            </choose>
+
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    M.MEMBER_NAME LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(OI.ITEM_NAME_SNAPSHOT, P.PRODUCT_NAME, PK.PACKAGE_NAME)
+                        LIKE CONCAT('%', #{keyword}, '%')
+                    OR R.REVIEW_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+
+            <if test="rating != null and rating != ''">
+                AND R.RATING = #{rating}
+            </if>
+
+            <if test="reviewType != null and reviewType != ''">
+                <choose>
+                    <when test="reviewType == 'PRODUCT'">
+                        AND R.PRODUCT_ID IS NOT NULL
+                    </when>
+                    <when test="reviewType == 'PACKAGE'">
+                        AND R.PACKAGE_ID IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+
+            <if test="startDate != null and startDate != ''">
+                AND DATE(R.CREATED_AT) &gt;= #{startDate}
+            </if>
+
+            <if test="endDate != null and endDate != ''">
+                AND DATE(R.CREATED_AT) &lt;= #{endDate}
+            </if>
+        </where>
+
+        ORDER BY R.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+
+    </select>
+
+
+    <!-- 관리자 리뷰 전체 개수 조회 -->
+    <select id="selectAdminReviewCount"
+        parameterType="hashmap"
+        resultType="int">
+
+        SELECT COUNT(*)
+        FROM REVIEW R
+        JOIN MEMBER M ON R.MEMBER_ID = M.MEMBER_ID
+        LEFT JOIN ORDER_ITEM OI ON R.ORDER_ITEM_ID = OI.ORDER_ITEM_ID
+        LEFT JOIN PRODUCT P ON R.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN PACKAGE PK ON R.PACKAGE_ID = PK.PACKAGE_ID
+
+        <where>
+            <choose>
+                <when test="reviewStatus != null and reviewStatus != ''">
+                    AND R.REVIEW_STATUS = #{reviewStatus}
+                </when>
+                <otherwise>
+                    AND R.REVIEW_STATUS != 'DELETE'
+                </otherwise>
+            </choose>
+
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    M.MEMBER_NAME LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(OI.ITEM_NAME_SNAPSHOT, P.PRODUCT_NAME, PK.PACKAGE_NAME)
+                        LIKE CONCAT('%', #{keyword}, '%')
+                    OR R.REVIEW_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+
+            <if test="rating != null and rating != ''">
+                AND R.RATING = #{rating}
+            </if>
+
+            <if test="reviewType != null and reviewType != ''">
+                <choose>
+                    <when test="reviewType == 'PRODUCT'">
+                        AND R.PRODUCT_ID IS NOT NULL
+                    </when>
+                    <when test="reviewType == 'PACKAGE'">
+                        AND R.PACKAGE_ID IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+
+            <if test="startDate != null and startDate != ''">
+                AND DATE(R.CREATED_AT) &gt;= #{startDate}
+            </if>
+
+            <if test="endDate != null and endDate != ''">
+                AND DATE(R.CREATED_AT) &lt;= #{endDate}
+            </if>
+        </where>
+
+    </select>
+
+
+    <!-- 관리자 리뷰 통계 조회 -->
+    <select id="selectAdminReviewStats"
+        resultType="hashmap">
+
+        SELECT
+            COUNT(CASE WHEN R.REVIEW_STATUS != 'DELETE' THEN 1 END) AS totalReview,
+
+            ROUND(
+                AVG(CASE WHEN R.REVIEW_STATUS = 'ACTIVE' THEN R.RATING END),
+                1
+            ) AS avgRating,
+
+            COUNT(CASE WHEN R.REVIEW_STATUS = 'HIDDEN' THEN 1 END) AS hiddenReview,
+
+            COUNT(
+                DISTINCT CASE
+                    WHEN R.REVIEW_STATUS != 'DELETE'
+                     AND EXISTS (
+                         SELECT 1
+                         FROM REVIEW_IMAGE RI
+                         WHERE RI.REVIEW_ID = R.REVIEW_ID
+                     )
+                    THEN R.REVIEW_ID
+                END
+            ) AS photoReview
+
+        FROM REVIEW R
+
+    </select>
+
+
+    <!-- 관리자 리뷰 상태 변경 -->
+    <update id="updateAdminReviewStatus"
+        parameterType="hashmap">
+
+        UPDATE REVIEW
+        SET
+            REVIEW_STATUS = #{reviewStatus},
+            UPDATED_AT = NOW()
+        WHERE REVIEW_ID = #{reviewId}
+          AND REVIEW_STATUS != 'DELETE'
+
+    </update>
+
+
+
     
     
 </mapper>
