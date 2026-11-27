@@ -3,10 +3,12 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>모아몽 - 배송·반품 안내</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="/js/page-change.js"></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
@@ -15,7 +17,7 @@
 <body>
     <%@ include file="/WEB-INF/common/header.jsp"%>
 
-    <main id="app" class="info-wrap">
+    <main id="app" class="info-wrap" v-cloak>
         <nav class="info-tabs">
             <a href="/info/about.do" class="info-tab">회사소개</a>
             <a href="/info/terms.do" class="info-tab">이용약관</a>
@@ -25,12 +27,13 @@
         </nav>
 
         <div class="info-head">
+            <span class="info-eyebrow">SHIPPING &amp; RETURNS</span>
             <h2>배송 · 반품 안내</h2>
             <p>안전한 배송과 투명한 취소·반품 기준을 안내해 드립니다.</p>
         </div>
 
         <div class="info-card">
-            <h3>{{ deliveryTitle }}</h3>
+            <h3><span class="info-ico">🚚</span>{{ deliveryTitle }}</h3>
             <div v-if="deliveryContent" class="policy-box">{{ deliveryContent }}</div>
             <table v-else class="info-table">
                 <tr><th>배송비 정책</th><td>기본 배송비 3,000원 (<strong>30,000원 이상 구매 시 무료배송</strong>)</td></tr>
@@ -40,7 +43,7 @@
         </div>
 
         <div class="info-card">
-            <h3>{{ refundTitle }}</h3>
+            <h3><span class="info-ico">🤝</span>{{ refundTitle }}</h3>
             <div v-if="refundContent" class="policy-box">{{ refundContent }}</div>
             <table v-else class="info-table">
                 <tr><th>주문 즉시 취소</th><td><strong>결제 완료(PAID)</strong> 단계까지는 주문상세에서 즉시 취소 및 전액 환불이 가능합니다.</td></tr>
@@ -51,19 +54,20 @@
     </main>
 
     <%@ include file="/WEB-INF/common/footer.jsp"%>
+
+    <script>
+        Vue.createApp({
+            data() { return { deliveryTitle: "배송 및 반품 안내", deliveryContent: "", refundTitle: "교환 및 환불 기준", refundContent: "" }; },
+            mounted() {
+                $.post("/info/policies.dox", (res) => {
+                    const list = res.list || [];
+                    const d = list.find(p => p.policyType === "DELIVERY");
+                    const r = list.find(p => p.policyType === "REFUND");
+                    if (d && d.content) { this.deliveryTitle = d.title || this.deliveryTitle; this.deliveryContent = d.content; }
+                    if (r && r.content) { this.refundTitle = r.title || this.refundTitle; this.refundContent = r.content; }
+                }, "json");
+            }
+        }).mount("#app");
+    </script>
 </body>
 </html>
-<script>
-    Vue.createApp({
-        data() { return { deliveryTitle: "배송 및 반품 안내", deliveryContent: "", refundTitle: "교환 및 환불 기준", refundContent: "" }; },
-        mounted() {
-            $.post("/info/policies.dox", (res) => {
-                const list = res.list || [];
-                const d = list.find(p => p.policyType === "DELIVERY");
-                const r = list.find(p => p.policyType === "REFUND");
-                if (d && d.content) { this.deliveryTitle = d.title || this.deliveryTitle; this.deliveryContent = d.content; }
-                if (r && r.content) { this.refundTitle = r.title || this.refundTitle; this.refundContent = r.content; }
-            }, "json");
-        }
-    }).mount("#app");
-</script>

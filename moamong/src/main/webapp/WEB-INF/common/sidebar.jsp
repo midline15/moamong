@@ -89,6 +89,10 @@
                 <a href="/notice/list.do" class="menu-link">고객센터</a>
             </li>
 
+            <li>
+                <a href="/info/about.do" class="menu-link">회사소개</a>
+            </li>
+
             <% if ("ADMIN".equals(String.valueOf(session.getAttribute("sessionRole")))) { %>
             <li>
                 <a href="/admin/member/list.do" class="menu-link" style="color: #94764b;">관리자 페이지</a>

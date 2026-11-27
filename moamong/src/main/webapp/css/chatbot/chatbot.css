@@ -6,16 +6,17 @@
     z-index: 9999;
     font-family: 'Pretendard', sans-serif;
 }
-
+ 
 /* 플로팅 버튼 (FAB) */
 .mcb-fab {
-    width: 58px;
-    height: 58px;
+    position: relative;
+    width: 92px;
+    height: 92px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #a88960 0%, #765a36 100%);
-    color: #fffdf9;
-    border: 2px solid #efe7da;
-    font-size: 22px;
+    background: #fffaf2 url("../../assets/char/char1.png") no-repeat 56% 42% / 76%;
+    border: 3px solid #d8c7ae;
+    font-size: 0;                   /* Vue가 넣는 💬/✕ 글자 숨김 */
+    color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,12 +26,67 @@
 }
 
 .mcb-fab:hover {
-    transform: translateY(-3px) scale(1.04);
+    transform: translateY(-3px) scale(1.05);
     box-shadow: 0 10px 26px rgba(118, 90, 54, 0.36);
+}
+
+/* "chatbot" 라벨 (캐릭터 아래쪽에 걸친 알약 모양) */
+.mcb-fab::before {
+    content: "chatbot";
+    position: absolute;
+    left: calc(50% + 2px);          /* 라벨과 글씨가 같이 오른쪽으로 6px 이동 */
+    bottom: -10px;
+    transform: translateX(-50%);
+    padding: 3px 11px;
+    background: #765a36;
+    color: #fffdf9;
+    border: 2px solid #fffdf9;
+    border-radius: 999px;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(60, 45, 25, 0.25);
+}
+
+/* 호버 말풍선 */
+.mcb-fab::after {
+    content: "궁금한건 모리한테 물어보세요!";
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    padding: 9px 14px;
+    background: #fffdf9;
+    color: #765a36;
+    border: 1px solid #dfd1bd;
+    border-radius: 14px;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+    box-shadow: 0 6px 16px rgba(60, 45, 25, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.mcb-fab:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* 채팅창이 열려 있을 땐 말풍선 안 뜨게 */
+.mcb-panel ~ .mcb-fab::after {
+    display: none;
 }
 
 /* 챗봇 패널 본체 */
 .mcb-panel {
+    bottom: 108px;
     position: absolute;
     right: 0;
     bottom: 72px;
@@ -38,12 +94,13 @@
     background: #fffdf9;
     border-radius: 16px;
     box-shadow: 0 12px 32px rgba(60, 45, 25, 0.18);
-    overflow: hidden;
+    overflow: visible;  /* hidden → visible (캐릭터가 밖으로 나오게) */
     border: 1px solid #dfd1bd;
 }
 
 /* 상단 헤더 */
 .mcb-head {
+    border-radius: 15px 15px 0 0;
     background: #94764b;
     color: #fffdf9;
     padding: 15px 18px;
@@ -77,7 +134,10 @@
 }
 
 /* 대화 본문 영역 */
+/* 채팅 본문 안에 모리 캐릭터를 은은한 배경으로 배치 */
 .mcb-body {
+    position: relative;
+    isolation: isolate;
     height: 380px;
     overflow-y: auto;
     padding: 16px;
@@ -85,6 +145,24 @@
     flex-direction: column;
     gap: 10px;
     background: #faf7f1;
+}
+
+/* 캐릭터 배경 */
+.mcb-body::before {
+    content: "";
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+
+    width: 100px;
+    height: 100px;
+
+    background: url("../../assets/char/char2.png")
+                no-repeat center / contain;
+
+    opacity: 0.20;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .mcb-msg {
@@ -114,6 +192,9 @@
 
 /* 하단 입력창 */
 .mcb-foot {
+    position: relative;             /* 캐릭터 기준점 */
+    border-radius: 0 0 15px 15px;
+    /* overflow: hidden; */
     display: flex;
     border-top: 1px solid #e3d6c1;
     background: #fffdf9;
@@ -134,6 +215,7 @@
 }
 
 .mcb-foot button {
+    border-radius: 0 0 15px 0;      /* overflow를 뺀 대신 우하단 모서리 처리 */
     background: #94764b;
     color: #fffdf9;
     border: none;
@@ -152,3 +234,130 @@
     background: #cbb99e;
     cursor: not-allowed;
 }
+
+/* 모아몽 캐릭터: 패널 상단에 걸쳐 앉아 있는 모습 */
+/* 모리 캐릭터: 채팅창 상단 */
+.mcb-panel::before {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: -80px;
+    width: 150px;
+    height: 87px;
+    background: url("../../assets/char/chatbotChar.png")
+                no-repeat center bottom / contain;
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 3px 4px rgba(60, 45, 25, 0.18));
+}
+
+
+
+/* 채팅창이 열려 있을 때는 버튼이 패널 뒤로 가도록 */
+.mcb-panel ~ .mcb-fab {
+    position: relative;
+    z-index: 0;
+}
+
+.mcb-panel {
+    z-index: 2;
+}
+
+
+/* =====================================
+   모아몽 챗봇 등장 / 퇴장 애니메이션
+===================================== */
+
+/* 채팅창이 나타나는 동안 */
+.mcb-enter-active {
+    transform-origin: bottom right;
+    transition:
+        opacity 0.4s ease,
+        transform 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+
+/* 채팅창이 사라지는 동안 */
+.mcb-leave-active {
+    transform-origin: bottom right;
+    transition:
+        opacity 0.22s ease,
+        transform 0.22s ease;
+    pointer-events: none;
+}
+
+/* 등장 시작 상태 */
+.mcb-enter-from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.85);
+}
+
+/* 등장 완료 상태 */
+.mcb-enter-to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* 퇴장 시작 상태 */
+.mcb-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* 퇴장 완료 상태 */
+.mcb-leave-to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+}
+
+
+/* =====================================
+   모리 캐릭터 등장 애니메이션
+===================================== */
+
+
+/* 모리 통통 등장 애니메이션 */
+@keyframes mcb-mori-pop {
+    0% {
+        opacity: 0;
+        transform: translateY(12px) scale(0.8);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(-5px) scale(1.06);
+    }
+
+    80% {
+        transform: translateY(2px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 채팅창 열릴 때 모리 등장 */
+.mcb-enter-active::before {
+    animation: mcb-mori-pop 0.4s ease-out 0.05s both;
+}
+
+
+/* 채팅창이 열릴 때 상단 캐릭터도 등장 */
+.mcb-enter-active::before {
+    animation: mcb-mori-pop 0.65s ease-out 0.12s both;
+}
+
+
+/* 모션 최소화 설정 */
+@media (prefers-reduced-motion: reduce) {
+    .mcb-enter-active,
+    .mcb-leave-active {
+        transition: none;
+    }
+
+    .mcb-enter-active::before {
+        animation: none;
+    }
+}
+

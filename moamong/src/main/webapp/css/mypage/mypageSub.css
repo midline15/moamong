@@ -1,46 +1,40 @@
-/* 마이페이지 하위(리뷰/쿠폰/포인트/작성글/댓글) 공통 확장 스타일 */
+/* =========================================
+   마이페이지 하위(리뷰/쿠폰/포인트/작성글/댓글) 공통 확장 스타일
+   ※ .mp-main, .mp-breadcrumb 는 mypage.css 로 통합됨
+========================================= */
 
-/* 내역이 0건이어도 우측 본문 영역이 쪼그라들지 않도록 너비 고정 */
-.mp-main {
-    flex: 1;
-    min-width: 0;
-    width: 100%;
-}
+/* 하위 페이지 상단 제목 */
 .mp-sub-top {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 28px 0 18px;
-    border-bottom: 1px solid #e3d6c1;
-    margin-bottom: 18px;
+    align-items: flex-end;
+    padding: 22px 0 16px;
+    border-bottom: 2px solid var(--mp-text, #39352F);
+    margin-bottom: 20px;
 }
 
 .mp-sub-top h2 {
     margin: 0;
     font-size: 22px;
     font-weight: 700;
-    color: #29251f;
+    letter-spacing: -0.6px;
+    color: var(--mp-text, #39352F);
 }
 
-.mp-breadcrumb {
-    font-size: 12px;
-    color: #85817b;
-}
-
-/* 상단 2분할 탭 (피그마 리뷰 관리 도안 반영) */
+/* 상단 2분할 탭 */
 .mp-sub-tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-bottom: 1px solid #e3d6c1;
-    margin-bottom: 18px;
+    border-bottom: 1px solid var(--mp-border, #EBE7DF);
+    margin-bottom: 20px;
 }
 
 .mp-sub-tab {
     text-align: center;
-    padding: 13px 0;
+    padding: 14px 0;
     font-size: 14px;
     font-weight: 600;
-    color: #85817b;
+    color: #98917f;
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
@@ -48,28 +42,33 @@
     transition: all 0.2s;
 }
 
+.mp-sub-tab:hover { color: #514636; }
+
 .mp-sub-tab.active {
-    color: #765a36;
+    color: #514636;
     font-weight: 700;
-    border-bottom-color: #94764b;
+    border-bottom-color: var(--mp-point, #C5A477);
+    background: var(--mp-ivory, #FBF5EB);
 }
 
-/* 리뷰/게시글 카드 행 (좌측 썸네일 + 중앙 정보 + 우측 버튼) */
+/* 리뷰/게시글 카드 행 */
 .mp-item-card {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 18px;
-    background: #faf7f1;
-    border: 1px solid #e9dfd1;
-    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--mp-border, #EBE7DF);
+    border-radius: 12px;
     padding: 18px 20px;
     margin-bottom: 12px;
-    transition: border-color 0.2s;
+    box-shadow: 0 1px 3px rgba(60, 45, 25, 0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .mp-item-card:hover {
-    border-color: #d5c4aa;
+    border-color: var(--mp-point, #C5A477);
+    box-shadow: 0 6px 16px rgba(118, 90, 54, 0.1);
 }
 
 .mp-item-thumb {
@@ -77,7 +76,7 @@
     height: 78px;
     border-radius: 8px;
     object-fit: cover;
-    border: 1px solid #e3d6c1;
+    border: 1px solid var(--mp-border, #EBE7DF);
     background: #fffdf9;
     flex-shrink: 0;
 }
@@ -90,12 +89,12 @@
 .mp-item-title {
     font-size: 15px;
     font-weight: 700;
-    color: #29251f;
+    color: var(--mp-text, #39352F);
     margin-bottom: 4px;
 }
 
 .mp-item-stars {
-    color: #b88b68;
+    color: var(--mp-point, #C5A477);
     font-size: 15px;
     letter-spacing: 2px;
     margin-bottom: 6px;
@@ -111,7 +110,7 @@
 
 .mp-item-meta {
     font-size: 11px;
-    color: #85817b;
+    color: var(--mp-sub-text, #888176);
     margin-top: 8px;
 }
 
@@ -126,14 +125,15 @@
     background: none;
     border: none;
     font-size: 22px;
-    color: #dfd1bd;
+    color: #e3d9c8;
     cursor: pointer;
     padding: 0 2px;
+    transition: transform 0.15s, color 0.15s;
 }
 
-.rv-star-btn.active {
-    color: #b88b68;
-}
+.rv-star-btn:hover { transform: scale(1.15); }
+
+.rv-star-btn.active { color: var(--mp-point, #C5A477); }
 
 .rv-edit-label {
     display: block;
@@ -147,14 +147,21 @@
     width: 100%;
     min-height: 96px;
     padding: 12px;
-    border: 1px solid #d5c4aa;
+    border: 1px solid var(--mp-border-deep, #dfd1bd);
     border-radius: 8px;
-    background: #fffdf9;
+    background: #fff;
     font-family: inherit;
     font-size: 13px;
-    color: #29251f;
+    color: var(--mp-text, #39352F);
     resize: vertical;
     box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.rv-textarea:focus {
+    outline: none;
+    border-color: var(--mp-point, #C5A477);
+    box-shadow: 0 0 0 3px rgba(197, 164, 119, 0.22);
 }
 
 .rv-img-grid {
@@ -175,7 +182,7 @@
     height: 100%;
     object-fit: cover;
     border-radius: 8px;
-    border: 1px solid #e3d6c1;
+    border: 1px solid var(--mp-border, #EBE7DF);
 }
 
 .rv-img-del {
@@ -192,7 +199,7 @@
     cursor: pointer;
 }
 
-/* 쿠폰 티켓 카드 그리드 */
+/* 쿠폰 티켓 카드 */
 .cp-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -200,19 +207,31 @@
 }
 
 .cp-ticket {
-    background: #faf7f1;
-    border: 1px solid #dfd1bd;
-    border-left: 5px solid #94764b;
-    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--mp-border, #EBE7DF);
+    border-left: 5px solid var(--mp-point, #C5A477);
+    border-radius: 12px;
     padding: 18px 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(60, 45, 25, 0.04);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.cp-ticket:hover {
+    box-shadow: 0 6px 16px rgba(118, 90, 54, 0.12);
+    transform: translateY(-2px);
 }
 
 .cp-ticket.used {
     opacity: 0.6;
     border-left-color: #b8b0a4;
+}
+
+.cp-ticket.used:hover {
+    box-shadow: none;
+    transform: none;
 }
 
 .cp-discount {
@@ -222,10 +241,11 @@
     margin-bottom: 4px;
 }
 
-/* 포인트 요약 배너 & 내역 테이블 */
+/* 포인트 요약 배너 */
 .pt-summary-box {
-    background: #efe7da;
-    border: 1px solid #dfd1bd;
+    background: var(--mp-ivory, #FBF5EB);
+    border: 1px solid var(--mp-border-deep, #dfd1bd);
+    border-top: 2px solid var(--mp-point, #C5A477);
     border-radius: 12px;
     padding: 22px 26px;
     display: flex;
@@ -244,31 +264,37 @@
     font-weight: 700;
 }
 
-/* 하단 페이징 (피그마 도안 반영) */
+/* 하단 페이징 */
 .mp-paging {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 6px;
-    margin-top: 24px;
+    margin-top: 28px;
 }
 
 .mp-page-btn {
-    min-width: 28px;
-    height: 28px;
+    min-width: 30px;
+    height: 30px;
     padding: 0 8px;
     border-radius: 6px;
-    border: 1px solid #dfd1bd;
-    background: #fffdf9;
+    border: 1px solid var(--mp-border-deep, #dfd1bd);
+    background: #fff;
     color: #5c5346;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mp-page-btn:hover:not(:disabled):not(.active) {
+    background: var(--mp-ivory, #FBF5EB);
+    border-color: var(--mp-point, #C5A477);
 }
 
 .mp-page-btn.active {
-    background: #94764b;
-    border-color: #94764b;
+    background: var(--mp-point, #C5A477);
+    border-color: var(--mp-point, #C5A477);
     color: #fff;
 }
 
@@ -286,9 +312,9 @@
 }
 
 .cp-summary-card {
-    background: #faf7f1;
-    border: 1px solid #dfd1bd;
-    border-radius: 10px;
+    background: var(--mp-ivory, #FBF5EB);
+    border: 1px solid var(--mp-border, #EBE7DF);
+    border-radius: 12px;
     padding: 16px 12px;
     text-align: center;
 }
@@ -308,7 +334,7 @@
 .cp-tabs-4 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border-bottom: 1px solid #e3d6c1;
+    border-bottom: 1px solid var(--mp-border, #EBE7DF);
     margin-bottom: 18px;
 }
 
@@ -322,7 +348,7 @@
 }
 
 .cp-status-tag.available {
-    background: #efe7da;
+    background: var(--mp-ivory-deep, #efe7da);
     color: #765a36;
 }
 
@@ -344,11 +370,11 @@
     flex-shrink: 0;
 }
 
-/* 포인트 내역 전용 테이블 & 유형 뱃지 */
+/* 포인트 내역 테이블 & 유형 뱃지 */
 .pt-table-wrap {
-    background: #faf7f1;
-    border: 1px solid #dfd1bd;
-    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--mp-border, #EBE7DF);
+    border-radius: 12px;
     overflow: hidden;
 }
 
@@ -359,25 +385,30 @@
 }
 
 .pt-table thead th {
-    background: #efe7da;
+    background: var(--mp-ivory, #FBF5EB);
     color: #765a36;
     font-weight: 700;
     padding: 13px 10px;
-    border-bottom: 1px solid #dfd1bd;
+    border-top: 2px solid var(--mp-point, #C5A477);
+    border-bottom: 1px solid var(--mp-border, #EBE7DF);
     text-align: center;
 }
 
 .pt-table tbody td {
     padding: 14px 10px;
-    border-bottom: 1px solid #e9dfd1;
-    color: #29251f;
+    border-bottom: 1px solid #f1ece2;
+    color: var(--mp-text, #39352F);
     text-align: center;
-    background: #fffdf9;
+    background: #fff;
 }
 
-.pt-table tbody tr:last-child td {
-    border-bottom: none;
+.pt-table tbody tr {
+    transition: background 0.2s;
 }
+
+.pt-table tbody tr:hover td { background: #FAF8F3; }
+
+.pt-table tbody tr:last-child td { border-bottom: none; }
 
 .pt-type-badge {
     display: inline-block;
@@ -385,7 +416,7 @@
     border-radius: 999px;
     font-size: 11px;
     font-weight: 700;
-    background: #efe7da;
+    background: var(--mp-ivory-deep, #efe7da);
     color: #765a36;
 }
 
@@ -399,4 +430,39 @@
 .pt-type-badge.cancel {
     background: #e6f4ea;
     color: #2b8a3e;
+}
+
+
+/* =========================================
+   모바일 반응형
+========================================= */
+@media (max-width: 860px) {
+    .mp-item-card {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .mp-item-actions { align-self: flex-end; }
+
+    .cp-grid { grid-template-columns: 1fr; }
+
+    .cp-summary-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .cp-tabs-4 { grid-template-columns: repeat(2, 1fr); }
+
+    .cp-extra-box {
+        border-left: none;
+        padding-left: 0;
+        text-align: left;
+    }
+
+    .pt-summary-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* 표가 넘치면 가로 스크롤 */
+    .pt-table-wrap { overflow-x: auto; }
+    .pt-table { min-width: 520px; }
 }

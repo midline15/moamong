@@ -12,53 +12,22 @@
 		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 		<script src="/js/page-change.js"></script>
 
+		<link rel="stylesheet" href="/css/admin/adminLayout.css">
 		<link rel="stylesheet" href="/css/admin/default.css">
 		<link rel="stylesheet" href="/css/admin/member/edit.css">
 	</head>
 
 	<body>
 
-		<header class="header">
-			<div class="logo">Logo</div>
-		</header>
+		<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-		<div id="app">
+		<div class="adm-shell">
 
-			<div class="admin-container">
+			<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
 
-				<!-- 사이드바 -->
-				<aside class="sidebar">
+			<main class="adm-main">
 
-					<div class="sidebar-title">
-						관리자 페이지
-					</div>
-
-					<ul>
-						<li class="active" onclick="location.href='/admin/member/list.do'">
-							회원 관리
-						</li>
-						<li>상품조회 / 등록</li>
-						<li>주문 관리</li>
-						<li>배송 관리</li>
-						<li>재고 관리</li>
-						<li>거래처 관리</li>
-						<li>리뷰 및 문의</li>
-						<li onclick="location.href='/admin/coupon/list.do'">
-							쿠폰 관리
-						</li>
-						<li onclick="location.href='/admin/event/list.do'">
-							이벤트 관리
-						</li>
-						<li onclick="location.href='/admin/policy/list.do'">
-							운영정책 관리
-						</li>
-						<li>매출 통계</li>
-					</ul>
-
-				</aside>
-
-				<!-- 메인 콘텐츠 -->
-				<main class="main-content">
+				<div id="app">
 
 					<div class="page-title">
 						<h3>회원 상세 정보</h3>
@@ -360,155 +329,155 @@
 
 					</div>
 
-				</main>
+					<!-- 회원정보 수정 모달 -->
+					<div class="modal-overlay" v-if="showInfoModal">
 
-			</div>
+						<div class="manage-modal">
 
-			<!-- 회원정보 수정 모달 -->
-			<div class="modal-overlay" v-if="showInfoModal">
+							<h3>회원정보 수정</h3>
 
-				<div class="manage-modal">
+							<div class="modal-item">
 
-					<h3>회원정보 수정</h3>
+								<label>회원 이름</label>
 
-					<div class="modal-item">
+								<input type="text" v-model="editInfo.memberName" placeholder="회원 이름 입력">
 
-						<label>회원 이름</label>
+							</div>
 
-						<input type="text" v-model="editInfo.memberName" placeholder="회원 이름 입력">
+							<div class="modal-item">
+
+								<label>이메일</label>
+
+								<input type="email" v-model="editInfo.email" placeholder="이메일 입력">
+
+							</div>
+
+							<div class="modal-item">
+
+								<label>휴대폰 번호</label>
+
+								<input type="text" v-model="editInfo.phone" placeholder="010-0000-0000">
+
+							</div>
+
+							<div class="modal-buttons">
+
+								<button @click="showInfoModal = false">
+									취소
+								</button>
+
+								<button class="btn-confirm" @click="fnUpdateInfo">
+									수정 저장
+								</button>
+
+							</div>
+
+						</div>
 
 					</div>
 
-					<div class="modal-item">
+					<!-- 등급 변경 모달 -->
+					<div class="modal-overlay" v-if="showGradeModal">
 
-						<label>이메일</label>
+						<div class="manage-modal">
 
-						<input type="email" v-model="editInfo.email" placeholder="이메일 입력">
+							<h3>회원 등급 변경</h3>
+
+							<div class="modal-item">
+								<label>현재 등급</label>
+								<strong>{{ userInfo.memberGrade || '-' }}</strong>
+							</div>
+
+							<div class="modal-item">
+
+								<label>변경할 등급</label>
+
+								<select v-model="changeGrade">
+									<option value="BRONZE">BRONZE</option>
+									<option value="SILVER">SILVER</option>
+									<option value="GOLD">GOLD</option>
+									<option value="VIP">VIP</option>
+								</select>
+
+							</div>
+
+							<div class="modal-item">
+
+								<label>변경 사유</label>
+
+								<textarea v-model="changeReason" placeholder="등급 변경 사유를 입력하세요."></textarea>
+
+							</div>
+
+							<div class="modal-buttons">
+
+								<button @click="showGradeModal = false">
+									취소
+								</button>
+
+								<button class="btn-confirm" @click="fnChangeGrade">
+									변경
+								</button>
+
+							</div>
+
+						</div>
 
 					</div>
 
-					<div class="modal-item">
+					<!-- 상태 변경 모달 -->
+					<div class="modal-overlay" v-if="showStatusModal">
 
-						<label>휴대폰 번호</label>
+						<div class="manage-modal">
 
-						<input type="text" v-model="editInfo.phone" placeholder="010-0000-0000">
+							<h3>회원 상태 변경</h3>
 
-					</div>
+							<div class="modal-item">
 
-					<div class="modal-buttons">
+								<label>현재 상태</label>
+								<strong>{{ fnStatusName(userInfo.status) }}</strong>
 
-						<button @click="showInfoModal = false">
-							취소
-						</button>
+							</div>
 
-						<button class="btn-confirm" @click="fnUpdateInfo">
-							수정 저장
-						</button>
+							<div class="modal-item">
+
+								<label>변경할 상태</label>
+
+								<select v-model="changeStatus">
+									<option value="ACTIVE">정상</option>
+									<option value="SUSPENDED">정지</option>
+									<option value="INACTIVE">휴면</option>
+								</select>
+
+							</div>
+
+							<div class="modal-item">
+
+								<label>변경 사유</label>
+
+								<textarea v-model="changeReason" placeholder="상태 변경 사유를 입력하세요."></textarea>
+
+							</div>
+
+							<div class="modal-buttons">
+
+								<button @click="showStatusModal = false">
+									취소
+								</button>
+
+								<button class="btn-confirm" @click="fnChangeStatus">
+									변경
+								</button>
+
+							</div>
+
+						</div>
 
 					</div>
 
 				</div>
 
-			</div>
-
-			<!-- 등급 변경 모달 -->
-			<div class="modal-overlay" v-if="showGradeModal">
-
-				<div class="manage-modal">
-
-					<h3>회원 등급 변경</h3>
-
-					<div class="modal-item">
-						<label>현재 등급</label>
-						<strong>{{ userInfo.memberGrade || '-' }}</strong>
-					</div>
-
-					<div class="modal-item">
-
-						<label>변경할 등급</label>
-
-						<select v-model="changeGrade">
-							<option value="BRONZE">BRONZE</option>
-							<option value="SILVER">SILVER</option>
-							<option value="GOLD">GOLD</option>
-							<option value="VIP">VIP</option>
-						</select>
-
-					</div>
-
-					<div class="modal-item">
-
-						<label>변경 사유</label>
-
-						<textarea v-model="changeReason" placeholder="등급 변경 사유를 입력하세요."></textarea>
-
-					</div>
-
-					<div class="modal-buttons">
-
-						<button @click="showGradeModal = false">
-							취소
-						</button>
-
-						<button class="btn-confirm" @click="fnChangeGrade">
-							변경
-						</button>
-
-					</div>
-
-				</div>
-
-			</div>
-
-			<!-- 상태 변경 모달 -->
-			<div class="modal-overlay" v-if="showStatusModal">
-
-				<div class="manage-modal">
-
-					<h3>회원 상태 변경</h3>
-
-					<div class="modal-item">
-
-						<label>현재 상태</label>
-						<strong>{{ fnStatusName(userInfo.status) }}</strong>
-
-					</div>
-
-					<div class="modal-item">
-
-						<label>변경할 상태</label>
-
-						<select v-model="changeStatus">
-							<option value="ACTIVE">정상</option>
-							<option value="SUSPENDED">정지</option>
-							<option value="INACTIVE">휴면</option>
-						</select>
-
-					</div>
-
-					<div class="modal-item">
-
-						<label>변경 사유</label>
-
-						<textarea v-model="changeReason" placeholder="상태 변경 사유를 입력하세요."></textarea>
-
-					</div>
-
-					<div class="modal-buttons">
-
-						<button @click="showStatusModal = false">
-							취소
-						</button>
-
-						<button class="btn-confirm" @click="fnChangeStatus">
-							변경
-						</button>
-
-					</div>
-
-				</div>
-
-			</div>
+			</main>
 
 		</div>
 

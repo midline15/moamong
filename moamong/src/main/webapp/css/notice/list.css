@@ -1,5 +1,7 @@
+
 /* =========================================
-   고객센터 - Minimal Beige
+   고객센터 공통 CSS - Minimal Beige
+   레이아웃 / 본문 / 검색 / 목록 / 버튼
 ========================================= */
 
 :root {
@@ -13,10 +15,12 @@
     --danger: #B5524A;
 }
 
+/* =========================================
+   기본 레이아웃
+========================================= */
 
-/* 기본 레이아웃 */
-
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
 }
@@ -43,116 +47,6 @@ body {
     box-sizing: border-box;
 }
 
-
-/* =========================================
-   좌측 메뉴
-========================================= */
-
-.cs-side {
-    width: 200px;
-    flex-shrink: 0;
-}
-
-/* 타이틀 */
-
-.cs-side-title {
-    background: var(--ivory);
-    text-align: left;
-    padding: 25px 20px;
-    color: var(--text);
-    border-top: 2px solid var(--point);
-}
-
-.cs-side-title strong {
-    display: block;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.8px;
-}
-
-.cs-side-title span {
-    display: block;
-    margin-top: 5px;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    color: var(--point);
-}
-
-
-/* 메뉴 */
-
-.cs-menu {
-    list-style: none;
-    margin: 0;
-    padding: 8px 0;
-    background: #fff;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-}
-
-.cs-menu li {
-    background: #fff;
-    font-size: 12px;
-    border-bottom: none;
-    transition: background 0.2s ease;
-}
-
-.cs-menu li a {
-    display: block;
-    padding: 13px 15px;
-    color: #777168;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-/* 활성 메뉴 */
-
-.cs-menu li.active {
-    background: var(--ivory);
-    font-weight: 600;
-    border-left: 3px solid var(--point);
-}
-
-.cs-menu li.active a {
-    color: #514636;
-    padding-left: 17px;
-}
-
-/* 호버 */
-
-.cs-menu li:hover {
-    background: #FAF8F3;
-}
-
-.cs-menu li:hover a {
-    color: #514636;
-}
-
-
-/* 전화번호 */
-
-.cs-tel {
-    background: #fff;
-    text-align: left;
-    padding: 20px 15px;
-    color: var(--text);
-    border-top: 1px solid var(--border);
-}
-
-.cs-tel p {
-    margin: 0 0 8px;
-    font-size: 11px;
-    color: var(--sub-text);
-}
-
-.cs-tel strong {
-    font-size: 18px;
-    font-weight: 700;
-    color: #514636;
-    letter-spacing: 0.3px;
-}
-
-
 /* =========================================
    우측 본문
 ========================================= */
@@ -163,9 +57,7 @@ body {
     max-width: 1400px;
 }
 
-
-/* 제목 */
-
+/* 제목 및 경로 */
 .cs-title-area {
     display: flex;
     justify-content: space-between;
@@ -187,7 +79,6 @@ body {
     font-size: 11px;
     color: #A49D91;
 }
-
 
 /* =========================================
    검색
@@ -234,7 +125,6 @@ body {
 .cs-search button:hover {
     background: var(--ivory);
 }
-
 
 /* =========================================
    목록 테이블
@@ -295,7 +185,6 @@ body {
     color: #AAA49A;
 }
 
-
 /* =========================================
    페이징
 ========================================= */
@@ -331,12 +220,11 @@ body {
     border: 1px solid var(--point);
 }
 
-
 /* =========================================
    버튼 (list / view / write 공통)
 ========================================= */
 
-/* 버튼 영역: 기본은 좌(목록/취소) - 우(수정,삭제/등록) 배치 */
+/* 버튼 영역 */
 .cs-btn-area {
     display: flex;
     justify-content: space-between;
@@ -344,7 +232,7 @@ body {
     margin-top: 28px;
 }
 
-/* 목록 화면처럼 우측에 하나만 있을 때 */
+/* 우측 정렬 */
 .cs-btn-area.right {
     justify-content: flex-end;
 }
@@ -354,7 +242,7 @@ body {
     gap: 6px;
 }
 
-/* 기본 버튼 (목록, 취소, 수정) */
+/* 기본 버튼 */
 .cs-btn {
     min-width: 80px;
     height: 38px;
@@ -375,7 +263,7 @@ body {
     border-color: var(--point);
 }
 
-/* 강조 버튼 (글쓰기, 등록, 저장) */
+/* 강조 버튼 */
 .cs-btn.primary {
     color: #fff;
     background: var(--point);
@@ -401,9 +289,8 @@ body {
     border-color: var(--danger);
 }
 
-
 /* =========================================
-   모바일
+   모바일 반응형
 ========================================= */
 
 @media (max-width: 768px) {
@@ -412,43 +299,6 @@ body {
         flex-direction: column;
         gap: 25px;
         padding: 25px 15px 40px;
-    }
-
-    .cs-side {
-        width: 100%;
-    }
-
-    .cs-side-title {
-        padding: 20px 15px;
-    }
-
-    .cs-menu {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0;
-    }
-
-    .cs-menu li {
-        flex: 1 1 50%;
-        box-sizing: border-box;
-    }
-
-    .cs-menu li a {
-        padding: 12px 8px;
-        text-align: center;
-    }
-
-    .cs-menu li.active {
-        border-left: none;
-        border-bottom: 2px solid var(--point);
-    }
-
-    .cs-menu li.active a {
-        padding-left: 8px;
-    }
-
-    .cs-tel {
-        padding: 15px;
     }
 
     .cs-title-area {

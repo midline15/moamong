@@ -12,57 +12,23 @@
 		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 		<script src="/js/page-change.js"></script>
 
+		<link rel="stylesheet" href="/css/admin/adminLayout.css">
 		<link rel="stylesheet" href="/css/admin/default.css">
 		<link rel="stylesheet" href="/css/admin/member/list.css">
 	</head>
 
 	<body>
 
-		<!-- 상단 헤더 -->
-		<header class="header">
-			<div class="logo">
-				Logo
-			</div>
-		</header>
+		<%@ include file="/WEB-INF/common/adminHeader.jsp"%>
 
-		<!-- Vue 영역 -->
-		<div id="app">
+		<div class="adm-shell">
 
-			<div class="admin-container">
+			<%@ include file="/WEB-INF/common/adminSidebar.jsp"%>
 
-				<!-- 사이드바 -->
-				<aside class="sidebar">
+			<main class="adm-main">
 
-					<div class="sidebar-title">
-						관리자 페이지
-					</div>
-
-					<ul>
-						<li class="active">
-							회원 관리
-						</li>
-						<li>상품조회 / 등록</li>
-						<li>주문 관리</li>
-						<li>배송 관리</li>
-						<li>재고 관리</li>
-						<li>거래처 관리</li>
-						<li>리뷰 및 문의</li>
-						<li onclick="location.href='/admin/coupon/list.do'">
-							쿠폰 관리
-						</li>
-						<li onclick="location.href='/admin/event/list.do'">
-							이벤트 관리
-						</li>
-						<li onclick="location.href='/admin/policy/list.do'">
-							운영정책 관리
-						</li>
-						<li>매출 통계</li>
-					</ul>
-
-				</aside>
-
-				<!-- 메인 콘텐츠 -->
-				<main class="main-content">
+				<!-- Vue 영역 -->
+				<div id="app">
 
 					<div class="page-title">
 						<h3>회원 목록</h3>
@@ -289,51 +255,13 @@
 
 					</div>
 
-				</main>
-
-			</div>
-
-			<!-- 하단 회사 정보 -->
-			<footer class="footer">
-
-				<div>
-					<div class="footer-logo">
-						Logo
-					</div>
 				</div>
 
-				<div>
-					<h4>회사 정보</h4>
-					<p>
-						회사소개<br>
-						이용약관<br>
-						개인정보처리방침
-					</p>
-				</div>
-
-				<div>
-					<h4>고객센터</h4>
-					<p>
-						공지사항<br>
-						자주 묻는 질문<br>
-						1:1 문의
-					</p>
-				</div>
-
-				<div>
-					<p>
-						상호명 : 기프트온<br>
-						사업자등록번호 : 000-00-00000<br>
-						주소 : 서울특별시 OO구 OO동<br>
-						고객센터 : 1588-0000<br>
-						Copyright © GIFT-ON. All rights reserved.
-					</p>
-				</div>
-
-			</footer>
+			</main>
 
 		</div>
 
+		
 		<script>
 
 			const app = Vue.createApp({
