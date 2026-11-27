@@ -287,3 +287,24 @@
     cursor: not-allowed;
 }
 
+/* 찜 목록 선물 예산 플래너 (free-ship-box) */
+.wish-planner-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+.wish-budget-input {
+    width: 115px;
+    padding: 5px 10px;
+    border: 1px solid #dfd1bd;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    text-align: right;
+}
+.wish-budget-ok { color: #2b7a4b; }
+.wish-budget-over { color: #b84a4a; }
