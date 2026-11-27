@@ -20,7 +20,6 @@ public interface OrderMapper {
     // 장바구니 패키지 1건의 선택 추가 옵션(박스/카드) 목록 조회
     List<HashMap<String, Object>> selectCheckoutPackageExtras(Long cartItemId);
 
-
     // ==================== 2. 주문 생성 및 재고 차감 ====================
 
     // 주문 마스터(ORDERS) 1건 저장
@@ -93,7 +92,7 @@ public interface OrderMapper {
             @Param("memberId") Long memberId);
 
     // ====================== 바로 구매 =============================
-    
+
     // 바로 구매 단품 상품 정보 조회
     HashMap<String, Object> selectDirectProduct(Long productId);
 
@@ -116,4 +115,13 @@ public interface OrderMapper {
 
     // 리뷰 추가나 리뷰 삭제시 is_reviewd 변경
     int toggleOrderItemReviewed(Long orderItemId);
+
+    // 관리자 전체 주문 목록 조회
+    List<HashMap<String, Object>> selectAdminOrderList(HashMap<String, Object> map);
+
+    // 관리자 전체 주문 개수 조회
+    int selectAdminOrderCount();
+
+    // 관리자 주문 상태 변경
+    int updateAdminOrderStatus(HashMap<String, Object> map);
 }

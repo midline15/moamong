@@ -658,4 +658,45 @@
         END
         WHERE order_item_id = #{orderItemId}
     </update>
+
+    <!-- 관리자 전체 주문 목록 조회 (오래된 주문순, 페이징) -->
+    <select id="selectAdminOrderList" parameterType="hashmap" resultType="hashmap">
+        SELECT
+            O.order_id AS orderId,
+            O.order_number AS orderNumber,
+            O.member_id AS memberId,
+            O.recipient_name AS recipientName,
+            O.recipient_phone AS recipientPhone,
+            O.postal_code AS postalCode,
+            O.address_default AS addressDefault,
+            IFNULL(O.address_detail, '') AS addressDetail,
+            O.total_product_amount AS totalProductAmount,
+            O.total_additional_amount AS totalAdditionalAmount,
+            O.discount_amount AS discountAmount,
+            O.used_point AS usedPoint,
+            O.shipping_fee AS shippingFee,
+            O.final_amount AS finalAmount,
+            O.order_status AS orderStatus,
+            DATE_FORMAT(
+                DATE_ADD(O.ordered_at, INTERVAL 9 HOUR),
+                '%Y-%m-%d %H:%i:%s'
+            ) AS orderedAt
+        FROM ORDERS O
+        ORDER BY O.ordered_at ASC, O.order_id ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 관리자 전체 주문 개수 조회 -->
+    <select id="selectAdminOrderCount" resultType="int">
+        SELECT COUNT(*)
+        FROM ORDERS
+    </select>
+
+    <!-- 관리자 주문 상태 변경 -->
+    <update id="updateAdminOrderStatus" parameterType="hashmap">
+        UPDATE ORDERS
+        SET order_status = #{orderStatus},
+            updated_at = NOW()
+        WHERE order_id = #{orderId}
+    </update>
 </mapper>
