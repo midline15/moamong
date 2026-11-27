@@ -1,5 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.shipment.mapper.ShipmentMapper">
-    <!-- TODO: MyBatis SQL statements -->
+    
+    <!-- 배송 정보 등록 -->
+    <insert id="insertShipment"
+        parameterType="hashmap"
+        useGeneratedKeys="true"
+        keyProperty="shipmentId"
+        keyColumn="shipment_id">
+        INSERT INTO SHIPMENT (
+            order_id,
+            courier_name,
+            courier_code,
+            tracking_number,
+            shipment_status,
+            shipped_at,
+            delivered_at
+        ) VALUES (
+            #{orderId},
+            #{courierName},
+            #{courierCode},
+            #{trackingNumber},
+            #{shipmentStatus},
+            NOW(),
+            CASE
+                WHEN #{shipmentStatus} = 'DELIVERED' THEN NOW()
+                ELSE NULL
+            END
+        )
+    </insert>
+
+    <!-- 배송 상태 변경 -->
+    <update id="updateShipmentStatus" parameterType="hashmap">
+        UPDATE SHIPMENT
+        SET shipment_status = #{shipmentStatus},
+            delivered_at = CASE
+                WHEN #{shipmentStatus} = 'DELIVERED' THEN NOW()
+                ELSE delivered_at
+            END
+        WHERE order_id = #{orderId}
+    </update>
+
+    <!-- 배송 이력 등록 -->
+    <insert id="insertShipmentHistory" parameterType="hashmap">
+        INSERT INTO SHIPMENT_HISTORY (
+            shipment_id,
+            occurred_at,
+            location,
+            status_text,
+            stage,
+            time_precision
+        ) VALUES (
+            #{shipmentId},
+            #{occurredAt},
+            #{location},
+            #{statusText},
+            #{stage},
+            #{timePrecision}
+        )
+    </insert>
+
+    <!-- 배송 이력 조회 -->
+    <select id="selectShipmentHistory"
+            parameterType="long"
+            resultType="ShipmentHistory">
+
+        SELECT
+            history_id AS historyId,
+            shipment_id AS shipmentId,
+            occurred_at AS occurredAt,
+            location,
+            status_text AS statusText,
+            stage,
+            time_precision AS timePrecision
+        FROM SHIPMENT_HISTORY
+        WHERE shipment_id = #{shipmentId}
+        ORDER BY occurred_at ASC
+
+    </select>
 </mapper>
