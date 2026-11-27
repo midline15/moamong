@@ -14,29 +14,50 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class AdminController {
 
-    // 관리자 콘솔 - 회원 목록 화면 이동
-
-    @RequestMapping("/admin/member/list.do")
-    public String memberlist(Model model) throws Exception {
+	// 관리자 콘솔 - 회원 목록 화면 이동
+	@RequestMapping("/admin/member/list.do")
+	public String memberlist(Model model) throws Exception {
 
         // 회원 목록 JSP 화면을 보여줍니다.
         return "/admin/member/list";
     }
 
-    // 관리자 콘솔 - 회원 상세 화면 이동
-
-    @RequestMapping("/admin/member/edit.do")
-    public String memberview(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-        model.addAttribute("memberId", map.get("memberId"));
+	// 관리자 콘솔 - 회원 상세/수정 화면 이동
+	@RequestMapping("/admin/member/edit.do")
+	public String memberview(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		model.addAttribute("memberId", map.get("memberId"));
 
         return "/admin/member/edit";
     }
 
-    // 관리자 콘솔 - 쿠폰 목록 이동
-    @RequestMapping("/admin/coupon/list.do")
-    public String couponlist() {
-        return "/admin/coupon/list";
-    }
+	// 관리자 콘솔 - 상품(단품) 목록 화면 이동
+	@RequestMapping("/admin/product/list.do")
+	public String productlist(Model model) throws Exception {
+
+		return "/admin/product/list";
+	}
+
+	// 관리자 콘솔 - 상품(단품) 목록 상세/수정 화면 이동
+	@RequestMapping("/admin/product/edit.do")
+	public String productView(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		model.addAttribute("productId", map.get("productId"));
+		return "/admin/product/edit";
+	}
+
+	
+	// 관리자 콘솔 - 상품 목록 등록 화면 이동
+	@RequestMapping("/admin/product/add.do")
+	public String productadd(Model model) throws Exception {
+
+		return "/admin/product/add";
+	}
+
+	
+	// 관리자 콘솔 - 쿠폰 목록 이동
+	@RequestMapping("/admin/coupon/list.do")
+	public String couponlist() {
+		return "/admin/coupon/list";
+	}
 
     // 관리자 콘솔 - 쿠폰 등록 화면
     @RequestMapping("/admin/coupon/add.do")

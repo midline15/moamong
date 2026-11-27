@@ -1,176 +1,221 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mori.moamong.product.mapper.ProductMapper">
-    
-    <select id="selectProductListByMainCategory" resultType="Product">
-        SELECT
-            product_id,
-            product_name,
-            category_id,
-            category_name,
-            thumbnailUrl
-        FROM (
-            SELECT
-                p.product_id,
-                p.product_name,
-                p.category_id,
-                c.category_name,
-                (
-                    SELECT pi.image_url
-                    FROM PRODUCT_IMAGE pi
-                    WHERE pi.product_id = p.product_id
-                    AND pi.display_order = 0
-                ) AS thumbnailUrl,
-                ROW_NUMBER() OVER (
-                    PARTITION BY p.category_id
-                    ORDER BY p.created_at DESC
-                ) AS rowNum
-            FROM PRODUCT p
-            JOIN CATEGORY c
-                ON p.category_id = c.category_id
-            WHERE c.parent_category_id = #{categoryId}
-            AND c.category_depth = 2
-        ) AS productList
-        WHERE rowNum &lt;= 5
-        ORDER BY category_id, rowNum
-    </select>
 
-    <select id="selectProductListBySubCategory" resultType="Product">
-        SELECT
-            P.*,
-            (
-                SELECT PI.image_url
-                FROM PRODUCT_IMAGE PI
-                WHERE PI.product_id = P.product_id
-                AND PI.display_order = 1
-            ) AS thumbnailUrl
-        FROM PRODUCT P
-        WHERE P.category_id = #{categoryId}
-        <choose>
-            <when test="sortType == 'price'">
-                ORDER BY price
-                <choose>
-                    <when test="priceSortOrder == 'DESC'">DESC</when>
-                    <otherwise>ASC</otherwise>
-                </choose>
-            </when>
-            <when test="sortType == 'popular'">
-                ORDER BY view_count DESC
-            </when>
-            <otherwise>
-                ORDER BY created_at DESC
-            </otherwise>
-        </choose>
-        LIMIT #{limit} OFFSET #{offset}
-    </select>
+	<select id="selectProductListByMainCategory" resultType="Product">
+		SELECT
+		product_id,
+		product_name,
+		category_id,
+		category_name,
+		thumbnailUrl
+		FROM (
+		SELECT
+		p.product_id,
+		p.product_name,
+		p.category_id,
+		c.category_name,
+		(
+		SELECT pi.image_url
+		FROM PRODUCT_IMAGE pi
+		WHERE pi.product_id = p.product_id
+		AND pi.display_order = 0
+		) AS thumbnailUrl,
+		ROW_NUMBER() OVER (
+		PARTITION BY p.category_id
+		ORDER BY p.created_at DESC
+		) AS rowNum
+		FROM PRODUCT p
+		JOIN CATEGORY c
+		ON p.category_id = c.category_id
+		WHERE c.parent_category_id = #{categoryId}
+		AND c.category_depth = 2
+		) AS productList
+		WHERE rowNum &lt;= 5
+		ORDER BY category_id, rowNum
+	</select>
 
-    <select id="selectProductCountBySubCategory" resultType="int">
-        SELECT COUNT(*)
-        FROM PRODUCT
-        WHERE category_id = #{categoryId}
-    </select>
-    
-    <select id="selectProductInfo" resultType="Product">
-        SELECT *
-        FROM PRODUCT
-        WHERE product_id = #{productId}
-    </select>
+	<select id="selectProductListBySubCategory" resultType="Product"> SELECT
+		P.*, ( SELECT PI.image_url FROM PRODUCT_IMAGE PI WHERE PI.product_id =
+		P.product_id AND PI.display_order = 1 ) AS thumbnailUrl FROM PRODUCT P
+		WHERE P.category_id = #{categoryId} <choose>
+			<when test="sortType == 'price'"> ORDER BY price <choose>
+					<when test="priceSortOrder == 'DESC'">DESC</when>
+					<otherwise>ASC</otherwise>
+				</choose>
+			</when>
+			<when test="sortType == 'popular'">
+				ORDER BY view_count DESC
+			</when>
+			<otherwise>
+				ORDER BY created_at DESC
+			</otherwise>
+		</choose>
+		LIMIT #{limit} OFFSET #{offset} </select>
 
-    <select id="selectProductImageList" resultType="ProductImage">
-        SELECT
-            image_id,
-            product_id,
-            image_url,
-            image_origin_name,
-            image_name,
-            image_size,
-            image_type,
-            display_order
-        FROM PRODUCT_IMAGE
-        WHERE product_id = #{productId}
-        ORDER BY display_order
-    </select>
+	<select id="selectProductCountBySubCategory" resultType="int">
+		SELECT COUNT(*)
+		FROM PRODUCT
+		WHERE category_id = #{categoryId}
+	</select>
 
-    <update id="updateProductViewCount">
-        UPDATE PRODUCT
-        SET view_count = view_count + 1
-        WHERE product_id = #{productId}
-    </update>
-    
-    <insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId">
-    INSERT INTO PRODUCT (
-        category_id,
-        product_name,
-        product_description,
-        price,
-        stock_quantity,
-        product_status,
-        view_count,
-        created_at,
-        updated_at
-    ) VALUES (
-        #{categoryId},
-        #{productName},
-        #{productDescription},
-        #{price},
-        #{stockQuantity},
-        #{productStatus},
-        0,
-        NOW(),
-        NOW()
-    )
-</insert>
+	<select id="selectProductInfo" resultType="Product">
+		SELECT *
+		FROM PRODUCT
+		WHERE product_id = #{productId}
+	</select>
 
-    <insert id="insertProductImage">
-        INSERT INTO PRODUCT_IMAGE (
-            product_id,
-            image_url,
-            image_origin_name,
-            image_name,
-            image_size,
-            image_type,
-            display_order
-        ) VALUES (
-            #{productId},
-            #{imageUrl},
-            #{imageOriginName},
-            #{imageName},
-            #{imageSize},
-            #{imageType},
-            #{displayOrder}
-        )
-    </insert>
+	<select id="selectProductImageList" resultType="ProductImage">
+		SELECT
+		image_id,
+		product_id,
+		image_url,
+		image_origin_name,
+		image_name,
+		image_size,
+		image_type,
+		display_order
+		FROM PRODUCT_IMAGE
+		WHERE product_id = #{productId}
+		ORDER BY display_order
+	</select>
 
-    <update id="updateProduct">
-        UPDATE PRODUCT
-        SET
-            category_id = #{categoryId},
-            product_name = #{productName},
-            product_description = #{productDescription},
-            price = #{price},
-            stock_quantity = #{stockQuantity},
-            product_status = #{productStatus}
-        WHERE product_id = #{productId}
-    </update>
+	<update id="updateProductViewCount">
+		UPDATE PRODUCT
+		SET view_count = view_count + 1
+		WHERE product_id = #{productId}
+	</update>
 
-    <!-- 상품 이미지 순서 수정 -->
-    <update id="updateProductImageDisplayOrder">
-        UPDATE PRODUCT_IMAGE
-        SET display_order = #{displayOrder}
-        WHERE image_id = #{imageId}
-        AND product_id = #{productId}
-    </update>
+	<insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId">
+		INSERT INTO PRODUCT (
+		category_id,
+		product_name,
+		product_description,
+		price,
+		stock_quantity,
+		product_status,
+		view_count,
+		created_at,
+		updated_at
+		) VALUES (
+		#{categoryId},
+		#{productName},
+		#{productDescription},
+		#{price},
+		#{stockQuantity},
+		#{productStatus},
+		0,
+		NOW(),
+		NOW()
+		)
+	</insert>
 
-    <delete id="deleteProductImage">
-        DELETE FROM PRODUCT_IMAGE
-        WHERE image_id = #{imageId}
-        AND product_id = #{productId}
-    </delete>
+	<insert id="insertProductImage">
+		INSERT INTO PRODUCT_IMAGE (
+		product_id,
+		image_url,
+		image_origin_name,
+		image_name,
+		image_size,
+		image_type,
+		display_order
+		) VALUES (
+		#{productId},
+		#{imageUrl},
+		#{imageOriginName},
+		#{imageName},
+		#{imageSize},
+		#{imageType},
+		#{displayOrder}
+		)
+	</insert>
 
-    <!-- 상품 논리 삭제 -->
-    <update id="updateProductStatus">
-        UPDATE PRODUCT
-        SET product_status = #{productStatus}
-        WHERE product_id = #{productId}
-    </update>
+	<update id="updateProduct">
+		UPDATE PRODUCT
+		SET
+		category_id = #{categoryId},
+		product_name = #{productName},
+		product_description = #{productDescription},
+		price = #{price},
+		stock_quantity = #{stockQuantity},
+		product_status = #{productStatus}
+		WHERE product_id = #{productId}
+	</update>
+
+	<!-- 상품 이미지 순서 수정 -->
+	<update id="updateProductImageDisplayOrder">
+		UPDATE PRODUCT_IMAGE
+		SET display_order = #{displayOrder}
+		WHERE image_id = #{imageId}
+		AND product_id = #{productId}
+	</update>
+
+	<delete id="deleteProductImage">
+		DELETE FROM PRODUCT_IMAGE
+		WHERE image_id = #{imageId}
+		AND product_id = #{productId}
+	</delete>
+
+	<!-- 상품 논리 삭제 -->
+	<update id="updateProductStatus">
+		UPDATE PRODUCT
+		SET product_status = #{productStatus}
+		WHERE product_id = #{productId}
+	</update>
+
+
+	<!-- 관리자 상품 목록 -->
+	<select id="selectAdminProductList"
+		parameterType="hashmap"
+		resultType="com.mori.moamong.dto.Product"> SELECT P.PRODUCT_ID AS
+		productId, P.CATEGORY_ID AS categoryId, P.PRODUCT_NAME AS productName,
+		P.PRICE AS price, P.STOCK_QUANTITY AS stockQuantity, P.PRODUCT_STATUS AS
+		productStatus, P.CREATED_AT AS createdAt, P.UPDATED_AT AS updatedAt, (
+		SELECT PI.IMAGE_URL FROM PRODUCT_IMAGE PI WHERE PI.PRODUCT_ID =
+		P.PRODUCT_ID AND PI.IMAGE_TYPE = 'THUMBNAIL' LIMIT 1 ) AS thumbnailUrl
+		FROM PRODUCT P<where> AND P.PRODUCT_STATUS != 'DELETE' <if
+				test="productStatus != null and productStatus != ''">
+				AND P.PRODUCT_STATUS = #{productStatus}
+			</if>
+
+    <if
+				test="keyword != null and keyword != ''">
+				<choose>
+					<when test="searchType == 'productId'">
+						AND CAST(P.PRODUCT_ID AS CHAR) LIKE CONCAT('%',
+		#{keyword}, '%')
+					</when>
+					<otherwise>
+						AND P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+		ORDER BY P.CREATED_AT DESC LIMIT #{pageSize} OFFSET #{offset} </select>
+
+
+	<!-- 관리자 상품 전체 개수 -->
+	<select id="selectAdminProductCount"
+		parameterType="hashmap"
+		resultType="int"> SELECT COUNT(*) FROM PRODUCT P <where> AND
+		P.PRODUCT_STATUS != 'DELETE' <if
+				test="productStatus != null and productStatus != ''">
+				AND P.PRODUCT_STATUS = #{productStatus}
+			</if>
+
+    <if
+				test="keyword != null and keyword != ''">
+				<choose>
+					<when test="searchType == 'productId'">
+						AND CAST(P.PRODUCT_ID AS CHAR) LIKE CONCAT('%',
+		#{keyword}, '%')
+					</when>
+					<otherwise>
+						AND P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+
+	</select>
 </mapper>

@@ -1,0 +1,293 @@
+/* 상품 등록 및 수정 공통 */
+
+.admin-product {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 30px;
+	box-sizing: border-box;
+	color: #333;
+}
+
+/* 페이지 제목 */
+
+.admin-product .page-header {
+	margin-bottom: 30px;
+}
+
+.admin-product .page-header h2 {
+	margin: 0 0 10px;
+	font-size: 24px;
+	font-weight: 700;
+}
+
+.admin-product .page-header p {
+	margin: 0;
+	color: #888;
+	font-size: 14px;
+}
+
+/* 입력 영역 */
+
+.admin-product .form-section {
+	margin-bottom: 25px;
+	padding: 25px;
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 8px;
+}
+
+.admin-product .form-section h3 {
+	margin: 0 0 25px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #eee;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+/* 입력 그룹 */
+
+.admin-product .form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	margin-bottom: 22px;
+}
+
+.admin-product .form-group:last-child {
+	margin-bottom: 0;
+}
+
+.admin-product .form-group label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #444;
+}
+
+.admin-product input[type="text"],
+.admin-product input[type="number"],
+.admin-product select,
+.admin-product textarea {
+	width: 100%;
+	min-height: 42px;
+	padding: 10px 12px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	box-sizing: border-box;
+	background: #fff;
+	color: #333;
+	font-size: 14px;
+	outline: none;
+}
+
+.admin-product textarea {
+	min-height: 150px;
+	resize: vertical;
+	line-height: 1.6;
+}
+
+.admin-product input:focus,
+.admin-product select:focus,
+.admin-product textarea:focus {
+	border-color: #888;
+}
+
+/* 이미지 업로드 */
+
+.admin-product .image-upload {
+	margin-top: 12px;
+}
+
+.admin-product input[type="file"] {
+	max-width: 100%;
+	font-size: 13px;
+}
+
+.admin-product .help-text {
+	margin: 12px 0;
+	color: #888;
+	font-size: 13px;
+}
+
+/* 이미지 목록 */
+
+.admin-product .image-item {
+	display: inline-flex;
+	flex-direction: column;
+	vertical-align: top;
+	gap: 12px;
+	width: 190px;
+	margin: 15px 15px 15px 0;
+	padding: 15px;
+	border: 1px solid #e5e5e5;
+	border-radius: 7px;
+	background: #fafafa;
+	box-sizing: border-box;
+	cursor: grab;
+}
+
+.admin-product .image-item:active {
+	cursor: grabbing;
+}
+
+.admin-product .image-item p {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+	word-break: break-all;
+}
+
+.admin-product .image-item img {
+	display: block;
+	width: 100%;
+	height: 150px;
+	object-fit: contain;
+	background: #fff;
+	border: 1px solid #eee;
+	border-radius: 5px;
+}
+
+.admin-product .image-item .image-upload {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.admin-product .image-item .image-upload label {
+	font-size: 12px;
+	color: #666;
+}
+
+/* 버튼 공통 */
+
+.admin-product button {
+	min-height: 36px;
+	padding: 8px 14px;
+	border: 0;
+	border-radius: 5px;
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.admin-product .image-item button {
+	background: #eee;
+	color: #444;
+}
+
+.admin-product .image-item button:hover {
+	background: #ddd;
+}
+
+/* 하단 버튼 */
+
+.admin-product .form-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 30px;
+}
+
+.admin-product .btn-cancel {
+	min-width: 90px;
+	background: #eee;
+	color: #444;
+}
+
+.admin-product .btn-cancel:hover {
+	background: #ddd;
+}
+
+.admin-product .btn-submit {
+	min-width: 110px;
+	background: #333;
+	color: #fff;
+}
+
+.admin-product .btn-submit:hover {
+	background: #555;
+}
+
+/* 반응형 */
+
+@media (max-width: 768px) {
+	.admin-product {
+		padding: 20px 15px;
+	}
+
+	.admin-product .form-section {
+		padding: 18px;
+	}
+
+	.admin-product .image-item {
+		width: calc(50% - 12px);
+		margin-right: 8px;
+	}
+
+	.admin-product .form-actions {
+		flex-direction: column;
+	}
+
+	.admin-product .form-actions button {
+		width: 100%;
+	}
+}
+
+@media (max-width: 480px) {
+	.admin-product .image-item {
+		width: 100%;
+		margin-right: 0;
+	}
+}
+
+.form-remove .btn-cancel {
+	background-color: #dc3545;
+	color: #fff;
+	border: 1px solid #dc3545;
+	padding: 10px 22px;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.form-remove .btn-cancel:hover {
+	background-color: #bb2d3b;
+	border-color: #bb2d3b;
+}
+
+.form-remove .btn-cancel:active {
+	background-color: #a52834;
+}
+
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.form-remove {
+    margin: 0;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-remove .btn-cancel {
+    background-color: #dc3545;
+    color: #fff;
+    border: 1px solid #dc3545;
+    padding: 10px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.form-remove .btn-cancel:hover {
+    background-color: #bb2d3b;
+}

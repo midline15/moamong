@@ -49,4 +49,11 @@ public interface ProductMapper {
 
     // 상품 상태 수정(판매,매진,숨김,삭제)
     int updateProductStatus(HashMap<String, Object> map);
+    
+    
+    // 관리자 상품 목록
+    List<Product> selectAdminProductList(HashMap<String, Object> map);
+
+    // 관리자 상품 전체 개수
+    int selectAdminProductCount(HashMap<String, Object> map);
 }
