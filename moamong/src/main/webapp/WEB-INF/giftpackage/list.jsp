@@ -30,10 +30,11 @@
 
             <div id="app">
 
-                <!-- 페이지 제목 -->
-                <div class="page-title">
-                    <h2>패키지</h2>
+                <!-- 상단 배너 -->
+                <div class="page-banner">
+                    <img src="${pageContext.request.contextPath}/assets/banner/giftPackageBanner.png" alt="모아몽 선물 패키지">
                 </div>
+                <h2 class="sr-only">패키지</h2>
 
                 <!-- 대상/ 목적 카테고리 -->
                 <div class="main-category">
@@ -109,7 +110,8 @@
                                     { code: "BIRTHDAY_ANNIVERSARY", name: "생일·기념일" },
                                     { code: "THANKS", name: "감사·답례" },
                                     { code: "CONGRATULATIONS", name: "축하·응원" },
-                                    { code: "COMFORT", name: "위로·격려" }
+                                    { code: "COMFORT", name: "위로·격려" },
+                                    { code: "HEART", name: "마음전달" }
                                 ],
 
                                 packageGradeList: [

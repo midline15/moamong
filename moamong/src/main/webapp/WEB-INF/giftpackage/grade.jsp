@@ -29,10 +29,11 @@
 
             <div id="app">
 
-                <!-- 페이지 제목 -->
-                <div class="page-title">
-                    <h2>{{ packageGradeName }} 패키지</h2>
+                <!-- 상단 배너 -->
+                <div class="page-banner">
+                    <img src="${pageContext.request.contextPath}/assets/banner/giftPackageBanner.png" alt="모아몽 선물 패키지">
                 </div>
+                <h2 class="grade-title">{{ packageGradeName }} 패키지</h2>
 
                 <!-- 패키지 목록 -->
                 <div class="package-list">

@@ -31,10 +31,10 @@
 
             <div id="app">
 
-                <!-- 페이지 제목 -->
-                <div class="page-title">
-                    <h2>단품</h2>
+                <div class="page-banner">
+                    <img src="${pageContext.request.contextPath}/assets/banner/productBanner.png" alt="모아몽 단품">
                 </div>
+                <h2 class="sr-only">단품</h2>
 
                 <!-- 대분류 메뉴 -->
                 <div class="main-category">
