@@ -79,6 +79,11 @@
                             </select>
                             <input v-if="memoPreset === 'DIRECT'" type="text" class="shop-input" style="margin-top:8px;"
                             v-model="delivery.deliveryMemo" maxlength="100" placeholder="배송 요청사항을 직접 입력해주세요 (최대 100자)">
+                            <div v-if="lastSavedMemo && delivery.deliveryMemo !== lastSavedMemo" style="margin-top:6px;">
+                                <button type="button" class="shop-btn" style="font-size:11px; padding:4px 10px;" @click="fnApplyLastMemo">
+                                    최근 요청사항 불러오기: "{{ lastSavedMemo }}"
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -197,7 +202,8 @@
                                             postalCode: "",
                                             addressDefault: "",
                                             addressDetail: "",
-                                            deliveryMemo: ""
+                                            deliveryMemo: "",
+                                            lastSavedMemo: ""
                                         },
                                         memoPreset: "",
                                         agreeOrder: false,
@@ -318,6 +324,20 @@
                                             alert("우편번호 API를 불러올 수 없어 기본 테스트 주소가 입력되었습니다.");
                                         }
                                     },
+                                    fnApplyLastMemo() {
+                                        const presets = [
+                                            "부재 시 문 앞에 놓아주세요.",
+                                            "배송 전 미리 연락 부탁드립니다.",
+                                            "부재 시 경비실에 맡겨주세요.",
+                                            "파손에 주의해서 안전하게 배송해주세요."
+                                        ];
+                                        if (presets.includes(this.lastSavedMemo)) {
+                                             this.memoPreset = this.lastSavedMemo;
+                                        } else {
+                                            this.memoPreset = "DIRECT";
+                                        }
+                                        this.delivery.deliveryMemo = this.lastSavedMemo;
+                                    },
                                     fnSubmitOrder() {
                                         if (this.isPaying) return;
                                         if (!this.delivery.recipientName.trim()) { alert("수령인 이름을 입력해주세요."); return; }
@@ -379,6 +399,9 @@
                                             dataType: "json",
                                             success: function (data) {
                                                 if (data.result === "success") {
+                                                    if (self.delivery.deliveryMemo && self.delivery.deliveryMemo.trim()) {
+                                                        localStorage.setItem("moamong_last_delivery_memo", self.delivery.deliveryMemo.trim());
+                                                    }
                                                     alert(data.message + "\n주문번호: " + data.orderNumber);
                                                     location.href = "/order/list.do";
                                                 } else {
@@ -398,6 +421,8 @@
                             },
                             mounted() {
                                 this.fnLoadCheckout();
+                                const savedMemo = localStorage.getItem("moamong_last_delivery_memo");
+                                if (savedMemo) this.lastSavedMemo = savedMemo;
                             }
                         });
                         
