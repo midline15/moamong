@@ -39,7 +39,7 @@
                     <template v-if="tab !== 'TRASH'">
                         <button class="noti-pill-btn" :disabled="selectedIds.length === 0" @click="fnActionSelected('TRASH')">삭제</button>
                         <button v-if="tab === 'ALL'" class="noti-pill-btn" :disabled="counts.unreadCount == 0" @click="fnActionAll('READ_ALL')">모두읽음</button>
-                        <button class="noti-pill-btn" :disabled="!canBulkLike" @click="fnBulkImportant('Y')">전체 찜 하기</button>
+                        <button v-if="tab !== 'IMPORTANT'" class="noti-pill-btn" :disabled="!canBulkLike" @click="fnBulkImportant('Y')">전체 찜 하기</button>
                         <button class="noti-pill-btn" :disabled="!canBulkUnlike" @click="fnBulkImportant('N')">전체 찜 해제</button>
                     </template>
                     <template v-else>
@@ -55,9 +55,15 @@
                 </div>
             </div>
 
-            <div v-if="pagedList.length === 0" class="noti-row-card" style="justify-content:center; padding:60px 0; font-weight:700; color:#85817b;">
-                현재 남아있는 알림이 없습니다.
+            <div v-if="pagedList.length === 0" class="noti-row-card" style="flex-direction:column; align-items:center; justify-content:center; padding:56px 20px; text-align:center; color:#85817b;">
+                <div style="font-size:15px; font-weight:700; color:#5c5346; margin-bottom:6px;">현재 남아있는 알림이 없습니다.</div>
+                <div style="font-size:13px; margin-bottom:16px;">주문·배송 현황이나 최신 추천 선물을 확인해 보세요.</div>
+                <div style="display:flex; gap:8px;">
+                    <a href="/order/list.do" class="noti-pill-btn" style="text-decoration:none;">주문 내역 보기</a>
+                    <a href="/" class="noti-pill-btn" style="text-decoration:none;">메인으로 이동</a>
+                </div>
             </div>
+
 
             <!-- 읽은 알림(isRead === 'Y')은 배경과 텍스트를 옅게 처리 -->
             <div v-for="item in pagedList" :key="item.notificationId" class="noti-row-card"
