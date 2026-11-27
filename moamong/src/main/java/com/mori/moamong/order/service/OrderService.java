@@ -522,7 +522,7 @@ public class OrderService {
     // ==================== 바로 구매 주문서 초기 데이터 조회 ====================
     public HashMap<String, Object> getDirectCheckoutData(
             Long memberId, Map<String, Object> directPurchase) {
-                System.out.println("실행됐음");
+        System.out.println("실행됐음");
 
         HashMap<String, Object> res = new HashMap<>();
 
@@ -837,5 +837,41 @@ public class OrderService {
     // 주문 상품 리뷰 작성 여부 변경
     public void toggleOrderItemReviewed(Long orderItemId) {
         orderMapper.toggleOrderItemReviewed(orderItemId);
+    }
+
+    // ==================== 관리자 전체 주문 목록 조회 ====================
+    public HashMap<String, Object> getAdminOrderList(HashMap<String, Object> map) {
+        HashMap<String, Object> res = new HashMap<>();
+
+        try {
+            // 페이징 값 숫자 타입으로 변환
+            map.put("limit", Integer.parseInt(map.get("limit").toString()));
+            map.put("offset", Integer.parseInt(map.get("offset").toString()));
+
+            List<HashMap<String, Object>> orders = orderMapper.selectAdminOrderList(map);
+            int totalCount = orderMapper.selectAdminOrderCount();
+
+            res.put("result", "success");
+            res.put("list", orders);
+            res.put("totalCount", totalCount);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.put("result", "fail");
+            res.put("message", "주문 목록 조회 중 오류가 발생했습니다.");
+        }
+
+        return res;
+    }
+
+    // 관리자 주문 상태 변경
+    public void updateAdminOrderStatus(Long orderId, String orderStatus) {
+
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("orderId", orderId);
+        map.put("orderStatus", orderStatus);
+
+        orderMapper.updateAdminOrderStatus(map);
     }
 }

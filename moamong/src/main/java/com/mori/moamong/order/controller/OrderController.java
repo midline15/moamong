@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 @RequiredArgsConstructor
 @Controller
 public class OrderController {
-	@Value("${portone.imp.code}")
+    @Value("${portone.imp.code}")
     private String impCode;
 
     @Value("${portone.channel.key:}")
@@ -324,6 +324,34 @@ public class OrderController {
 
         result.put("result", "success");
         result.put("message", "바로 구매가 취소되었습니다.");
+
+        return result;
+    }
+
+    // ==================== 관리자 전체 주문 목록 조회 ====================
+    @RequestMapping(value = "/admin/order/list.dox", method = RequestMethod.POST)
+    @ResponseBody
+    public HashMap<String, Object> adminOrderList(
+            @RequestParam HashMap<String, Object> map,
+            HttpSession session) {
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            // 관리자 권한 확인
+            if (!"ADMIN".equals(session.getAttribute("sessionRole"))) {
+                result.put("result", "fail");
+                result.put("message", "관리자 권한이 필요합니다.");
+                return result;
+            }
+
+            result = orderService.getAdminOrderList(map);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "관리자 주문 목록 조회 중 오류가 발생했습니다.");
+        }
 
         return result;
     }
