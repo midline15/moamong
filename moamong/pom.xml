@@ -1,254 +1,267 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
-        <relativePath />
-    </parent>
-
-    <!-- Maven에서 이 애플리케이션 모듈을 식별하는 좌표입니다. -->
-    <groupId>com.mori</groupId>
-    <artifactId>moamong</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.1.2</version>
+		<relativePath />
+	</parent>
+
+	<!-- Maven에서 이 애플리케이션 모듈을 식별하는 좌표입니다. -->
+	<groupId>com.mori</groupId>
+	<artifactId>moamong</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name />
+	<description />
+	<url />
+
+	<licenses>
+		<license />
+	</licenses>
+
+	<developers>
+		<developer />
+	</developers>
+
+	<scm>
+		<connection />
+		<developerConnection />
+		<tag />
+		<url />
+	</scm>
+
+	<properties>
+		<java.version>21</java.version>
+	</properties>
+
+
+	<!-- ========================================= -->
+	<!-- 1. Spring AI 버전 관리 (추가된 부분)       -->
+	<!-- ========================================= -->
+
+	<!-- Spring AI 관련 라이브러리들의 버전을 일괄 관리 -->
+	<dependencyManagement>
+		<dependencies>
+
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>2.0.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+
+	<!-- ========================================= -->
+	<!-- 2. 실제 프로젝트 의존성                   -->
+	<!-- ========================================= -->
+
+	<dependencies>
+
+		<!-- Actuator는 애플리케이션 상태 및 모니터링 정보를 제공합니다. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+
+		<!-- Email (Jakarta Mail API + 구현체) -->
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<version>2.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>angus-mail</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+
+
+		<!-- Spring Web -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+		<!-- MyBatis -->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>4.1.0</version>
+		</dependency>
 
-    <name />
-    <description />
-    <url />
-
-    <licenses>
-        <license />
-    </licenses>
 
-    <developers>
-        <developer />
-    </developers>
-
-    <scm>
-        <connection />
-        <developerConnection />
-        <tag />
-        <url />
-    </scm>
-
-    <properties>
-        <java.version>21</java.version>
-    </properties>
+		<!-- DevTools -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
 
 
-    <!-- ========================================= -->
-    <!-- 1. Spring AI 버전 관리 (추가된 부분)       -->
-    <!-- ========================================= -->
-
-    <!-- Spring AI 관련 라이브러리들의 버전을 일괄 관리 -->
-    <dependencyManagement>
-        <dependencies>
+		<!-- MySQL -->
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>2.0.2</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
-        </dependencies>
-    </dependencyManagement>
-
-
-    <!-- ========================================= -->
-    <!-- 2. 실제 프로젝트 의존성                   -->
-    <!-- ========================================= -->
-
-    <dependencies>
-
-        <!-- Actuator는 애플리케이션 상태 및 모니터링 정보를 제공합니다. -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-
-        <!-- Spring Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-
-        <!-- MyBatis -->
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>4.1.0</version>
-        </dependency>
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 
-        <!-- DevTools -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
-
-        <!-- MySQL -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
+		<!-- Spring Boot Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-
-        <!-- Spring Boot Test -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
 
-
-        <!-- MyBatis Test -->
-        <!-- 기존 3.0.5에서 4.1.0으로 변경 -->
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter-test</artifactId>
-            <version>4.1.0</version>
-            <scope>test</scope>
-        </dependency>
+		<!-- MyBatis Test -->
+		<!-- 기존 3.0.5에서 4.1.0으로 변경 -->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter-test</artifactId>
+			<version>4.1.0</version>
+			<scope>test</scope>
+		</dependency>
 
 
-        <!-- JSP 사용 시 필요 -->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-jasper</artifactId>
-        </dependency>
+		<!-- JSP 사용 시 필요 -->
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>
 
 
-        <!-- Gson -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.9.1</version>
-        </dependency>
+		<!-- Gson -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.9.1</version>
+		</dependency>
 
 
-        <!-- Solapi -->
-        <dependency>
-            <groupId>com.solapi</groupId>
-            <artifactId>sdk</artifactId>
-            <version>1.0.3</version>
-        </dependency>
+		<!-- Solapi -->
+		<dependency>
+			<groupId>com.solapi</groupId>
+			<artifactId>sdk</artifactId>
+			<version>1.0.3</version>
+		</dependency>
 
 
-        <!-- Spring Security -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        
-        <!-- Spring Security OAuth2 Client (카카오·네이버·구글 통합 소셜 로그인) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency>
+		<!-- Spring Security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 
+		<!-- Spring Security OAuth2 Client (카카오·네이버·구글 통합 소셜 로그인) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
 
-        <!-- ========================================= -->
-        <!-- 3. Spring AI - Google Gemini (추가된 부분) -->
-        <!-- ========================================= -->
 
-        <!-- Google Gemini API 연동 -->
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-google-genai</artifactId>
-        </dependency>
+		<!-- ========================================= -->
+		<!-- 3. Spring AI - Google Gemini (추가된 부분) -->
+		<!-- ========================================= -->
 
+		<!-- Google Gemini API 연동 -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-google-genai</artifactId>
+		</dependency>
 
-    </dependencies>
 
+	</dependencies>
 
-    <!-- ========================================= -->
-    <!-- 4. Maven Build 설정                       -->
-    <!-- ========================================= -->
 
-    <!-- Java 컴파일과 Spring Boot Maven 플러그인을 설정합니다. -->
-    <build>
+	<!-- ========================================= -->
+	<!-- 4. Maven Build 설정                       -->
+	<!-- ========================================= -->
 
-        <!-- Maven 컴파일 시 JSP와 정적 파일을 클래스패스 리소스로 복사합니다. -->
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>src/main/webapp</directory>
-                <targetPath>META-INF/resources</targetPath>
-            </resource>
-        </resources>
+	<!-- Java 컴파일과 Spring Boot Maven 플러그인을 설정합니다. -->
+	<build>
 
-        <plugins>
+		<!-- Maven 컴파일 시 JSP와 정적 파일을 클래스패스 리소스로 복사합니다. -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/main/webapp</directory>
+				<targetPath>META-INF/resources</targetPath>
+			</resource>
+		</resources>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+		<plugins>
 
-                <configuration>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
 
-                    <annotationProcessorPaths>
+				<configuration>
 
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </path>
+					<annotationProcessorPaths>
 
-                        <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                        </path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</path>
 
-                    </annotationProcessorPaths>
+						<path>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-configuration-processor</artifactId>
+						</path>
 
-                </configuration>
+					</annotationProcessorPaths>
 
-            </plugin>
+				</configuration>
 
+			</plugin>
 
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
 
-                <configuration>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 
-                    <excludes>
+				<configuration>
 
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
+					<excludes>
 
-                    </excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
 
-                </configuration>
+					</excludes>
 
-            </plugin>
+				</configuration>
 
-        </plugins>
+			</plugin>
 
-    </build>
+		</plugins>
+
+	</build>
 
 </project>

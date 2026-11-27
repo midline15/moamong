@@ -136,7 +136,15 @@
 <% if (session.getAttribute("sessionId") != null) { %>
 <script>
 (function() {
-    const typeMap = { COUPON: "쿠폰", ORDER: "주문", DELIVERY: "배송현황", RETURN: "반품", INQUIRY: "고객센터", REVIEW: "리뷰" };
+    const typeMap = { 
+        COUPON: "쿠폰", 
+        ORDER: "주문", 
+        DELIVERY: "배송현황", 
+        RETURN: "반품", 
+        INQUIRY: "고객센터", 
+        REVIEW: "리뷰", 
+        SECURITY: "보안" 
+    };
 
     function getNotiTargetUrl(item) {
         const type = item.notificationType;
@@ -145,22 +153,10 @@
         if (type === "ORDER" || type === "DELIVERY") {
             return relId ? ("/order/detail.do?orderId=" + relId) : "/order/list.do";
         }
-        if (type === "RETURN") return "/order/cancelList.do";
+        if (type === "RETURN") return "/order/cancel-list.do";
         if (type === "INQUIRY") return "/inquiry/myList.do";
         if (type === "REVIEW") return "/review/myReview.do";
-        return "/notification/list.do";
-    }
-
-    function getNotiTargetUrl(item) {
-        const type = item.notificationType;
-        const relId = item.relatedId;
-        if (type === "COUPON") return "/member/myCoupon.do";
-        if (type === "ORDER" || type === "DELIVERY") {
-            return relId ? ("/order/detail.do?orderId=" + relId) : "/order/list.do";
-        }
-        if (type === "RETURN") return "/order/cancelList.do";
-        if (type === "INQUIRY") return "/inquiry/myList.do";
-        if (type === "REVIEW") return "/review/myReview.do";
+        if (type === "SECURITY") return "/member/edit.do";
         return "/notification/list.do";
     }
 

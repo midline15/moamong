@@ -92,7 +92,9 @@
                     </div>
                     <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
                         <button class="mp-btn" @click="showCancelModal = false">닫기</button>
-                        <button class="mp-btn mp-btn-danger" @click="fnConfirmCancel">취소 확정</button>
+                        <button class="mp-btn mp-btn-danger" :disabled="isCanceling" @click="fnConfirmCancel">
+                            {{ isCanceling ? '처리 중...' : '취소 확정' }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -168,33 +170,40 @@
                 this.showCancelModal = true;
             },
             fnConfirmCancel() {
-                let self = this;
-                let finalReason = this.selectedReason;
-                if (finalReason === "기타 (직접 입력)") {
-                    if (!this.customReason.trim()) {
-                        alert("기타 취소 사유를 입력해주세요.");
-                        return;
-                    }
-                    finalReason = "기타: " + this.customReason.trim();
-                }
+              if (this.isCanceling) return;
+              let self = this;
+              let finalReason = this.selectedReason;
+              if (finalReason === "기타 (직접 입력)") {
+                  if (!this.customReason.trim()) {
+                      alert("기타 취소 사유를 입력해주세요.");
+                      return;
+                  }
+                  finalReason = "기타: " + this.customReason.trim();
+              }
 
-                $.ajax({
-                    url: "/order/cancel.dox",
-                    type: "POST",
-                    data: { orderId: this.cancelTargetOrderId, cancelReason: finalReason },
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.result === "success") {
-                            alert(data.message);
-                            self.showCancelModal = false;
-                            self.fnList();
-                        } else {
-                            alert(data.message || "주문 취소에 실패했습니다.");
-                        }
-                    }
-                });
-            },
-            
+              this.isCanceling = true;
+              $.ajax({
+                  url: "/order/cancel.dox",
+                  type: "POST",
+                  data: { orderId: this.cancelTargetOrderId, cancelReason: finalReason },
+                  dataType: "json",
+                  success: function (data) {
+                      if (data.result === "success") {
+                          alert(data.message);
+                          self.showCancelModal = false;
+                          self.fnList();
+                      } else {
+                          alert(data.message || "주문 취소에 실패했습니다.");
+                      }
+                  },
+                  error: function () {
+                      alert("주문 취소 처리 중 서버 오류가 발생했습니다.");
+                  },
+                  complete: function () {
+                      self.isCanceling = false;
+                  }
+              });
+            }
         },
         mounted() {
             this.fnList();

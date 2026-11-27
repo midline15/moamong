@@ -642,12 +642,17 @@
                                     selectedProductId: self.selectedPackageItems[item.packageItemId]
                                 };
                             }),
-
-                            packageExtras: self.packageExtras.map(function (extra) {
-                                return {
-                                    packageExtraOptionId: self.selectedPackageExtras[extra.packageExtraId]
-                                };
-                            })
+                            
+                        // 미선택 추가옵션(null/undefined) 전송 시 서버 Long 변환 오류(NumberFormatException) 방지를 위해 실제 선택된 옵션만 필터링
+                            packageExtras: self.packageExtras
+                                .filter(function (extra) {
+                                    return self.selectedPackageExtras[extra.packageExtraId];
+                                })
+                                .map(function (extra) {
+                                    return {
+                                        packageExtraOptionId: self.selectedPackageExtras[extra.packageExtraId]
+                                    };
+                                })
                         }),
                         dataType: "json",
                         success: function (data) {

@@ -101,7 +101,9 @@
                     </div>
                     <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
                         <button class="mp-btn" @click="showCancelModal = false">닫기</button>
-                        <button class="mp-btn mp-btn-danger" @click="fnConfirmCancel">취소 확정</button>
+                        <button class="mp-btn mp-btn-danger" :disabled="isCanceling" @click="fnConfirmCancel">
+                            {{ isCanceling ? '처리 중...' : '취소 확정' }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -125,6 +127,7 @@
                 showCancelModal: false,
                 cancelReasons: ["단순 변심", "옵션 / 수량 선택 실수", "배송지 입력 오류", "다른 상품으로 재주문 예정", "기타 (직접 입력)"],
                 selectedReason: "단순 변심",
+                isCanceling: false,
                 customReason: ""
             };
         },
@@ -162,11 +165,17 @@
                     }
                 });
             },
-            fnOpenCancelModal() { this.selectedReason = "단순 변심"; this.customReason = ""; this.showCancelModal = true; },
+            fnOpenCancelModal() { 
+                this.selectedReason = "단순 변심"; 
+                this.customReason = ""; 
+                this.showCancelModal = true; 
+            },
             fnConfirmCancel() {
+                if (this.isCanceling) return;
                 let self = this;
                 let reason = this.selectedReason === "기타 (직접 입력)" ? ("기타: " + this.customReason.trim()) : this.selectedReason;
                 if (this.selectedReason === "기타 (직접 입력)" && !this.customReason.trim()) { alert("취소 사유를 입력해주세요."); return; }
+                this.isCanceling = true;
                 $.ajax({
                     url: "/order/cancel.dox",
                     type: "POST",
@@ -175,6 +184,9 @@
                     success: function (data) {
                         alert(data.message);
                         if (data.result === "success") { self.showCancelModal = false; self.fnDetail(); }
+                    },
+                    complete: function () {
+                        self.isCanceling = false;
                     }
                 });
             }
