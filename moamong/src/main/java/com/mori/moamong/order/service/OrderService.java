@@ -503,12 +503,19 @@ public class OrderService {
 				+ ThreadLocalRandom.current().nextInt(1000, 9999);
 	}
 
+	// 패키지 바로구매 등에서 BigDecimal 소수점 문자열("37000.00")이 넘어올 때 NumberFormatException 방지를 위해 BigDecimal 경유 변환
 	private int toInt(Object val) {
-		return val == null ? 0 : Integer.parseInt(String.valueOf(val));
+		if (val == null) return 0;
+		if (val instanceof Number) return ((Number) val).intValue();
+		String s = String.valueOf(val).trim();
+		return s.isEmpty() ? 0 : new BigDecimal(s).intValue();
 	}
 
 	private Long toLong(Object val) {
-		return (val == null || String.valueOf(val).trim().isEmpty()) ? null : Long.parseLong(String.valueOf(val));
+		if (val == null) return null;
+		if (val instanceof Number) return ((Number) val).longValue();
+		String s = String.valueOf(val).trim();
+		return s.isEmpty() ? null : new BigDecimal(s).longValue();
 	}
 
 	private String toStr(Object val) {
