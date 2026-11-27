@@ -217,7 +217,7 @@
                 formData.append("type", "event");
 
                 $.ajax({
-                    url: "http://localhost:8080/common/image-upload.dox",
+                    url: "/common/image-upload.dox",
                     dataType: "json",
                     type: "POST",
                     data: formData,
@@ -239,7 +239,7 @@
             fnImageDelete: function (urls) {
                 if (!urls || urls.length == 0) return;
                 $.ajax({
-                    url: "http://localhost:8080/common/image-delete.dox",
+                    url: "/common/image-delete.dox",
                     dataType: "json",
                     type: "POST",
                     data: { urls: JSON.stringify(urls) }
@@ -271,7 +271,7 @@
                 };
 
                 $.ajax({
-                    url: "http://localhost:8080/event/view.dox",
+                    url: "/event/view.dox",
                     dataType: "json",
                     type: "POST",
                     data: param,
@@ -349,8 +349,8 @@
                 };
 
                 let url = self.isEdit
-                    ? "http://localhost:8080/event/update.dox"
-                    : "http://localhost:8080/event/add.dox";
+                    ? "/event/update.dox"
+                    : "/event/add.dox";
 
                 $.ajax({
                     url: url,
